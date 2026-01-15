@@ -104,15 +104,13 @@ jobs:
         echo "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
         chmod 600 ~/.ssh/id_ed25519
         
-        # Create SSH config
-        cat > ~/.ssh/config << EOF
-Host vostok-vps
-  HostName $VPS_HOST
-  User $VPS_USER
-  IdentityFile ~/.ssh/id_ed25519
-  StrictHostKeyChecking no
-  UserKnownHostsFile /dev/null
-EOF
+        # Create SSH config without heredoc
+        echo "Host vostok-vps" > ~/.ssh/config
+        echo "  HostName $VPS_HOST" >> ~/.ssh/config
+        echo "  User $VPS_USER" >> ~/.ssh/config
+        echo "  IdentityFile ~/.ssh/id_ed25519" >> ~/.ssh/config
+        echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+        echo "  UserKnownHostsFile /dev/null" >> ~/.ssh/config
         
         # Add host to known_hosts
         ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts 2>/dev/null
@@ -137,25 +135,23 @@ EOF
         
         # Update repository on VPS
         echo "Updating repository index on VPS..."
-        ssh vostok-vps "
-          set -e  # Exit on error
+        ssh vostok-vps 'set -e
           
-          echo 'Backing up old packages...'
+          echo "Backing up old packages..."
           sudo mkdir -p /var/www/vostoklinux.org/repo/backup
-          sudo cp /var/www/vostoklinux.org/repo/current/*${{ matrix.package }}*.xbps /var/www/vostoklinux.org/repo/backup/ 2>/dev/null || true
+          sudo cp /var/www/vostoklinux.org/repo/current/*'"${{ matrix.package }}"'*.xbps /var/www/vostoklinux.org/repo/backup/ 2>/dev/null || true
           
-          echo 'Updating repository index...'
+          echo "Updating repository index..."
           sudo /usr/local/bin/update-repo
           
-          echo 'Fixing permissions...'
+          echo "Fixing permissions..."
           sudo chown -R www-data:www-data /var/www/vostoklinux.org/repo/
           sudo chmod -R 755 /var/www/vostoklinux.org/repo/
           
-          echo 'Repository status:'
-          ls -la /var/www/vostoklinux.org/repo/current/*${{ matrix.package }}*.xbps 2>/dev/null || echo 'No packages found'
+          echo "Repository status:"
+          ls -la /var/www/vostoklinux.org/repo/current/*'"${{ matrix.package }}"'*.xbps 2>/dev/null || echo "No packages found"
           
-          echo 'Done!'
-        "
+          echo "Done!"'
         
         echo "✅ Packages deployed to VPS!"
         
