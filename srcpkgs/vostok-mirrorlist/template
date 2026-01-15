@@ -1,0 +1,31 @@
+# Template file for 'vostok-mirrorlist'
+pkgname=vostok-mirrorlist
+version=1.0
+revision=1
+archs="noarch"
+short_desc="Vostok Linux repository configuration"
+maintainer="Vostok Linux <vostoklinux@proton.me>"
+license="Public Domain"
+homepage="https://vostoklinux.org"
+
+do_install() {
+    # Создаем директории
+    vbin etc/xbps.d
+    
+    # Устанавливаем конфигурационный файл
+    vinstall ${FILESDIR}/vostok-repo.conf 644 etc/xbps.d vostok-repo.conf
+    
+    # Создаем также backup конфиг для отладки
+    vinstall ${FILESDIR}/vostok-debug.conf 644 etc/xbps.d vostok-debug.conf
+}
+
+post_install() {
+    echo "=========================================="
+    echo "Vostok Linux repository configured!"
+    echo "Config file: /etc/xbps.d/vostok-repo.conf"
+    echo ""
+    echo "Priority order:"
+    echo "1. Vostok repo (priority=100)"
+    echo "2. Void main repo (priority=1)"
+    echo "=========================================="
+}
