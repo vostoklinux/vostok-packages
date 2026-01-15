@@ -1,0 +1,59 @@
+# Template file for 'vostok-release'
+pkgname=vostok-release
+version=1.0
+revision=1
+archs="noarch"
+short_desc="Vostok Linux release information and branding"
+maintainer="Vostok Linux <vostoklinux@proton.me>"
+license="BSD-2-Clause"
+homepage="https://vostoklinux.org"
+
+do_install() {
+    # Устанавливаем os-release
+    vbin etc
+    vshare defaults
+    
+    cat > ${DESTDIR}/etc/os-release <<_EOF
+NAME="Vostok Linux"
+VERSION="1.0 (Cosmos)"
+ID=vostok
+ID_LIKE=void
+PRETTY_NAME="Vostok Linux 1.0"
+ANSI_COLOR="38;2;86;61;124"
+HOME_URL="https://vostoklinux.org/"
+DOCUMENTATION_URL="https://vostoklinux.org/wiki/"
+SUPPORT_URL="https://github.com/vostoklinux/issues"
+BUG_REPORT_URL="https://github.com/vostoklinux/issues"
+LOGO=vostok-logo
+_EOF
+
+    # Создаем issue файл для login
+    cat > ${DESTDIR}/etc/issue <<_EOF
+
+    ██╗   ██╗ ██████╗ ███████╗████████╗ ██████╗ ██╗  ██╗
+    ██║   ██║██╔═══██╗██╔════╝╚══██╔══╝██╔═══██╗██║ ██╔╝
+    ██║   ██║██║   ██║███████╗   ██║   ██║   ██║█████╔╝ 
+    ╚██╗ ██╔╝██║   ██║╚════██║   ██║   ██║   ██║██╔═██╗ 
+     ╚████╔╝ ╚██████╔╝███████║   ██║   ╚██████╔╝██║  ██╗
+      ╚═══╝   ╚═════╝ ╚══════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝
+                 Lightweight Void-based Linux
+                    https://vostoklinux.org
+
+_EOF
+
+    cat > ${DESTDIR}/etc/issue.net <<_EOF
+Vostok Linux 1.0 \\n \\l
+_EOF
+
+    # Создаем motd
+    cat > ${DESTDIR}/etc/motd <<_EOF
+Welcome to Vostok Linux!
+Documentation: https://vostoklinux.org/wiki
+Repository: https://repo.vostoklinux.org
+_EOF
+}
+
+post_install() {
+    # Создаем симлинк для совместимости
+    ln -sf os-release ${DESTDIR}/etc/vostok-release 2>/dev/null || true
+}
