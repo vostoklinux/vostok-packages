@@ -1,8 +1,9 @@
 Copyright (c) 2008-2020 Juan Romero Pardines and contributors
-Copyright (c) 2017-2025 The Void Linux team and contributors
-All rights reserved.
+ Copyright (c) 2017-2025 The Void Linux team and contributors
+ All rights reserved.
 Copyright (c) 2025 The Vostok Linux team and contributors
 All rights reserved.
+
  
 
  Redistribution and use in source and binary forms, with or without
