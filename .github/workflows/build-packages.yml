@@ -48,7 +48,7 @@ jobs:
           gcc
         
         # Clone Void packages repository
-        git clone --depth=1 github.com
+        git clone --depth=1 https://github.com/void-linux/void-packages.git
         cd void-packages
         
         # Initialize xbps-src
@@ -73,7 +73,7 @@ jobs:
             
             # List created packages
             echo "Created packages:"
-            ls -la hostdir/binpkgs/*${{ matrix.package }}* 2>/dev/null || echo "No packages found"
+            find hostdir/binpkgs -name "*${{ matrix.package }}*.xbps" 2>/dev/null || echo "No packages found"
           else
             echo "❌ Failed to build ${{ matrix.package }}"
             exit 1
@@ -105,14 +105,56 @@ jobs:
         chmod 600 ~/.ssh/id_ed25519
         
         # Create SSH config
-        cat >> ~/.ssh/config /dev/null || true
+        cat > ~/.ssh/config << EOF
+Host vostok-vps
+  HostName $VPS_HOST
+  User $VPS_USER
+  IdentityFile ~/.ssh/id_ed25519
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+EOF
+        
+        # Add host to known_hosts
+        ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts 2>/dev/null
+        
+        # Test SSH connection
+        echo "Testing SSH connection..."
+        ssh -o ConnectTimeout=10 vostok-vps "echo 'SSH connection test successful'" || {
+          echo "SSH connection failed"
+          exit 1
+        }
+        
+        # Find and copy packages
+        echo "Looking for packages to deploy..."
+        for pkg in void-packages/hostdir/binpkgs/*${{ matrix.package }}*.xbps; do
+          if [ -f "$pkg" ]; then
+            echo "Uploading $pkg..."
+            scp "$pkg" vostok-vps:/var/www/vostoklinux.org/repo/current/
+          else
+            echo "No package files found for ${{ matrix.package }}"
+          fi
+        done
+        
+        # Update repository on VPS
+        echo "Updating repository index on VPS..."
+        ssh vostok-vps "
+          set -e  # Exit on error
           
-          # Update repository index
+          echo 'Backing up old packages...'
+          sudo mkdir -p /var/www/vostoklinux.org/repo/backup
+          sudo cp /var/www/vostoklinux.org/repo/current/*${{ matrix.package }}*.xbps /var/www/vostoklinux.org/repo/backup/ 2>/dev/null || true
+          
+          echo 'Updating repository index...'
           sudo /usr/local/bin/update-repo
           
-          # Fix permissions
+          echo 'Fixing permissions...'
           sudo chown -R www-data:www-data /var/www/vostoklinux.org/repo/
           sudo chmod -R 755 /var/www/vostoklinux.org/repo/
+          
+          echo 'Repository status:'
+          ls -la /var/www/vostoklinux.org/repo/current/*${{ matrix.package }}*.xbps 2>/dev/null || echo 'No packages found'
+          
+          echo 'Done!'
         "
         
         echo "✅ Packages deployed to VPS!"
@@ -121,7 +163,7 @@ jobs:
       if: success() && github.event_name != 'pull_request'
       run: |
         echo "Testing repository access..."
-        curl -s -I repo.vostoklinux.org | head -5
+        curl -s -I https://repo.vostoklinux.org | head -5
         echo ""
         echo "Available packages:"
-        curl -s repo.vostoklinux.org | grep -o 'href="[^"]*\.xbps"' | sed 's/href="//' | sed 's/"//'
+        curl -s https://repo.vostoklinux.org | grep -o 'href="[^"]*\.xbps"' | sed 's/href="//' | sed 's/"//' || echo "Could not list packages"
