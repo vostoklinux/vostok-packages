@@ -1,0 +1,127 @@
+name: Build and Deploy Vostok Packages
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'srcpkgs/**'
+      - '.github/workflows/build-packages.yml'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Manual trigger
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly on Sunday at 2 AM
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - vostok-mirrorlist
+          - vostok-release
+          - vostok-wallpapers
+          - vostok-calamares-config
+          - vostok-grub-theme
+    
+    steps:
+    - name: Checkout Vostok Packages
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 1
+        
+    - name: Setup Void Build Environment
+      run: |
+        echo "Setting up Void Linux build environment..."
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          bash \
+          curl \
+          git \
+          perl \
+          tar \
+          xz-utils \
+          zstd \
+          zip \
+          python3 \
+          gcc
+        
+        # Clone Void packages repository
+        git clone --depth=1 github.com
+        cd void-packages
+        
+        # Initialize xbps-src
+        echo "XBPS_CHROOT_CMD=etch" >> etc/conf
+        echo "XBPS_ALLOW_CHROOT_BREAKOUT=yes" >> etc/conf
+        ./xbps-src binary-bootstrap
+        
+        echo "Build environment ready!"
+        
+    - name: Build Package ${{ matrix.package }}
+      run: |
+        cd void-packages
+        
+        # Copy our package
+        if [ -d "../srcpkgs/${{ matrix.package }}" ]; then
+          cp -r "../srcpkgs/${{ matrix.package }}" "srcpkgs/"
+          echo "Building ${{ matrix.package }}..."
+          
+          # Try to build package
+          if ./xbps-src pkg "${{ matrix.package }}"; then
+            echo "✅ Package ${{ matrix.package }} built successfully!"
+            
+            # List created packages
+            echo "Created packages:"
+            ls -la hostdir/binpkgs/*${{ matrix.package }}* 2>/dev/null || echo "No packages found"
+          else
+            echo "❌ Failed to build ${{ matrix.package }}"
+            exit 1
+          fi
+        else
+          echo "⚠️ Package ${{ matrix.package }} not found in srcpkgs/"
+        fi
+        
+    - name: Upload Artifacts
+      if: success() && github.event_name != 'pull_request'
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.package }}-binpkgs
+        path: void-packages/hostdir/binpkgs/*${{ matrix.package }}*.xbps
+        retention-days: 7
+        
+    - name: Deploy to VPS
+      if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+      env:
+        VPS_HOST: ${{ secrets.VPS_HOST }}
+        VPS_USER: ${{ secrets.VPS_USER }}
+        VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      run: |
+        echo "Deploying packages to VPS..."
+        
+        # Setup SSH
+        mkdir -p ~/.ssh
+        echo "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        
+        # Create SSH config
+        cat >> ~/.ssh/config /dev/null || true
+          
+          # Update repository index
+          sudo /usr/local/bin/update-repo
+          
+          # Fix permissions
+          sudo chown -R www-data:www-data /var/www/vostoklinux.org/repo/
+          sudo chmod -R 755 /var/www/vostoklinux.org/repo/
+        "
+        
+        echo "✅ Packages deployed to VPS!"
+        
+    - name: Test Repository Access
+      if: success() && github.event_name != 'pull_request'
+      run: |
+        echo "Testing repository access..."
+        curl -s -I repo.vostoklinux.org | head -5
+        echo ""
+        echo "Available packages:"
+        curl -s repo.vostoklinux.org | grep -o 'href="[^"]*\.xbps"' | sed 's/href="//' | sed 's/"//'
