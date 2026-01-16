@@ -44,29 +44,34 @@ jobs:
         git clone --depth=1 https://github.com/void-linux/void-packages.git
         cd void-packages
 
-         if [ ! -d "masterdir" ]; then
-          echo "❌ ERROR: masterdir not found. Build environment setup failed in previous step."
-          exit 1
-        fi
-
-        if [ -d "../srcpkgs/${{ matrix.package }}" ]; then
-
-
-        # 1. Скачиваем статический xbps напрямую и добавляем в PATH
-        echo "Downloading static xbps tools and adding to PATH..."
+        # 1. Скачиваем и распаковываем статический xbps
+        echo "Downloading static xbps tools..."
         curl -LO https://repo-default.voidlinux.org/static/xbps-static-latest.x86_64-musl.tar.xz
         tar -xf xbps-static-latest.x86_64-musl.tar.xz
-        export PATH=$PWD/usr/bin:$PATH # Добавляем локальные бинарники в PATH
+
+        # 2. Добавляем xbps в PATH (для текущего скрипта и последующих шагов GA)
+        export PATH=$PWD/usr/bin:$PATH
         echo "$PWD/usr/bin" >> $GITHUB_PATH
 
-        # 2. Создаем базовую конфигурацию
+        # 3. Создаем базовую конфигурацию для сборки (эти строки были у вас)
         echo "XBPS_CHROOT_CMD=ethereal" > etc/conf
         echo "XBPS_ALLOW_CHROOT_BREAKOUT=yes" >> etc/conf
         
-        # 3. Запускаем binary-bootstrap (теперь все зависимости в PATH)
-        echo "Running binary-bootstrap..."
-        ./xbps-src binary-bootstrap
-        
+        # 4. Запускаем binary-bootstrap для создания masterdir
+        # Теперь все зависимости в PATH и конфигурация готова
+        echo "Running binary-bootstrap to create masterdir..."
+        if [ ! -d "masterdir" ]; then
+           ./xbps-src binary-bootstrap
+        else
+           echo "masterdir already exists, skipping bootstrap."
+        fi
+
+        # Финальная проверка, что все получилось
+        if [ ! -d "masterdir" ]; then
+          echo "❌ ERROR: masterdir still not found after bootstrap attempt. Exiting."
+          exit 1
+        fi
+
         echo "✅ Build environment ready!"
         
     - name: Build Package ${{ matrix.package }}
