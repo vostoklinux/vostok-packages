@@ -1,0 +1,85 @@
+# Template file for 'vostok-wallpapers'
+pkgname=vostok-wallpapers
+version=1.0
+revision=1
+archs="noarch"
+short_desc="Default wallpapers for Vostok Linux (KDE Plasma)"
+maintainer="Vostok Linux <team@vostoklinux.org>"
+license="CC0-1.0"
+homepage="https://vostoklinux.org"
+
+# Предполагаем, что архив содержит правильную структуру для KDE
+uris="https://github.com/vostoklinux/branding/raw/main/wallpapers/vostok-wallpapers-${version}.tar.xz"
+checksums="SKIP"  # Укажите реальный checksum когда будут обои
+
+# Архив должен содержать структуру для KDE Plasma:
+# - /usr/share/wallpapers/vostok/contents/images/*.png
+# - /usr/share/wallpapers/vostok/metadata.desktop
+# - /usr/share/wallpapers/vostok/metadata.json
+
+do_install() {
+    # Используем vmkdir для создания директорий
+    vmkdir usr/share/wallpapers
+    vmkdir usr/share/wallpapers/vostok
+    vmkdir usr/share/wallpapers/vostok/contents
+    vmkdir usr/share/wallpapers/vostok/contents/images
+    
+    # Копируем файлы из рабочего каталога
+    # Предполагаем, что архив содержит структуру в wrksrc
+    if [ -d "${wrksrc}/usr/share/wallpapers/vostok" ]; then
+        # Если архив содержит полную структуру с usr/share/wallpapers
+        find "${wrksrc}/usr/share/wallpapers/vostok" -type f | while read -r file; do
+            rel_path="${file#${wrksrc}/usr/share/wallpapers/vostok/}"
+            dir_path="$(dirname "${rel_path}")"
+            
+            # Создаем директорию если нужно
+            if [ -n "${dir_path}" ] && [ "${dir_path}" != "." ]; then
+                vmkdir "usr/share/wallpapers/vostok/${dir_path}"
+            fi
+            
+            # Копируем файл с помощью vinstall
+            vinstall "${file}" 644 "usr/share/wallpapers/vostok/${dir_path}"
+        done
+    elif [ -d "${wrksrc}/vostok" ]; then
+        # Если архив содержит только папку vostok в корне
+        find "${wrksrc}/vostok" -type f | while read -r file; do
+            rel_path="${file#${wrksrc}/vostok/}"
+            dir_path="$(dirname "${rel_path}")"
+            
+            # Создаем директорию если нужно
+            if [ -n "${dir_path}" ] && [ "${dir_path}" != "." ]; then
+                vmkdir "usr/share/wallpapers/vostok/${dir_path}"
+            fi
+            
+            # Копируем файл с помощью vinstall
+            vinstall "${file}" 644 "usr/share/wallpapers/vostok/${dir_path}"
+        done
+    else
+        # Простая копировка всего содержимого
+        for file in "${wrksrc}"/*; do
+            [ -f "${file}" ] || continue
+            vinstall "${file}" 644 usr/share/wallpapers/vostok
+        done
+    fi
+    
+    # Создаем минимальный metadata.desktop если его нет
+    if [ ! -f "${DESTDIR}/usr/share/wallpapers/vostok/metadata.desktop" ]; then
+        vmkdir usr/share/wallpapers/vostok
+        cat > "${DESTDIR}/usr/share/wallpapers/vostok/metadata.desktop" <<_EOF
+[Desktop Entry]
+Name=Vostok Default
+Comment=Default wallpaper for Vostok Linux with KDE Plasma
+X-KDE-PluginInfo-Name=vostok
+X-KDE-PluginInfo-Author=Vostok Linux Team
+X-KDE-PluginInfo-License=CC0-1.0
+X-KDE-PluginInfo-Website=https://vostoklinux.org
+
+[Wallpaper]
+defaultWallpaperTheme=vostok
+defaultFile=contents/images/1920x1080.png
+defaultSizes=1920x1080
+defaultOpacity=1
+defaultMode=Scaled
+_EOF
+    fi
+}
