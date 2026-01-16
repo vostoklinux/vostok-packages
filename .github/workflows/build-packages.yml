@@ -40,6 +40,8 @@ jobs:
           # Создаем Dockerfile для сборки
           cat > Dockerfile.voidbuild << 'EOF'
           FROM voidlinux/voidlinux:latest
+
+          RUN xbps-install -Sy ca-certificates
           
           RUN xbps-install -Syu
           RUN xbps-install -y \
