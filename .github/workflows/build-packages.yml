@@ -49,7 +49,7 @@ jobs:
         curl -LO https://repo-default.voidlinux.org/static/xbps-static-latest.x86_64-musl.tar.xz
         tar -xf xbps-static-latest.x86_64-musl.tar.xz
         export PATH=$PWD/usr/bin:$PATH # Добавляем локальные бинарники в PATH
-        echo "::add-path::$PWD/usr/bin"
+        echo "$PWD/usr/bin" >> $GITHUB_PATH
 
         # 2. Создаем базовую конфигурацию
         echo "XBPS_CHROOT_CMD=ethereal" > etc/conf
