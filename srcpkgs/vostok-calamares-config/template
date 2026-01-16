@@ -15,7 +15,7 @@ do_install() {
     vmkdir etc/calamares
     
     # Копируем ВСЕ файлы из FILESDIR в /usr/share/calamares/
-    # включая .conf файлы и изображения (.png, .svg и т.д.)
+    # включая .conf файлы и изображения (.png, .svg, .jpg и т.д.)
     for file in ${FILESDIR}/*; do
         [ -f "$file" ] || continue
         
@@ -33,7 +33,7 @@ do_install() {
         vinstall "$file" 644 usr/share/calamares "$basename"
     done
     
-    # Устанавливаем скрипт проверки (если он есть)
+    # Устанавливаем скрипт проверки
     if [ -f "${FILESDIR}/check-config.sh" ]; then
         vmkdir usr/bin
         vinstall "${FILESDIR}/check-config.sh" 755 usr/bin "check-calamares-config"
@@ -44,7 +44,14 @@ do_install() {
 }
 
 post_install() {
+    echo "==================================================="
     echo "Calamares configuration installed for Vostok Linux"
     echo "Configuration directory: /usr/share/calamares/"
-    echo "To test configuration: calamares -d"
+    echo ""
+    echo "Проверьте наличие изображений:"
+    ls -la /usr/share/calamares/*.png 2>/dev/null || echo "PNG файлы не найдены"
+    echo ""
+    echo "Для проверки конфигурации: check-calamares-config"
+    echo "Для теста запуска Calamares: calamares -d"
+    echo "==================================================="
 }
