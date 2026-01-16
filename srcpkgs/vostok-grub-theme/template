@@ -1,0 +1,63 @@
+# Template file for 'vostok-grub-theme'
+pkgname=vostok-grub-theme
+version=1.0
+revision=1
+archs="noarch"
+short_desc="GRUB bootloader theme for Vostok Linux"
+maintainer="Vostok Linux <team@vostoklinux.org>"
+license="GPL-3.0-or-later"
+homepage="https://vostoklinux.org"
+
+do_install() {
+    vmkdir usr/share/grub/themes/vostok
+    
+    # Create theme.txt
+    cat > ${DESTDIR}/usr/share/grub/themes/vostok/theme.txt <<_EOF
+# Vostok Linux GRUB Theme
+
+# Colors
++ boot_menu {
+  left = 20%
+  top = 25%
+  width = 60%
+  height = 50%
+  
+  item_font = "Unifont Regular 16"
+  item_color = "#ffffff"
+  selected_item_color = "#2563eb"
+  
+  item_height = 36
+  item_padding = 12
+  item_spacing = 4
+  
+  selected_item_pixmap_style = "select_*.png"
+}
+
+# Background
++ desktop {
+  color = "#0f172a"
+}
+
+# Terminal
++ terminal_box {
+  left = 20%
+  top = 20%
+  width = 60%
+  height = 60%
+}
+_EOF
+    
+    # Create grub config snippet
+    mkdir -p ${DESTDIR}/etc/default/grub.d
+    cat > ${DESTDIR}/etc/default/grub.d/vostok-theme.cfg <<_EOF
+# Vostok Linux GRUB theme configuration
+GRUB_THEME="/usr/share/grub/themes/vostok/theme.txt"
+GRUB_GFXMODE="1920x1080x32,auto"
+GRUB_GFXPAYLOAD_LINUX="keep"
+_EOF
+}
+
+post_install() {
+    echo "GRUB theme installed for Vostok Linux"
+    echo "Run 'sudo update-grub' to apply the theme"
+}
