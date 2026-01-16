@@ -1,0 +1,50 @@
+# Template file for 'vostok-calamares-config'
+pkgname=vostok-calamares-config
+version=1.0
+revision=1
+archs="noarch"
+short_desc="Calamares installer configuration for Vostok Linux"
+maintainer="Vostok Linux <vostoklinux@proton.me>"
+license="GPL-3.0-or-later"
+homepage="https://vostoklinux.org"
+depends="calamares"
+
+do_install() {
+    # Создаем директории с помощью vmkdir
+    vmkdir usr/share/calamares
+    vmkdir etc/calamares
+    
+    # Копируем ВСЕ файлы из FILESDIR в /usr/share/calamares/
+    # включая .conf файлы и изображения (.png, .svg и т.д.)
+    for file in ${FILESDIR}/*; do
+        [ -f "$file" ] || continue
+        
+        # Определяем базовое имя файла
+        local basename="$(basename "$file")"
+        
+        # Пропускаем скрипт проверки (установим его отдельно)
+        case "$basename" in
+            check-config.sh)
+                continue
+                ;;
+        esac
+        
+        # Устанавливаем файл с помощью vinstall
+        vinstall "$file" 644 usr/share/calamares "$basename"
+    done
+    
+    # Устанавливаем скрипт проверки (если он есть)
+    if [ -f "${FILESDIR}/check-config.sh" ]; then
+        vmkdir usr/bin
+        vinstall "${FILESDIR}/check-config.sh" 755 usr/bin "check-calamares-config"
+    fi
+    
+    # Создаем симлинк для settings.conf
+    ln -sf /usr/share/calamares/settings.conf ${DESTDIR}/etc/calamares/settings.conf
+}
+
+post_install() {
+    echo "Calamares configuration installed for Vostok Linux"
+    echo "Configuration directory: /usr/share/calamares/"
+    echo "To test configuration: calamares -d"
+}
