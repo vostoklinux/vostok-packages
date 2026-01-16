@@ -46,7 +46,8 @@ jobs:
 
         # 1. Скачиваем статический xbps напрямую и добавляем в PATH
         echo "Downloading static xbps tools and adding to PATH..."
-        curl -L https://repo-default.voidlinux.org | tar xJC .
+        curl -LO https://repo-default.voidlinux.org/static/xbps-static-latest.x86_64-musl.tar.xz
+        tar -xf xbps-static-latest.x86_64-musl.tar.xz
         export PATH=$PWD/usr/bin:$PATH # Добавляем локальные бинарники в PATH
 
         # 2. Создаем базовую конфигурацию
