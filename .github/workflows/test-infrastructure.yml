@@ -21,8 +21,8 @@ jobs:
         
         # Save private key with correct line breaks
         cat << EOF > ~/.ssh/id_ed25519
-${{ secrets.VPS_SSH_KEY }}
-EOF
+        ${{ secrets.VPS_SSH_KEY }}
+        EOF
         
         chmod 600 ~/.ssh/id_ed25519
         
