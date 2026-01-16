@@ -1,0 +1,39 @@
+name: Test Vostok Infrastructure
+
+on: [workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Test VPS Connection
+      env:
+        VPS_HOST: ${{ secrets.VPS_HOST }}
+        VPS_USER: ${{ secrets.VPS_USER }}
+        VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      run: |
+        # Setup SSH
+        mkdir -p ~/.ssh
+        echo "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        
+        # Test connection
+        echo "Testing SSH connection to VPS..."
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $VPS_USER@$VPS_HOST "echo '✅ SSH connection successful!'"
+        
+        # Test Nginx
+        echo "Testing Nginx on VPS..."
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $VPS_USER@$VPS_HOST "systemctl status nginx | head -5"
+        
+        # Test repository directory
+        echo "Testing repository directory..."
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $VPS_USER@$VPS_HOST "ls -la /var/www/vostoklinux.org/repo/current/"
+        
+        # Test website
+        echo "Testing website..."
+        curl -s -I https://vostoklinux.org | head -1
+        
+        # Test repository URL
+        echo "Testing repository URL..."
+        curl -s -I https://repo.vostoklinux.org/current/ | head -1
