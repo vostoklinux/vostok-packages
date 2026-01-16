@@ -45,8 +45,7 @@ jobs:
           zstd \
           zip \
           python3 \
-          gcc \
-          xbps 
+          gcc
         
         # Clone Void packages repository
         git clone --depth=1 https://github.com/void-linux/void-packages.git
