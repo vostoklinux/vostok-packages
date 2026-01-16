@@ -13,27 +13,63 @@ jobs:
         VPS_USER: ${{ secrets.VPS_USER }}
         VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
       run: |
-        # Setup SSH
+        echo "=== Testing Vostok Infrastructure ==="
+        
+        # Setup SSH - CORRECT WAY
         mkdir -p ~/.ssh
-        echo "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+        chmod 700 ~/.ssh
+        
+        # Save private key with correct line breaks
+        cat > ~/.ssh/id_ed25519 << 'EOF'
+        ${{ secrets.VPS_SSH_KEY }}
+        EOF
+        
         chmod 600 ~/.ssh/id_ed25519
         
+        # Verify the key
+        echo "=== Verifying SSH key ==="
+        echo "File size: $(wc -c < ~/.ssh/id_ed25519) bytes"
+        echo "Lines in file: $(wc -l < ~/.ssh/id_ed25519)"
+        
+        # Validate the key
+        if ssh-keygen -l -f ~/.ssh/id_ed25519 2>/dev/null; then
+          echo "✅ SSH key is valid"
+        else
+          echo "❌ SSH key is invalid"
+          echo "First 3 lines:"
+          head -3 ~/.ssh/id_ed25519
+          echo "Last 3 lines:"
+          tail -3 ~/.ssh/id_ed25519
+          exit 1
+        fi
+        
+        # Add VPS to known_hosts
+        ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts 2>/dev/null
+        
         # Test connection
-        echo "Testing SSH connection to VPS..."
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $VPS_USER@$VPS_HOST "echo '✅ SSH connection successful!'"
+        echo ""
+        echo "=== Testing SSH connection ==="
+        ssh -o ConnectTimeout=10 -i ~/.ssh/id_ed25519 $VPS_USER@$VPS_HOST "echo '✅ SSH connection successful!'"
         
         # Test Nginx
-        echo "Testing Nginx on VPS..."
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $VPS_USER@$VPS_HOST "systemctl status nginx | head -5"
+        echo ""
+        echo "=== Testing Nginx ==="
+        ssh -i ~/.ssh/id_ed25519 $VPS_USER@$VPS_HOST "systemctl status nginx --no-pager | head -5"
         
         # Test repository directory
-        echo "Testing repository directory..."
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 $VPS_USER@$VPS_HOST "ls -la /var/www/vostoklinux.org/repo/current/"
+        echo ""
+        echo "=== Testing repository directory ==="
+        ssh -i ~/.ssh/id_ed25519 $VPS_USER@$VPS_HOST "ls -la /var/www/vostoklinux.org/repo/current/"
         
         # Test website
-        echo "Testing website..."
+        echo ""
+        echo "=== Testing website ==="
         curl -s -I https://vostoklinux.org | head -1
         
         # Test repository URL
-        echo "Testing repository URL..."
+        echo ""
+        echo "=== Testing repository URL ==="
         curl -s -I https://repo.vostoklinux.org/current/ | head -1
+        
+        echo ""
+        echo "=== All tests completed successfully! ==="
