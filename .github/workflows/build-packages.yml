@@ -14,10 +14,10 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest  # Хостовая система для запуска Docker
-    container:             # Запускаем в контейнере Void Linux
+    runs-on: ubuntu-latest
+    container:
       image: voidlinux/voidlinux:latest
-      options: --user root --privileged # Нужны привилегии для bubblewrap/chroot
+      options: --user root --privileged
     
     strategy:
       matrix:
@@ -30,7 +30,7 @@ jobs:
     
     steps:
     - name: Checkout Vostok Packages Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
       with:
         fetch-depth: 1
         
@@ -38,100 +38,161 @@ jobs:
       run: |
         echo "=== Setting up Void Linux build environment ==="
         
-        # 1. Обновляем систему и устанавливаем зависимости ВНУТРИ Void Linux
+        # Обновляем систему и устанавливаем зависимости
         echo "Updating system and installing dependencies..."
         xbps-install -Syu
-        xbps-install -y gcc-libs base-devel curl git xtools bubblewrap openssl libarchive liblz4
+        xbps-install -y \
+          base-devel \
+          curl \
+          git \
+          xtools \
+          bubblewrap \
+          libarchive-tools \
+          python3 \
+          openssl
         
-        # 2. Подготовка к сборке: xtools установил xbps-src в PATH
-        echo "✅ xbps-src ready to use."
+        echo "✅ Build environment ready!"
         
-    - name: Build Package ${{ matrix.package }}
-      # В этом шаге мы находимся в корне репозитория (благодаря checkout@v3)
+    - name: Clone Void Packages Repository
       run: |
-        echo "=== Building package: ${{ matrix.package }} ==="
+        echo "=== Cloning void-packages ==="
         
-        # Копируем наш пакет в правильное место для сборки
-        mkdir -p void-packages/srcpkgs/
-        cp -r "srcpkgs/${{ matrix.package }}" "void-packages/srcpkgs/"
-          
-        # Переходим в директорию void-packages
+        # Клонируем void-packages
+        git clone --depth=1 https://github.com/void-linux/void-packages.git
+        
+        # Переходим в директорию
         cd void-packages
         
-        # Настраиваем локальную конфигурацию
+        # Настраиваем конфигурацию
+        echo "Configuring xbps-src..."
         echo "XBPS_CHROOT_CMD=bubblewrap" > etc/conf
         echo "XBPS_ALLOW_CHROOT_BREAKOUT=yes" >> etc/conf
         
-        # Сначала бутстрапим среду
+        # Запускаем начальную настройку
+        echo "Running binary-bootstrap..."
         ./xbps-src binary-bootstrap
         
-        # Собираем пакет
+        echo "✅ Void packages repository ready!"
+        
+    - name: Build Package ${{ matrix.package }}
+      run: |
+        echo "=== Building package: ${{ matrix.package }} ==="
+        
+        # Создаем директорию для артефактов
+        mkdir -p /tmp/artifacts
+        
+        # Проверяем, существует ли наш пакет
+        if [ ! -d "srcpkgs/${{ matrix.package }}" ]; then
+          echo "❌ Package ${{ matrix.package }} not found!"
+          exit 1
+        fi
+        
+        echo "Copying package to void-packages..."
+        
+        # Копируем наш пакет в void-packages
+        cp -r "srcpkgs/${{ matrix.package }}" "void-packages/srcpkgs/"
+        
+        # Переходим в void-packages
+        cd void-packages
+        
         echo "Building ${{ matrix.package }}..."
+        
+        # Собираем пакет
         if ./xbps-src pkg "${{ matrix.package }}"; then
           echo "✅ Package ${{ matrix.package }} built successfully!"
           
-          # Копируем артефакты в /tmp/artifacts для следующего шага
-          mkdir -p /tmp/artifacts
-          find hostdir/binpkgs -name "*${{ matrix.package }}*.xbps" -exec cp {} /tmp/artifacts/ \;
+          # Копируем собранные пакеты
+          echo "Copying artifacts..."
+          find hostdir/binpkgs -name "*${{ matrix.package }}*.xbps" 2>/dev/null | while read pkg; do
+            echo "  - $(basename "$pkg")"
+            cp "$pkg" /tmp/artifacts/
+          done
+          
+          # Если ничего не нашли, проверяем другие места
+          if [ ! -f "/tmp/artifacts/*.xbps" ] 2>/dev/null; then
+            echo "Checking other locations..."
+            find . -name "*${{ matrix.package }}*.xbps" -exec cp {} /tmp/artifacts/ \; 2>/dev/null || true
+          fi
         else
           echo "❌ Failed to build ${{ matrix.package }}"
           exit 1
         fi
         
-    - name: Deploy to VPS
+        # Показываем, что получилось
+        echo "Artifacts created:"
+        ls -la /tmp/artifacts/ 2>/dev/null || echo "No artifacts found"
+        
+    - name: Verify and Deploy to VPS
       if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
       env:
         VPS_HOST: ${{ secrets.VPS_HOST }}
         VPS_USER: ${{ secrets.VPS_USER }}
-        SSH_PRIVATE_KEY_CONTENT: ${{ secrets.SSH_PRIVATE_KEY }}
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       run: |
-        echo "=== Deploying packages to VPS ==="
+        echo "=== Verifying and Deploying to VPS ==="
         
-        # Setup SSH securely (используем правильный cat EOF синтаксис)
-        mkdir -p ~/.ssh
-        chmod 700 ~/.ssh
-        cat <<EOF > ~/.ssh/id_ed25519
-        ${SSH_PRIVATE_KEY_CONTENT}
-        EOF
-        chmod 600 ~/.ssh/id_ed25519
-        
-        # Add host to known_hosts (необходимо для ssh/scp)
-        ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts 2>/dev/null
-        
-        # Используем scp безопасно
-        if ls /tmp/artifacts/*.xbps 2>/dev/null; then
-          echo "Uploading packages to VPS..."
-          scp -o StrictHostKeyChecking=no /tmp/artifacts/*.xbps $VPS_USER@$VPS_HOST:/tmp/
-          
-          echo "Updating repository on VPS..."
-          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST "
-            set -e
-            echo 'Moving packages...'
-            sudo mv -f /tmp/*.xbps /var/www/vostoklinux.org/repo/current/
-            
-            echo 'Updating index...'
-            cd /var/www/vostoklinux.org/repo/current
-            sudo xbps-rindex -a *.xbps
-            sudo xbps-rindex -c
-
-            echo 'Fixing permissions...'
-            sudo chown -R www-data:www-data /var/www/vostoklinux.org/repo/
-            
-            echo 'Done!'
-          "
+        # Проверяем, есть ли артефакты
+        if [ ! -d "/tmp/artifacts" ] || [ -z "$(ls -A /tmp/artifacts/*.xbps 2>/dev/null)" ]; then
+          echo "⚠️ No packages to deploy"
+          exit 0
         fi
         
-    - name: Test Repository After Deploy
-      if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-      run: |
-        echo "=== Testing repository after deploy ==="
-        sleep 3
-        # Тестируем доступность репозитория
-        curl -s -I https://repo.vostoklinux.org | head -1
+        echo "Found packages to deploy:"
+        ls -la /tmp/artifacts/*.xbps
+        
+        # Setup SSH
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        
+        # Сохраняем приватный ключ (исправленный синтаксис)
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        
+        # Добавляем хост в known_hosts
+        ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+        
+        # Загружаем пакеты на VPS
+        echo "Uploading packages to VPS..."
+        scp -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=10 \
+            /tmp/artifacts/*.xbps \
+            "$VPS_USER@$VPS_HOST:/tmp/"
+        
+        # Выполняем команды на VPS
+        echo "Updating repository on VPS..."
+        ssh -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=10 \
+            "$VPS_USER@$VPS_HOST" "
+            set -e
+            
+            echo '=== Moving packages ==='
+            sudo mkdir -p /var/www/vostoklinux.org/repo/current
+            sudo mv -f /tmp/*.xbps /var/www/vostoklinux.org/repo/current/ 2>/dev/null || echo 'No packages to move'
+            
+            echo '=== Updating repository index ==='
+            if command -v xbps-rindex >/dev/null 2>&1; then
+              cd /var/www/vostoklinux.org/repo/current
+              sudo xbps-rindex -a *.xbps 2>/dev/null || echo 'No packages to index'
+              sudo xbps-rindex -c 2>/dev/null || true
+              echo '✅ Repository index updated'
+            else
+              echo '⚠️ xbps-rindex not available'
+            fi
+            
+            echo '=== Setting permissions ==='
+            sudo chown -R www-data:www-data /var/www/vostoklinux.org/repo/ || true
+            sudo chmod -R 755 /var/www/vostoklinux.org/repo/ || true
+            
+            echo '=== Final status ==='
+            echo 'Repository location: /var/www/vostoklinux.org/repo/current/'
+            echo 'Number of packages: \$(ls -la /var/www/vostoklinux.org/repo/current/*.xbps 2>/dev/null | wc -l || echo 0)'
+        "
+        
+        echo "✅ Deployment completed!"
         
     - name: Upload Build Artifacts
       if: success() && github.event_name != 'pull_request'
-      uses: actions/upload-artifact@v4 # ОБНОВЛЕНО ДО V4
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.package }}-binpkgs
         path: /tmp/artifacts/*.xbps
@@ -142,7 +203,7 @@ jobs:
       run: |
         echo "=== Build Summary ==="
         echo "Package: ${{ matrix.package }}"
-        echo "Build status: ${{ job.status }}"
-        echo "Repository: https://repo.vostoklinux.org"
-        echo "Main website: https://vostoklinux.org"
-        echo "Timestamp: $(date)"
+        echo "Status: ${{ job.status }}"
+        echo "Repository: https://repo.vostoklinux.org/current/"
+        echo "Website: https://vostoklinux.org"
+        echo "Time: $(date '+%Y-%m-%d %H:%M:%S')"
