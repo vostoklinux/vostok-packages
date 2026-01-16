@@ -1,25 +1,20 @@
-name: Build and Deploy Vostok Packages (Glibc)
+name: Build and Deploy Vostok Packages
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
     paths:
       - 'srcpkgs/**'
-      - '.github/workflows/build-deploy-glibc.yml'
+      - '.github/workflows/build-deploy.yml'
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:  # Ручной запуск
   schedule:
     - cron: '0 2 * * 0'  # Еженедельно в воскресенье в 2 часа ночи
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest  # Хостовая система для запуска Docker
-    # Используем официальный образ Glibc Void Linux
-    container:
-      image: ghcr.io/void-linux/void-glibc-full:20250616R1
-      options: --user root --privileged # Нужны привилегии для сборки
-    
+  build-packages:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         package:
@@ -30,91 +25,228 @@ jobs:
           - vostok-grub-theme
     
     steps:
-    - name: Checkout Vostok Packages Repository
-      uses: actions/checkout@v4 # Используем v4
-      with:
-        fetch-depth: 1
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         
-    - name: Setup Void Linux Build Environment
-      run: |
-        echo "=== Setting up Void Linux build environment (Glibc) ==="
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
         
-        # 1. Обновляем систему и устанавливаем зависимости
-        echo "Updating system and installing dependencies..."
-        xbps-install -Syu
-        xbps-install -y base-devel curl git xtools bubblewrap openssl libarchive liblz4
-        
-        # 2. Подготовка к сборке: xtools установил xbps-src в PATH
-        echo "✅ xbps-src ready to use."
-        
-    - name: Build Package ${{ matrix.package }}
-      run: |
-        echo "=== Building package: ${{ matrix.package }} ==="
-        
-        # Копируем наш пакет в правильное место для сборки
-        mkdir -p void-packages/srcpkgs/
-        cp -r "srcpkgs/${{ matrix.package }}" "void-packages/srcpkgs/"
+      - name: Build Package in Void Linux Container
+        env:
+          PACKAGE: ${{ matrix.package }}
+        run: |
+          echo "=== Building package: ${{ matrix.package }} ==="
           
-        # Переходим в директорию void-packages
-        cd void-packages
-        
-        # Настраиваем локальную конфигурацию (используем bubblewrap по умолчанию)
-        echo "XBPS_CHROOT_CMD=bubblewrap" > etc/conf
-        echo "XBPS_ALLOW_CHROOT_BREAKOUT=yes" >> etc/conf
-        
-        # Сначала бутстрапим среду
-        echo "Running binary-bootstrap..."
-        ./xbps-src binary-bootstrap
-        
-        # Собираем пакет
-        echo "Building ${{ matrix.package }}..."
-        if ./xbps-src pkg "${{ matrix.package }}"; then
-          echo "✅ Package ${{ matrix.package }} built successfully!"
-          mkdir -p /tmp/artifacts
-          find hostdir/binpkgs -name "*${{ matrix.package }}*.xbps" -exec cp {} /tmp/artifacts/ \;
-        else
-          echo "❌ Failed to build ${{ matrix.package }}"
-          exit 1
-        fi
-        
-    - name: Deploy to VPS
-      if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-      env:
-        VPS_HOST: ${{ secrets.VPS_HOST }}
-        VPS_USER: ${{ secrets.VPS_USER }}
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      run: |
-        echo "=== Deploying packages to VPS ==="
-        mkdir -p ~/.ssh && chmod 700 ~/.ssh
-        cat <<EOF > ~/.ssh/id_ed25519
-        ${SSH_PRIVATE}
-        EOF
-        chmod 600 ~/.ssh/id_ed25519
-        ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts 2>/dev/null
-        
-        if ls /tmp/artifacts/*.xbps 2>/dev/null; then
-          scp -o StrictHostKeyChecking=no /tmp/artifacts/*.xbps $VPS_USER@$VPS_HOST:/tmp/
-          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST "
-            set -e
-            sudo mv -f /tmp/*.xbps /var/www/vostoklinux.org/repo/current/
-            cd /var/www/vostoklinux.org/repo/current
-            sudo xbps-rindex -a *.xbps
-            sudo xbps-rindex -c
-            sudo chown -R www-data:www-data /var/www/vostoklinux.org/repo/
+          # Создаем Dockerfile для сборки
+          cat > Dockerfile.voidbuild << 'EOF'
+          FROM voidlinux/voidlinux:latest
+          
+          RUN xbps-install -Syu
+          RUN xbps-install -y \
+              base-devel \
+              git \
+              xtools \
+              bubblewrap \
+              libarchive-tools \
+              python3 \
+              openssl \
+              ca-certificates
+          
+          # Клонируем void-packages
+          RUN git clone --depth=1 https://github.com/void-linux/void-packages.git /void-packages
+          WORKDIR /void-packages
+          RUN echo "XBPS_CHROOT_CMD=bubblewrap" > etc/conf
+          RUN echo "XBPS_ALLOW_CHROOT_BREAKOUT=yes" >> etc/conf
+          RUN ./xbps-src binary-bootstrap
+          
+          # Копируем исходный код пакетов
+          COPY ./srcpkgs /srcpkgs
+          EOF
+          
+          # Собираем Docker образ
+          docker build -f Dockerfile.voidbuild -t void-builder .
+          
+          # Запускаем сборку пакета
+          docker run --rm --privileged \
+            -v $(pwd)/artifacts:/artifacts \
+            void-builder \
+            bash -c "
+              set -e
+              
+              # Копируем наш пакет
+              if [ -d \"/srcpkgs/$PACKAGE\" ]; then
+                cp -r \"/srcpkgs/$PACKAGE\" \"/void-packages/srcpkgs/\"
+              else
+                echo \"❌ Package $PACKAGE not found in srcpkgs/\"
+                exit 1
+              fi
+              
+              # Переходим в директорию сборки
+              cd /void-packages
+              
+              # Собираем пакет
+              echo \"Building $PACKAGE...\"
+              if ./xbps-src pkg \"$PACKAGE\"; then
+                echo \"✅ Package $PACKAGE built successfully!\"
+                
+                # Находим и копируем собранные пакеты
+                mkdir -p /artifacts
+                find hostdir/binpkgs -name \"*${PACKAGE}*.xbps\" -exec cp {} /artifacts/ \;
+                
+                # Если не нашли, пробуем найти в других местах
+                if [ -z \"\$(ls /artifacts/*.xbps 2>/dev/null)\" ]; then
+                  echo \"Checking other locations...\"
+                  find . -name \"*${PACKAGE}*.xbps\" -exec cp {} /artifacts/ \; 2>/dev/null || true
+                fi
+                
+                echo \"Artifacts created:\"
+                ls -la /artifacts/ 2>/dev/null || echo \"No artifacts found\"
+              else
+                echo \"❌ Failed to build $PACKAGE\"
+                exit 1
+              fi
+            "
+            
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.package }}-binpkgs
+          path: artifacts/*.xbps
+          retention-days: 7
+          
+      - name: Show Build Summary
+        if: always()
+        run: |
+          echo "=== Build Summary for ${{ matrix.package }} ==="
+          echo "Status: ${{ job.status }}"
+          echo "Time: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+          
+  deploy:
+    needs: build-packages
+    if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./all-artifacts
+          
+      - name: List Downloaded Artifacts
+        run: |
+          echo "=== All downloaded artifacts ==="
+          find ./all-artifacts -name "*.xbps" -type f | while read file; do
+            echo "  - $(basename "$file")"
+          done
+          
+      - name: Prepare Packages for Deployment
+        run: |
+          echo "=== Preparing packages for deployment ==="
+          
+          # Создаем директорию для всех пакетов
+          mkdir -p ./packages-to-deploy
+          
+          # Копируем все .xbps файлы в одну директорию
+          find ./all-artifacts -name "*.xbps" -type f -exec cp {} ./packages-to-deploy/ \;
+          
+          echo "Packages ready for deployment:"
+          ls -la ./packages-to-deploy/
+          
+      - name: Deploy to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "=== Deploying packages to VPS ==="
+          
+          # Проверяем, есть ли артефакты
+          if [ -z "$(ls -A ./packages-to-deploy/*.xbps 2>/dev/null)" ]; then
+            echo "⚠️ No packages to deploy"
+            exit 0
+          fi
+          
+          # Настройка SSH
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          
+          # Добавляем хост в known_hosts
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          
+          # Создаем архив с пакетами
+          tar -czf packages.tar.gz -C ./packages-to-deploy .
+          
+          # Копируем пакеты на VPS
+          echo "Uploading packages to VPS..."
+          scp -o StrictHostKeyChecking=no \
+              -o ConnectTimeout=30 \
+              packages.tar.gz \
+              "$VPS_USER@$VPS_HOST:/tmp/"
+          
+          # Выполняем команды на VPS
+          echo "Updating repository on VPS..."
+          ssh -o StrictHostKeyChecking=no \
+              -o ConnectTimeout=30 \
+              "$VPS_USER@$VPS_HOST" "
+              set -e
+              
+              echo '=== Extracting packages ==='
+              sudo mkdir -p /var/www/vostoklinux.org/repo/current
+              cd /var/www/vostoklinux.org/repo/current
+              
+              # Распаковываем архив
+              sudo tar -xzf /tmp/packages.tar.gz -C . 2>/dev/null || echo 'No packages in archive'
+              
+              # Удаляем архив
+              sudo rm -f /tmp/packages.tar.gz
+              
+              echo '=== Updating repository index ==='
+              # Проверяем наличие xbps-rindex
+              if command -v xbps-rindex >/dev/null 2>&1; then
+                # Удаляем старые индексы
+                sudo rm -f *.xbps.sig2 2>/dev/null || true
+                
+                # Добавляем пакеты в индекс
+                for pkg in *.xbps; do
+                  if [ -f \"\$pkg\" ]; then
+                    echo \"  Adding: \$pkg\"
+                    sudo xbps-rindex -a \"\$pkg\" 2>/dev/null || echo \"  Warning: Failed to add \$pkg\"
+                  fi
+                done
+                
+                # Обновляем индекс
+                sudo xbps-rindex -c . 2>/dev/null || true
+                echo '✅ Repository index updated'
+              else
+                echo '⚠️ xbps-rindex not available, installing xbps-tools...'
+                sudo xbps-install -y xbps-tools 2>/dev/null || \
+                sudo apt-get update && sudo apt-get install -y xbps-tools 2>/dev/null || \
+                echo 'Failed to install xbps-tools'
+              fi
+              
+              echo '=== Setting permissions ==='
+              sudo chown -R www-data:www-data /var/www/vostoklinux.org/repo/ 2>/dev/null || true
+              sudo chmod -R 755 /var/www/vostoklinux.org/repo/ 2>/dev/null || true
+              
+              echo '=== Final status ==='
+              echo \"Repository location: /var/www/vostoklinux.org/repo/current/\"
+              COUNT=\$(ls -1 *.xbps 2>/dev/null | wc -l || echo 0)
+              echo \"Number of packages: \$COUNT\"
+              if [ \$COUNT -gt 0 ]; then
+                echo \"Package list:\"
+                ls -la *.xbps | awk '{print \"  - \" \$9}'
+              fi
           "
-        fi
-        
-    - name: Upload Build Artifacts
-      if: success() && github.event_name != 'pull_request'
-      uses: actions/upload-artifact@v4 # Используем v4
-      with:
-        name: ${{ matrix.package }}-binpkgs-glibc
-        path: /tmp/artifacts/*.xbps
-        retention-days: 7
-        
-    - name: Summary
-      if: always()
-      run: |
-        echo "=== Build Summary ==="
-        echo "Package: ${{ matrix.package }}"
-        echo "Build status: ${{ job.status }}"
+          
+          echo "✅ Deployment completed!"
+          
+      - name: Final Summary
+        if: always()
+        run: |
+          echo "=== Final Deployment Summary ==="
+          echo "Status: ${{ job.status }}"
+          echo "Repository: https://repo.vostoklinux.org/current/"
+          echo "Website: https://vostoklinux.org"
+          echo "Total packages deployed: $(ls -1 ./packages-to-deploy/*.xbps 2>/dev/null | wc -l || echo 0)"
+          echo "Time: $(date '+%Y-%m-%d %H:%M:%S %Z')"
