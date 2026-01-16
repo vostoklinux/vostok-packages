@@ -11,7 +11,7 @@ jobs:
       env:
         VPS_HOST: ${{ secrets.VPS_HOST }}
         VPS_USER: ${{ secrets.VPS_USER }}
-        VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       run: |
         echo "=== Testing Vostok Infrastructure ==="
         
@@ -21,7 +21,7 @@ jobs:
         
         # КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: используем переменную окружения, а не прямую подстановку
         # Записываем ключ с сохранением переносов строк
-        echo "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
         
         # Исправляем возможные проблемы с переносами строк
         # Если ключ потерял переносы, восстанавливаем их
