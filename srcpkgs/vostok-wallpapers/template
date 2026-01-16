@@ -4,7 +4,7 @@ version=1.0
 revision=1
 archs="noarch"
 short_desc="Default wallpapers for Vostok Linux (KDE Plasma)"
-maintainer="Vostok Linux <team@vostoklinux.org>"
+maintainer="Vostok Linux <vostoklinux@proton.me>"
 license="CC0-1.0"
 homepage="https://vostoklinux.org"
 
