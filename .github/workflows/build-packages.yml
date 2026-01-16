@@ -41,7 +41,7 @@ jobs:
           libarchive-tools liblz4-tool zlib1g-dev libssl-dev pkg-config bubblewrap bsdtar
         
         # Clone void-packages repository
-        git clone --depth=1 https://github.com
+        git clone --depth=1 https://github.com/void-linux/void-packages.git
         cd void-packages
 
         # 1. Скачиваем статический xbps напрямую и добавляем в PATH
