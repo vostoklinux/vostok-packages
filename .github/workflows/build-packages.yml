@@ -5,7 +5,7 @@ on:
     branches: [ main, develop ]
     paths:
       - 'srcpkgs/**'
-      - '.github/workflows/build-packages.yml'
+      - '.github/workflows/build-deploy.yml'
   pull_request:
     branches: [ main ]
   workflow_dispatch:  # Manual trigger
@@ -13,7 +13,7 @@ on:
     - cron: '0 2 * * 0'  # Weekly on Sunday at 2 AM
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -25,16 +25,16 @@ jobs:
           - vostok-grub-theme
     
     steps:
-    - name: Checkout Vostok Packages
+    - name: Checkout Vostok Packages Repository
       uses: actions/checkout@v3
       with:
         fetch-depth: 1
         
-    - name: Setup Void Build Environment
+    - name: Setup Void Linux Build Environment
       run: |
-        echo "Setting up Void Linux build environment on Ubuntu..."
+        echo "=== Setting up Void Linux build environment on Ubuntu ==="
         
-        # Install essential build dependencies for Ubuntu
+        # Install build dependencies
         sudo apt-get update
         sudo apt-get install -y \
           build-essential \
@@ -54,214 +54,160 @@ jobs:
           liblz4-tool \
           zlib1g-dev \
           libssl-dev \
-          libfuse-dev \
           pkg-config \
-          bubblewrap  # Required for xbps-src
+          bubblewrap
         
-        # Clone Void packages repository
+        # Clone void-packages repository
         git clone --depth=1 https://github.com/void-linux/void-packages.git
         cd void-packages
         
-        echo "=== Bootstrapping xbps tools ==="
-        
-        # Method 1: Try mksunmus (alternative bootstrap for non-Void systems)
-        if [ -f "./mksunmus" ]; then
-          echo "Using mksunmus for bootstrap..."
-          chmod +x ./mksunmus
-          ./mksunmus || echo "mksunmus failed, trying alternative method..."
-        fi
-        
-        # Method 2: Manual bootstrap if mksunmus fails
-        echo "=== Setting up manual bootstrap ==="
-        
-        # Create necessary directories
-        mkdir -p /tmp/void-bootstrap
-        cd /tmp/void-bootstrap
-        
-        # Download static xbps tools for bootstrap
-        echo "Downloading static xbps tools..."
-        curl -L https://repo-default.voidlinux.org/static/xbps-static-latest.x86_64-musl.tar.xz -o xbps-static.tar.xz
-        tar -xf xbps-static.tar.xz
-        mv xbps-static-*/xbps-static /tmp/xbps-static
-        chmod +x /tmp/xbps-static
-        
-        # Create a minimal rootfs for bootstrap
-        echo "Creating minimal rootfs..."
-        mkdir -p /tmp/void-rootfs
-        
-        # Download Void Linux base rootfs
-        curl -L https://repo-default.voidlinux.org/live/current/void-x86_64-ROOTFS-$(date +%Y%m01).tar.xz -o rootfs.tar.xz 2>/dev/null || \
-        curl -L https://repo-default.voidlinux.org/live/current/void-x86_64-ROOTFS-*.tar.xz -o rootfs.tar.xz
-        tar -xf rootfs.tar.xz -C /tmp/void-rootfs
-        
-        echo "=== Bootstrapping xbps-src environment ==="
-        cd /tmp/void-bootstrap
-        
-        # Clone void-packages again for clean environment
-        git clone --depth=1 https://github.com/void-linux/void-packages.git void-packages-fixed
-        cd void-packages-fixed
-        
-        # Create minimal etc/conf
-        echo "XBPS_CHROOT_CMD=ethereal" > etc/conf
+        # Initialize xbps-src
+        echo "XBPS_CHROOT_CMD=ethereal" >> etc/conf
         echo "XBPS_ALLOW_CHROOT_BREAKOUT=yes" >> etc/conf
         
-        # Use static xbps for initial bootstrap
-        echo "Running initial bootstrap with static xbps..."
-        XBPS_ARCH=x86_64 /tmp/xbps-static -r /tmp/void-rootfs -R https://repo-default.voidlinux.org/current install base-minimal
+        # Download static xbps for bootstrap
+        ./xbps-src binary-bootstrap
         
-        echo "Build environment prepared!"
+        echo "✅ Build environment ready!"
         
     - name: Build Package ${{ matrix.package }}
       run: |
-        echo "Building package: ${{ matrix.package }}"
+        echo "=== Building package: ${{ matrix.package }} ==="
         
-        # Check if package exists in our repo
-        if [ -d "../srcpkgs/${{ matrix.package }}" ]; then
-          echo "Package found in Vostok packages"
+        # Check if package exists in our repository
+        if [ -d "srcpkgs/${{ matrix.package }}" ]; then
+          echo "Package found in Vostok packages repository"
           
           # Copy our package to void-packages
-          cp -r "../srcpkgs/${{ matrix.package }}" "/tmp/void-bootstrap/void-packages-fixed/srcpkgs/"
+          cp -r "srcpkgs/${{ matrix.package }}" "void-packages/srcpkgs/"
           
-          # Build the package
-          cd /tmp/void-bootstrap/void-packages-fixed
+          # Go to void-packages and build the package
+          cd void-packages
           
-          echo "=== Building ${{ matrix.package }} ==="
-          
-          # First, try to build with ethereal chroot
-          if ./xbps-src -E etc/conf pkg "${{ matrix.package }}"; then
-            echo "✅ Package built successfully!"
+          echo "Building ${{ matrix.package }}..."
+          if ./xbps-src pkg "${{ matrix.package }}"; then
+            echo "✅ Package ${{ matrix.package }} built successfully!"
             
-            # List created packages
+            # Show created packages
             echo "Created packages:"
-            ls -la hostdir/binpkgs/*${{ matrix.package }}* 2>/dev/null || echo "No packages found in hostdir/binpkgs"
-            
-            # Copy packages to workspace for upload
-            mkdir -p /tmp/artifacts
-            cp -r hostdir/binpkgs/*${{ matrix.package }}* /tmp/artifacts/ 2>/dev/null || true
+            find hostdir/binpkgs -name "*${{ matrix.package }}*.xbps" 2>/dev/null | while read pkg; do
+              echo "  - $(basename "$pkg")"
+              # Copy for next step
+              mkdir -p /tmp/artifacts
+              cp "$pkg" /tmp/artifacts/
+            done
           else
-            echo "❌ Failed to build ${{ matrix.package }} with xbps-src"
-            
-            # Fallback: Create dummy package for testing
-            echo "Creating dummy package for testing..."
-            mkdir -p /tmp/artifacts
-            echo "Dummy package for ${{ matrix.package }}" > /tmp/artifacts/dummy-${{ matrix.package }}.txt
+            echo "❌ Failed to build ${{ matrix.package }}"
+            exit 1
           fi
         else
           echo "⚠️ Package ${{ matrix.package }} not found in srcpkgs/"
-          echo "Creating placeholder..."
-          mkdir -p /tmp/artifacts
-          echo "Placeholder for ${{ matrix.package }}" > /tmp/artifacts/placeholder-${{ matrix.package }}.txt
+          exit 1
         fi
-        
-    - name: Upload Artifacts
-      if: success()
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ matrix.package }}-binpkgs
-        path: /tmp/artifacts/*
-        retention-days: 7
         
     - name: Deploy to VPS
       if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
       env:
         VPS_HOST: ${{ secrets.VPS_HOST }}
         VPS_USER: ${{ secrets.VPS_USER }}
-        VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       run: |
-        echo "Deploying packages to VPS..."
+        echo "=== Deploying packages to VPS ==="
         
         # Setup SSH
         mkdir -p ~/.ssh
-        echo "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+        chmod 700 ~/.ssh
+        
+        # Save private key
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
         chmod 600 ~/.ssh/id_ed25519
         
-        # Create SSH config using echo commands (no heredoc)
+        # Add host to known_hosts
+        ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts 2>/dev/null
+        
+        # Create SSH config for convenience
         echo "Host vostok-vps" > ~/.ssh/config
         echo "  HostName $VPS_HOST" >> ~/.ssh/config
         echo "  User $VPS_USER" >> ~/.ssh/config
         echo "  IdentityFile ~/.ssh/id_ed25519" >> ~/.ssh/config
         echo "  StrictHostKeyChecking no" >> ~/.ssh/config
-        echo "  ConnectTimeout 30" >> ~/.ssh/config
         
-        # Check what artifacts we have
-        echo "Available artifacts:"
-        find /tmp/artifacts -type f 2>/dev/null || echo "No artifacts found"
-        
-        # Upload any xbps packages
-        for pkg in /tmp/artifacts/*.xbps 2>/dev/null; do
-          if [ -f "$pkg" ]; then
-            echo "Uploading $(basename $pkg)..."
-            scp -q "$pkg" vostok-vps:/tmp/
-          fi
-        done
-        
-        # Also upload dummy/placeholder files for testing
-        for file in /tmp/artifacts/*.txt 2>/dev/null; do
-          if [ -f "$file" ]; then
-            echo "Uploading $(basename $file) for testing..."
-            scp -q "$file" vostok-vps:/tmp/
-          fi
-        done
-        
-        # Move packages to repo and update index
-        ssh vostok-vps "
-          echo '=== Moving packages to repository ==='
+        # Check if we have packages to deploy
+        if [ -d "/tmp/artifacts" ] && [ "$(ls -A /tmp/artifacts/*.xbps 2>/dev/null)" ]; then
+          echo "Found packages to deploy:"
+          ls -la /tmp/artifacts/*.xbps
           
-          # Create repo directory if not exists
-          sudo mkdir -p /var/www/vostoklinux.org/repo/current
+          # Copy packages to VPS
+          echo "Uploading packages to VPS..."
+          scp /tmp/artifacts/*.xbps vostok-vps:/tmp/
           
-          # Move xbps packages
-          if ls /tmp/*.xbps 2>/dev/null; then
-            echo 'Moving xbps packages...'
-            sudo mv -f /tmp/*.xbps /var/www/vostoklinux.org/repo/current/ 2>/dev/null
-          fi
-          
-          # Move test files
-          if ls /tmp/*.txt 2>/dev/null; then
-            echo 'Moving test files...'
-            sudo mv -f /tmp/*.txt /var/www/vostoklinux.org/repo/current/ 2>/dev/null
-          fi
-          
-          # Update repository index if we have packages
-          if ls /var/www/vostoklinux.org/repo/current/*.xbps 2>/dev/null; then
+          # On VPS: move packages to repository and update index
+          echo "Updating repository on VPS..."
+          ssh vostok-vps "
+            set -e
+            
+            echo 'Moving packages to repository directory...'
+            sudo mkdir -p /var/www/vostoklinux.org/repo/current
+            sudo mv -f /tmp/*.xbps /var/www/vostoklinux.org/repo/current/ 2>/dev/null || echo 'No packages to move'
+            
             echo 'Updating repository index...'
-            sudo /usr/local/bin/update-repo
-          else
-            echo 'No xbps packages to index'
-          fi
+            if command -v xbps-rindex &> /dev/null; then
+              cd /var/www/vostoklinux.org/repo/current
+              sudo xbps-rindex -a *.xbps
+              sudo xbps-rindex -c
+              echo '✅ Repository index updated'
+            else
+              echo '⚠️ xbps-rindex not found, using update-repo script'
+              sudo /usr/local/bin/update-repo
+            fi
+            
+            echo 'Fixing permissions...'
+            sudo chown -R www-data:www-data /var/www/vostoklinux.org/repo/
+            sudo chmod -R 755 /var/www/vostoklinux.org/repo/
+            
+            echo '=== Repository status ==='
+            ls -la /var/www/vostoklinux.org/repo/current/*.xbps 2>/dev/null | wc -l | xargs echo 'Number of packages:'
+          "
           
-          # Fix permissions
-          sudo chown -R www-data:www-data /var/www/vostoklinux.org/repo/
-          sudo chmod -R 755 /var/www/vostoklinux.org/repo/
-          
-          echo '=== Repository status ==='
-          ls -la /var/www/vostoklinux.org/repo/current/ | head -20
-        "
+          echo "✅ Packages deployed successfully!"
+        else
+          echo "⚠️ No packages found to deploy"
+        fi
         
-        echo "✅ Deployment to VPS completed!"
-        
-    - name: Test Repository Access
-      if: success()
+    - name: Test Repository After Deploy
+      if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
       run: |
-        echo "Testing repository access..."
+        echo "=== Testing repository after deploy ==="
         
-        # Test with curl
-        echo "=== Testing https://repo.vostoklinux.org/current/ ==="
-        curl -s -I https://repo.vostoklinux.org/current/ | head -5 || echo "Curl failed"
+        # Wait a bit for updates
+        sleep 5
         
-        echo ""
-        echo "=== Listing available packages ==="
-        curl -s https://repo.vostoklinux.org/current/ | grep -o 'href="[^"]*\.xbps"' | sed 's/href="//' | sed 's/"//' || echo "No packages found"
+        # Test repository accessibility
+        echo "Testing repository URL: https://repo.vostoklinux.org/current/"
+        if curl -s -f https://repo.vostoklinux.org/current/ > /dev/null; then
+          echo "✅ Repository is accessible"
+          
+          # Try to get package list
+          echo "Available packages:"
+          curl -s https://repo.vostoklinux.org/current/ | grep -o 'href="[^"]*\.xbps"' | sed 's/href="//' | sed 's/"//' | head -10
+        else
+          echo "❌ Repository is not accessible"
+        fi
         
-        echo ""
-        echo "=== Testing vostok-mirrorlist configuration ==="
-        echo "Config file contents:"
-        cat srcpkgs/vostok-mirrorlist/files/vostok-repo.conf || echo "Config file not found"
+    - name: Upload Build Artifacts
+      if: success() && github.event_name != 'pull_request'
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.package }}-binpkgs
+        path: /tmp/artifacts/*.xbps
+        retention-days: 7
         
-    - name: Build Status
+    - name: Summary
+      if: always()
       run: |
         echo "=== Build Summary ==="
         echo "Package: ${{ matrix.package }}"
-        echo "Status: ${{ job.status }}"
-        echo "Repository URL: https://repo.vostoklinux.org/current/"
-        echo "Main Site: https://vostoklinux.org"
+        echo "Build status: ${{ job.status }}"
+        echo "Repository: https://repo.vostoklinux.org/current/"
+        echo "Main website: https://vostoklinux.org"
+        echo "Timestamp: $(date)"
