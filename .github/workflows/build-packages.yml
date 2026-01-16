@@ -44,6 +44,14 @@ jobs:
         git clone --depth=1 https://github.com/void-linux/void-packages.git
         cd void-packages
 
+         if [ ! -d "masterdir" ]; then
+          echo "❌ ERROR: masterdir not found. Build environment setup failed in previous step."
+          exit 1
+        fi
+
+        if [ -d "../srcpkgs/${{ matrix.package }}" ]; then
+
+
         # 1. Скачиваем статический xbps напрямую и добавляем в PATH
         echo "Downloading static xbps tools and adding to PATH..."
         curl -LO https://repo-default.voidlinux.org/static/xbps-static-latest.x86_64-musl.tar.xz
