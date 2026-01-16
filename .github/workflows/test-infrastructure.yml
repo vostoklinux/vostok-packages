@@ -20,7 +20,7 @@ jobs:
         chmod 700 ~/.ssh
         
         # Save private key with correct line breaks
-        cat > ~/.ssh/id_ed25519 << 'EOF'
+        cat > ~/.ssh/id_ed25519 <<EOF
         ${{ secrets.VPS_SSH_KEY }}
         EOF
         
