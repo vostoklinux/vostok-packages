@@ -41,7 +41,7 @@ jobs:
         # 1. Обновляем систему и устанавливаем зависимости ВНУТРИ Void Linux
         echo "Updating system and installing dependencies..."
         xbps-install -Syu
-        xbps-install -y base-devel curl git xtools bubblewrap openssl libarchive liblz4
+        xbps-install -y gcc-libs base-devel curl git xtools bubblewrap openssl libarchive liblz4
         
         # 2. Подготовка к сборке: xtools установил xbps-src в PATH
         echo "✅ xbps-src ready to use."
