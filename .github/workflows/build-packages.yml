@@ -5,7 +5,7 @@ on:
     branches: [main, develop]
     paths:
       - 'srcpkgs/**'
-      - '.github/workflows/build-deploy.yml'
+      - '.github/workflows/build-packages.yml'
   pull_request:
     branches: [main]
   workflow_dispatch:  # Ручной запуск
