@@ -8,13 +8,17 @@ on:
       - '.github/workflows/build-deploy.yml'
   pull_request:
     branches: [ main ]
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:  # Ручной запуск
   schedule:
-    - cron: '0 2 * * 0'  # Weekly on Sunday at 2 AM
+    - cron: '0 2 * * 0'  # Еженедельно в воскресенье в 2 часа ночи
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Хостовая система для запуска Docker
+    container:             # Запускаем в контейнере Void Linux
+      image: voidlinux/voidlinux:latest
+      options: --user root --privileged # Нужны привилегии для bubblewrap/chroot
+    
     strategy:
       matrix:
         package:
@@ -26,86 +30,51 @@ jobs:
     
     steps:
     - name: Checkout Vostok Packages Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1
         
     - name: Setup Void Linux Build Environment
       run: |
-        echo "=== Setting up Void Linux build environment on Ubuntu ==="
+        echo "=== Setting up Void Linux build environment ==="
         
-        # Install build dependencies (включая bubblewrap и bsdtar)
-        sudo apt-get update
-        sudo apt-get install -y \
-          build-essential bash curl git perl tar xz-utils zstd zip python3 gcc make patch \
-          libarchive-tools liblz4-tool zlib1g-dev libssl-dev pkg-config bubblewrap
+        # 1. Обновляем систему и устанавливаем зависимости ВНУТРИ Void Linux
+        echo "Updating system and installing dependencies..."
+        xbps-install -Syu
+        xbps-install -y base-devel curl git xtools bubblewrap openssl libarchive liblz4
         
-        # Clone void-packages repository
-        git clone --depth=1 https://github.com/void-linux/void-packages.git
-        cd void-packages
-
-        # 1. Скачиваем и распаковываем статический xbps
-        echo "Downloading static xbps tools..."
-        curl -LO https://repo-default.voidlinux.org/static/xbps-static-latest.x86_64-musl.tar.xz
-        tar -xf xbps-static-latest.x86_64-musl.tar.xz
-
-        # 2. Добавляем xbps в PATH (для текущего скрипта и последующих шагов GA)
-        export PATH=$PWD/usr/bin:$PATH
-        echo "$PWD/usr/bin" >> $GITHUB_PATH
-
-        # 3. Создаем базовую конфигурацию для сборки (эти строки были у вас)
-        echo "XBPS_CHROOT_CMD=ethereal" > etc/conf
-        echo "XBPS_ALLOW_CHROOT_BREAKOUT=yes" >> etc/conf
-        
-        # 4. Запускаем binary-bootstrap для создания masterdir
-        # Теперь все зависимости в PATH и конфигурация готова
-        echo "Running binary-bootstrap to create masterdir..."
-        if [ ! -d "masterdir" ]; then
-           ./xbps-src binary-bootstrap
-        else
-           echo "masterdir already exists, skipping bootstrap."
-        fi
-
-        # Финальная проверка, что все получилось
-        if [ ! -d "masterdir" ]; then
-          echo "❌ ERROR: masterdir still not found after bootstrap attempt. Exiting."
-          exit 1
-        fi
-
-        echo "✅ Build environment ready!"
+        # 2. Подготовка к сборке: xtools установил xbps-src в PATH
+        echo "✅ xbps-src ready to use."
         
     - name: Build Package ${{ matrix.package }}
+      # В этом шаге мы находимся в корне репозитория (благодаря checkout@v3)
       run: |
         echo "=== Building package: ${{ matrix.package }} ==="
         
-        # Check if package exists in our repository
-        if [ -d "srcpkgs/${{ matrix.package }}" ]; then
-          echo "Package found in Vostok packages repository"
+        # Копируем наш пакет в правильное место для сборки
+        mkdir -p void-packages/srcpkgs/
+        cp -r "srcpkgs/${{ matrix.package }}" "void-packages/srcpkgs/"
           
-          # Copy our package to void-packages
-          cp -r "srcpkgs/${{ matrix.package }}" "void-packages/srcpkgs/"
+        # Переходим в директорию void-packages
+        cd void-packages
+        
+        # Настраиваем локальную конфигурацию
+        echo "XBPS_CHROOT_CMD=bubblewrap" > etc/conf
+        echo "XBPS_ALLOW_CHROOT_BREAKOUT=yes" >> etc/conf
+        
+        # Сначала бутстрапим среду
+        ./xbps-src binary-bootstrap
+        
+        # Собираем пакет
+        echo "Building ${{ matrix.package }}..."
+        if ./xbps-src pkg "${{ matrix.package }}"; then
+          echo "✅ Package ${{ matrix.package }} built successfully!"
           
-          # Go to void-packages and build the package
-          cd void-packages
-          
-          echo "Building ${{ matrix.package }}..."
-          if ./xbps-src pkg "${{ matrix.package }}"; then
-            echo "✅ Package ${{ matrix.package }} built successfully!"
-            
-            # Show created packages
-            echo "Created packages:"
-            find hostdir/binpkgs -name "*${{ matrix.package }}*.xbps" 2>/dev/null | while read pkg; do
-              echo "  - $(basename "$pkg")"
-              # Copy for next step
-              mkdir -p /tmp/artifacts
-              cp "$pkg" /tmp/artifacts/
-            done
-          else
-            echo "❌ Failed to build ${{ matrix.package }}"
-            exit 1
-          fi
+          # Копируем артефакты в /tmp/artifacts для следующего шага
+          mkdir -p /tmp/artifacts
+          find hostdir/binpkgs -name "*${{ matrix.package }}*.xbps" -exec cp {} /tmp/artifacts/ \;
         else
-          echo "⚠️ Package ${{ matrix.package }} not found in srcpkgs/"
+          echo "❌ Failed to build ${{ matrix.package }}"
           exit 1
         fi
         
@@ -114,94 +83,51 @@ jobs:
       env:
         VPS_HOST: ${{ secrets.VPS_HOST }}
         VPS_USER: ${{ secrets.VPS_USER }}
-        # Переменная для ключа, который будет использоваться внутри скрипта
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }} 
+        SSH_PRIVATE_KEY_CONTENT: ${{ secrets.SSH_PRIVATE_KEY }}
       run: |
         echo "=== Deploying packages to VPS ==="
         
-        # Setup SSH
+        # Setup SSH securely (используем правильный cat EOF синтаксис)
         mkdir -p ~/.ssh
         chmod 700 ~/.ssh
-        
-        # Save private key securely with correct line breaks (ИСПРАВЛЕНО ТУТ)
         cat <<EOF > ~/.ssh/id_ed25519
-        ${SSH_PRIVATE_KEY}
+        ${SSH_PRIVATE_KEY_CONTENT}
         EOF
         chmod 600 ~/.ssh/id_ed25519
         
-        # Add host to known_hosts
+        # Add host to known_hosts (необходимо для ssh/scp)
         ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts 2>/dev/null
         
-        # Create SSH config for convenience
-        echo "Host vostok-vps" > ~/.ssh/config
-        echo "  HostName $VPS_HOST" >> ~/.ssh/config
-        echo "  User $VPS_USER" >> ~/.ssh/config
-        echo "  IdentityFile ~/.ssh/id_ed25519" >> ~/.ssh/config
-        echo "  StrictHostKeyChecking no" >> ~/.ssh/config
-        
-        # Check if we have packages to deploy
-        if [ -d "/tmp/artifacts" ] && [ "$(ls -A /tmp/artifacts/*.xbps 2>/dev/null)" ]; then
-          echo "Found packages to deploy:"
-          ls -la /tmp/artifacts/*.xbps
-          
-          # Copy packages to VPS
+        # Используем scp безопасно
+        if ls /tmp/artifacts/*.xbps 2>/dev/null; then
           echo "Uploading packages to VPS..."
-          scp /tmp/artifacts/*.xbps vostok-vps:/tmp/
+          scp -o StrictHostKeyChecking=no /tmp/artifacts/*.xbps $VPS_USER@$VPS_HOST:/tmp/
           
-          # On VPS: move packages to repository and update index
           echo "Updating repository on VPS..."
-          ssh vostok-vps "
+          ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST "
             set -e
+            echo 'Moving packages...'
+            sudo mv -f /tmp/*.xbps /var/www/vostoklinux.org/repo/current/
             
-            echo 'Moving packages to repository directory...'
-            sudo mkdir -p /var/www/vostoklinux.org/repo/current
-            sudo mv -f /tmp/*.xbps /var/www/vostoklinux.org/repo/current/ 2>/dev/null || echo 'No packages to move'
-            
-            echo 'Updating repository index...'
-            if command -v xbps-rindex &> /dev/null; then
-              cd /var/www/vostoklinux.org/repo/current
-              sudo xbps-rindex -a *.xbps
-              sudo xbps-rindex -c
-              echo '✅ Repository index updated'
-            else
-              echo '⚠️ xbps-rindex not found, using update-repo script'
-              sudo /usr/local/bin/update-repo
-            fi
-            
+            echo 'Updating index...'
+            cd /var/www/vostoklinux.org/repo/current
+            sudo xbps-rindex -a *.xbps
+            sudo xbps-rindex -c
+
             echo 'Fixing permissions...'
             sudo chown -R www-data:www-data /var/www/vostoklinux.org/repo/
-            sudo chmod -R 755 /var/www/vostoklinux.org/repo/
             
-            echo '=== Repository status ==='
-            ls -la /var/www/vostoklinux.org/repo/current/*.xbps 2>/dev/null | wc -l | xargs echo 'Number of packages:'
-            
-            echo 'Done!' # <-- ИСПРАВЛЕННАЯ СТРОКА: убрана лишняя кавычка
+            echo 'Done!'
           "
-          
-          echo "✅ Packages deployed successfully!"
-        else
-          echo "⚠️ No packages found to deploy"
         fi
         
     - name: Test Repository After Deploy
       if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
       run: |
         echo "=== Testing repository after deploy ==="
-        
-        # Wait a bit for updates
-        sleep 5
-        
-        # Test repository accessibility
-        echo "Testing repository URL: https://repo.vostoklinux.org"
-        if curl -s -f https://repo.vostoklinux.org > /dev/null; then
-          echo "✅ Repository is accessible"
-          
-          # Try to get package list
-          echo "Available packages:"
-          curl -s https://repo.vostoklinux.org | grep -o 'href="[^"]*\.xbps"' | sed 's/href="//' | sed 's/"//' | head -10
-        else
-          echo "❌ Repository is not accessible"
-        fi
+        sleep 3
+        # Тестируем доступность репозитория
+        curl -s -I https://repo.vostoklinux.org | head -1
         
     - name: Upload Build Artifacts
       if: success() && github.event_name != 'pull_request'
