@@ -2,8 +2,8 @@
 pkgname=vostok-mirrorlist
 version=1.0
 revision=1
-#archs="noarch"
-archs="any"
+archs="noarch"
+build_style=meta
 short_desc="Vostok Linux repository configuration with cascade priority"
 maintainer="Vostok Linux <team@vostoklinux.org>"
 license="Public Domain"
