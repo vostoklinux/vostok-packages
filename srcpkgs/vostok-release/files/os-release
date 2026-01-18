@@ -1,0 +1,12 @@
+NAME="Vostok Linux"
+VERSION="1.0 (Cascade)"
+ID=vostok
+ID_LIKE=void
+PRETTY_NAME="Vostok Linux 1.0 (Cascade Repo System)"
+ANSI_COLOR="38;2;0;112;186"
+HOME_URL="https://vostoklinux.org/"
+DOCUMENTATION_URL="https://vostoklinux.org/wiki/"
+LOGO=vostok-logo
+VOSTOK_REPO_CASCADE="enabled (priority: Vostok > Void)"
+SUPPORT_URL="https://vostoklinux.org/support"
+BUG_REPORT_URL="https://github.com/vostoklinux/vostok-packages/issues"

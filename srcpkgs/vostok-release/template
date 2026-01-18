@@ -1,0 +1,26 @@
+# Template file for 'vostok-release'
+pkgname=vostok-release
+version=1.0
+revision=1
+archs="x86_64"
+short_desc="Vostok Linux release information with cascade dependencies"
+maintainer="Vostok Linux <team@vostoklinux.org>"
+license="BSD-2-Clause"
+homepage="https://vostoklinux.org"
+
+# КАСКАДНАЯ ЗАВИСИМОСТЬ
+depends="vostok-mirrorlist bash"
+conflicts="void-release"  # заменяем пакет Void
+
+do_install() {
+    # УСТАНОВКА ФАЙЛОВ
+    vmkdir etc
+    
+    # Правильное использование vinstall
+    vinstall ${FILESDIR}/os-release 644 etc
+    vinstall ${FILESDIR}/issue 644 etc
+    
+    # Симлинк для совместимости
+    vmkdir usr/lib
+    ln -sf /etc/os-release ${DESTDIR}/usr/lib/os-release
+}
