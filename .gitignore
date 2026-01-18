@@ -3,6 +3,19 @@
 *~
 \#*#
 
+# Сборочные директории (самое тяжелое)
+masterdir*
+builddir
+destdir
+
+# Хост-директория (тут лежат бинарники, исходники и кэш)
+hostdir
+
+# Метаданные и временные файлы xbps-src
+common/state
+.xbps_chroot_*
+*.lock
+
 # exclude everything in root except files and directories from void-packages
 /*
 !/.editorconfig

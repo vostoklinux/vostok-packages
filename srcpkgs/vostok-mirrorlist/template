@@ -2,14 +2,17 @@
 pkgname=vostok-mirrorlist
 version=1.0
 revision=1
-archs="noarch"
+#archs="noarch"
+archs="any"
 short_desc="Vostok Linux repository configuration with cascade priority"
 maintainer="Vostok Linux <team@vostoklinux.org>"
 license="Public Domain"
 homepage="https://vostoklinux.org"
 
 do_install() {
-    vbin etc/xbps.d
+    # Создаем папку в /etc/xbps.d
+    vmkdir etc/xbps.d
+    # Копируем конфиг из папки files в систему
     vinstall ${FILESDIR}/vostok-repo.conf 644 etc/xbps.d
 }
 
