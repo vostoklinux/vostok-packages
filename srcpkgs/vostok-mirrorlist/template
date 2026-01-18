@@ -2,7 +2,7 @@
 pkgname=vostok-mirrorlist
 version=1.0
 revision=1
-archs="noarch"
+archs="x86_64"
 #metapackage=yes
 short_desc="Vostok Linux repository configuration with cascade priority"
 maintainer="Vostok Linux <team@vostoklinux.org>"
