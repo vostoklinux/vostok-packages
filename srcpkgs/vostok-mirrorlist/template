@@ -1,0 +1,27 @@
+# Template file for 'vostok-mirrorlist'
+pkgname=vostok-mirrorlist
+version=1.0
+revision=1
+archs="noarch"
+short_desc="Vostok Linux repository configuration with cascade priority"
+maintainer="Vostok Linux <team@vostoklinux.org>"
+license="Public Domain"
+homepage="https://vostoklinux.org"
+
+do_install() {
+    vbin etc/xbps.d
+    vinstall ${FILESDIR}/vostok-repo.conf 644 etc/xbps.d
+}
+
+post_install() {
+    echo "========================================"
+    echo "VOSTOK LINUX REPOSITORY CONFIGURED!"
+    echo "========================================"
+    echo "Priority cascade:"
+    echo "1. Vostok repo (priority=100)"
+    echo "2. Void main repo (priority=10)"
+    echo "3. Void multilib (priority=10)"
+    echo ""
+    echo "Config: /etc/xbps.d/vostok-repo.conf"
+    echo "========================================"
+}
