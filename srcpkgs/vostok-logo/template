@@ -1,51 +1,84 @@
-# Template file for 'vostok-logo'
 pkgname=vostok-logo
-version=1.0
-revision=1
+version=1.1
+revision=2
 archs="x86_64"
-short_desc="Vostok Linux logo and branding"
-maintainer="Vostok Linux <team@vostoklinux.org>"
+short_desc="Vostok Linux branding and Fastfetch configuration"
+maintainer="Vostok Linux team <vostoklinux.org>"
 license="CC-BY-SA-4.0"
 homepage="https://vostoklinux.org"
-
-# Триггер для автоматического обновления кэша иконок при установке/удалении
+depends="fastfetch"
 triggers="gtk-icon-cache"
 
-
 do_install() {
-    # 1. Основной логотип и симлинки совместимости
-    vinstall ${FILESDIR}/vostok-logo.png 644 usr/share/pixmaps
-    ln -sf vostok-logo.png ${DESTDIR}/usr/share/pixmaps/distributor-logo.png
+	# 1. Установка графических логотипов
+	vinstall "${FILESDIR}/vostok-logo.png" 644 usr/share/pixmaps
+	ln -sf vostok-logo.png "${DESTDIR}/usr/share/pixmaps/distributor-logo.png"
+	
+	vmkdir usr/share/icons/hicolor/scalable/apps
+	vinstall "${FILESDIR}/vostok-logo.svg" 644 usr/share/icons/hicolor/scalable/apps
+	ln -sf vostok-logo.svg "${DESTDIR}/usr/share/icons/hicolor/scalable/apps/distributor-logo.svg"
 
-    # 2. Масштабируемые иконки (SVG)
-    vmkdir usr/share/icons/hicolor/scalable/apps
-    vinstall ${FILESDIR}/vostok-logo.svg 644 usr/share/icons/hicolor/scalable/apps
-    ln -sf vostok-logo.svg ${DESTDIR}/usr/share/icons/hicolor/scalable/apps/distributor-logo.svg
+	# 2. Установка вашего ASCII логотипа
+	vmkdir usr/share/vostok
+	vinstall "${FILESDIR}/vostok-ascii.txt" 644 usr/share/vostok
 
-    # 3. Темы загрузки (Plymouth)
-    vmkdir usr/share/plymouth/themes/vostok
-    vcopy ${FILESDIR}/vostok-logo.png usr/share/plymouth/themes/vostok/logo.png
+	# 3. Глобальный конфиг Fastfetch
+	vmkdir etc/fastfetch
+	cat <<-EOF > "${DESTDIR}/etc/fastfetch/config.jsonc"
+	{
+	    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+	    "logo": {
+	        "source": "/usr/share/vostok/vostok-ascii.txt",
+	        "type": "auto"
+	    },
+	    "modules": [
+	        "title",
+	        "separator",
+	        "os",
+	        "host",
+	        "kernel",
+	        "uptime",
+	        "packages",
+	        "shell",
+	        "display",
+	        "de",
+	        "wm",
+	        "terminal",
+	        "cpu",
+	        "gpu",
+	        "memory",
+	        "break",
+	        "colors"
+	    ]
+	}
+	EOF
 
-    # 4. Системный ASCII-логотип (единый источник для всех утилит)
-    vmkdir usr/share/vostok
-    cat > ${DESTDIR}/usr/share/vostok/ascii-logo << 'EOF'
- ██╗   ██╗ ██████╗ ███████╗████████╗ ██████╗ ██╗  ██╗
- ██║   ██║██╔═══██╗██╔════╝╚══██╔══╝██╔═══██╗██║ ██╔╝
- ██║   ██║██║   ██║███████╗   ██║   ██║   ██║█████╔╝ 
- ╚██╗ ██╔╝██║   ██║╚════██║   ██║   ██║   ██║██╔═██╗ 
-  ╚████╔╝ ╚██████╔╝███████║   ██║   ╚██████╔╝██║  ██╗
-   ╚═══╝   ╚═════╝ ╚══════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝
-EOF
-
-    # 5. Neofetch (Legacy поддержка)
-    vmkdir usr/share/neofetch/logos
-    vcopy ${FILESDIR}/vostok-logo.png usr/share/neofetch/logos/vostok.png
-    # Используем созданный ранее ASCII файл
-    ln -sf /usr/share/vostok/ascii-logo ${DESTDIR}/usr/share/neofetch/logos/vostok.ascii
+	# 4. Скрипт для принудительного обновления конфигов пользователей
+	vmkdir usr/libexec/vostok
+	cat <<-EOF > "${DESTDIR}/usr/libexec/vostok/apply-fastfetch.sh"
+	#!/bin/sh
+	# Копируем системный конфиг всем пользователям, заменяя старые
+	for user_home in /home/* /root; do
+	    [ ! -d "\$user_home" ] && continue
+	    TARGET_DIR="\$user_home/.config/fastfetch"
+	    mkdir -p "\$TARGET_DIR"
+	    cp -f /etc/fastfetch/config.jsonc "\$TARGET_DIR/config.jsonc"
+	    # Устанавливаем правильного владельца файла
+	    USER_NAME=\$(basename "\$user_home")
+	    if [ "\$USER_NAME" = "root" ]; then
+	        chown -R root:root "\$TARGET_DIR"
+	    else
+	        chown -R "\$USER_NAME:\$USER_NAME" "\$TARGET_DIR"
+	    fi
+	done
+	EOF
+	chmod 755 "${DESTDIR}/usr/libexec/vostok/apply-fastfetch.sh"
 }
 
 post_install() {
-    echo "🎨 Брендинг Vostok Linux успешно установлен!"
-    echo "   - Логотипы: /usr/share/pixmaps/vostok-logo.png"
-    echo "   - Fastfetch: используйте 'fastfetch -c vostok'"
+	# Запуск скрипта после установки
+	/usr/libexec/vostok/apply-fastfetch.sh 2>/dev/null || true
+	
+	echo -e "\n\033[1;34m[Vostok Linux]\033[0m Логотип Fastfetch успешно изменен на Vostok."
+	echo -e "\033[1;33mВнимание:\033[0m Если логотип не изменился, введите: rm -rf ~/.config/fastfetch\n"
 }
