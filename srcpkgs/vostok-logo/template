@@ -1,0 +1,51 @@
+# Template file for 'vostok-logo'
+pkgname=vostok-logo
+version=1.0
+revision=1
+archs="x86_64"
+short_desc="Vostok Linux logo and branding"
+maintainer="Vostok Linux <team@vostoklinux.org>"
+license="CC-BY-SA-4.0"
+homepage="https://vostoklinux.org"
+
+# Триггер для автоматического обновления кэша иконок при установке/удалении
+triggers="gtk-icon-cache"
+
+
+do_install() {
+    # 1. Основной логотип и симлинки совместимости
+    vinstall ${FILESDIR}/vostok-logo.png 644 usr/share/pixmaps
+    ln -sf vostok-logo.png ${DESTDIR}/usr/share/pixmaps/distributor-logo.png
+
+    # 2. Масштабируемые иконки (SVG)
+    vmkdir usr/share/icons/hicolor/scalable/apps
+    vinstall ${FILESDIR}/vostok-logo.svg 644 usr/share/icons/hicolor/scalable/apps
+    ln -sf vostok-logo.svg ${DESTDIR}/usr/share/icons/hicolor/scalable/apps/distributor-logo.svg
+
+    # 3. Темы загрузки (Plymouth)
+    vmkdir usr/share/plymouth/themes/vostok
+    vcopy ${FILESDIR}/vostok-logo.png usr/share/plymouth/themes/vostok/logo.png
+
+    # 4. Системный ASCII-логотип (единый источник для всех утилит)
+    vmkdir usr/share/vostok
+    cat > ${DESTDIR}/usr/share/vostok/ascii-logo << 'EOF'
+ ██╗   ██╗ ██████╗ ███████╗████████╗ ██████╗ ██╗  ██╗
+ ██║   ██║██╔═══██╗██╔════╝╚══██╔══╝██╔═══██╗██║ ██╔╝
+ ██║   ██║██║   ██║███████╗   ██║   ██║   ██║█████╔╝ 
+ ╚██╗ ██╔╝██║   ██║╚════██║   ██║   ██║   ██║██╔═██╗ 
+  ╚████╔╝ ╚██████╔╝███████║   ██║   ╚██████╔╝██║  ██╗
+   ╚═══╝   ╚═════╝ ╚══════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝
+EOF
+
+    # 5. Neofetch (Legacy поддержка)
+    vmkdir usr/share/neofetch/logos
+    vcopy ${FILESDIR}/vostok-logo.png usr/share/neofetch/logos/vostok.png
+    # Используем созданный ранее ASCII файл
+    ln -sf /usr/share/vostok/ascii-logo ${DESTDIR}/usr/share/neofetch/logos/vostok.ascii
+}
+
+post_install() {
+    echo "🎨 Брендинг Vostok Linux успешно установлен!"
+    echo "   - Логотипы: /usr/share/pixmaps/vostok-logo.png"
+    echo "   - Fastfetch: используйте 'fastfetch -c vostok'"
+}

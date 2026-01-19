@@ -9,7 +9,7 @@ license="BSD-2-Clause"
 homepage="https://vostoklinux.org"
 
 # КАСКАДНАЯ ЗАВИСИМОСТЬ
-depends="vostok-mirrorlist bash"
+depends="vostok-mirrorlist vostok-logo bash"
 conflicts="void-release"  # заменяем пакет Void
 
 do_install() {
