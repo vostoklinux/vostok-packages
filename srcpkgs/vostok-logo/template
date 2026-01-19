@@ -1,6 +1,6 @@
 pkgname=vostok-logo
 version=1.1
-revision=2
+revision=3
 archs="x86_64"
 short_desc="Vostok Linux branding and Fastfetch configuration"
 maintainer="Vostok Linux team <vostoklinux.org>"
@@ -29,7 +29,11 @@ do_install() {
 	    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
 	    "logo": {
 	        "source": "/usr/share/vostok/vostok-ascii.txt",
-	        "type": "auto"
+	        "type": "auto",
+            "padding": {
+	            "top": 2,
+	            "left": 3
+	        }
 	    },
 	    "modules": [
 	        "title",
