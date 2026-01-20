@@ -1,7 +1,7 @@
 # Template file for 'vostok-calamares-config'
 pkgname=vostok-calamares-config
 version=1.0
-revision=65
+revision=66
 archs="x86_64"
 
 short_desc="Calamares configuration and branding for Vostok Linux"
@@ -96,6 +96,7 @@ EOF
     # ==================================================
     # LOGO (JPG, ЛОКАЛЬНО ДЛЯ CALAMARES)
     # ==================================================
+    rm -rf "${DESTDIR}/usr/share/calamares/branding/vostok/vostok-logo.jpg"
     vinstall "${FILESDIR}/vostok-logo.jpg" 644 \
         usr/share/calamares/branding/vostok/vostok-logo.jpg
 
