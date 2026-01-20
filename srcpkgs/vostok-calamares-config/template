@@ -1,7 +1,7 @@
 # Template file for 'vostok-calamares-config'
 pkgname=vostok-calamares-config
 version=1.0
-revision=63
+revision=64
 archs="x86_64"
 
 short_desc="Calamares configuration and branding for Vostok Linux"
@@ -9,7 +9,12 @@ maintainer="Vostok Linux <team@vostoklinux.org>"
 license="GPL-3.0-or-later"
 homepage="https://vostoklinux.org"
 
-depends="calamares calamares-extensions"
+depends="
+ calamares
+ calamares-extensions
+ vostok-logo
+ qt6-imageformats
+"
 
 do_install() {
 
@@ -63,7 +68,7 @@ windowPlacement: center
 windowExpanding: normal
 
 style:
-  stylesheetFile: "stylesheet.qss"
+  stylesheet: "stylesheet.qss"
 
 strings:
   productName: Vostok Linux
@@ -73,38 +78,39 @@ strings:
   bootloaderEntryName: Vostok
 
 images:
-  productLogo: "vostok-logo.jpg"
-  productIcon: "vostok-logo.jpg"
+  productLogo: "file:///usr/share/pixmaps/vostok-logo.jpg"
+  productIcon: "file:///usr/share/pixmaps/vostok-logo.jpg"
 
 sidebar: none
 navigation: widget
+
+welcome:
+  qml: "welcomeq.qml"
 
 slideshow: []
 slideshowAPI: 2
 EOF
 
     # ==================================================
-    # LOGO (PNG — ОДИН ИСТОЧНИК)
-    # ==================================================
-    vinstall "${FILESDIR}/vostok-logo.jpg" 644 \
-        usr/share/calamares/branding/vostok/vostok-logo.jpg
-
-    # ==================================================
     # WELCOME QML (ЦЕНТР + ЛОГОТИП)
     # ==================================================
     cat > "${DESTDIR}/usr/share/calamares/branding/vostok/welcomeq.qml" << 'EOF'
 import QtQuick 2.15
-import io.calamares.core 1.0
 
 Item {
     anchors.fill: parent
+
+    Rectangle {
+        anchors.fill: parent
+        color: "#f8fafc"
+    }
 
     Column {
         anchors.centerIn: parent
         spacing: 28
 
         Image {
-            source: Branding.imagePath("vostok-logo.jpg")
+            source: "file:///usr/share/pixmaps/vostok-logo.jpg"
             width: 320
             height: 320
             fillMode: Image.PreserveAspectFit
@@ -116,6 +122,14 @@ Item {
             font.pixelSize: 32
             font.bold: true
             color: "#0f766e"
+            horizontalAlignment: Text.AlignHCenter
+        }
+
+        Text {
+            text: "Fast · Clean · Reliable"
+            font.pixelSize: 16
+            color: "#334155"
+            horizontalAlignment: Text.AlignHCenter
         }
     }
 }
