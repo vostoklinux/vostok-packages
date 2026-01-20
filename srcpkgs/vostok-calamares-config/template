@@ -1,7 +1,7 @@
 # Template file for 'vostok-calamares-config'
 pkgname=vostok-calamares-config
 version=1.0
-revision=69
+revision=70
 archs="x86_64"
 
 short_desc="Calamares configuration and branding for Vostok Linux"
@@ -122,13 +122,12 @@ Item {
         spacing: 28
 
     Image {
-    id: logo
-    source: Branding.imagePath("vostok-logo.jpg")
+    source: "vostok-logo.jpg"
 
-    width: parent.width * 0.5
-    height: parent.height * 0.5
-
+    width: parent.width * 0.45
+    height: parent.height * 0.45
     anchors.centerIn: parent
+
     fillMode: Image.PreserveAspectFit
     smooth: true
 }
