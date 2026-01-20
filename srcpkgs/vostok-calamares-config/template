@@ -1,7 +1,7 @@
 # Template file for 'vostok-calamares-config'
 pkgname=vostok-calamares-config
 version=1.0
-revision=64
+revision=65
 archs="x86_64"
 
 short_desc="Calamares configuration and branding for Vostok Linux"
@@ -12,7 +12,6 @@ homepage="https://vostoklinux.org"
 depends="
  calamares
  calamares-extensions
- vostok-logo
  qt6-imageformats
 "
 
@@ -56,10 +55,13 @@ sequence:
 EOF
 
     # ==================================================
-    # BRANDING
+    # BRANDING DIR
     # ==================================================
     vmkdir usr/share/calamares/branding/vostok
 
+    # --------------------------------------------------
+    # branding.desc
+    # --------------------------------------------------
     cat > "${DESTDIR}/usr/share/calamares/branding/vostok/branding.desc" << 'EOF'
 ---
 componentName: vostok
@@ -78,8 +80,8 @@ strings:
   bootloaderEntryName: Vostok
 
 images:
-  productLogo: "file:///usr/share/pixmaps/vostok-logo.jpg"
-  productIcon: "file:///usr/share/pixmaps/vostok-logo.jpg"
+  productLogo: "vostok-logo.jpg"
+  productIcon: "vostok-logo.jpg"
 
 sidebar: none
 navigation: widget
@@ -92,10 +94,17 @@ slideshowAPI: 2
 EOF
 
     # ==================================================
-    # WELCOME QML (ЦЕНТР + ЛОГОТИП)
+    # LOGO (JPG, ЛОКАЛЬНО ДЛЯ CALAMARES)
+    # ==================================================
+    vinstall "${FILESDIR}/vostok-logo.jpg" 644 \
+        usr/share/calamares/branding/vostok/vostok-logo.jpg
+
+    # ==================================================
+    # WELCOME QML
     # ==================================================
     cat > "${DESTDIR}/usr/share/calamares/branding/vostok/welcomeq.qml" << 'EOF'
 import QtQuick 2.15
+import io.calamares.core 1.0
 
 Item {
     anchors.fill: parent
@@ -110,7 +119,7 @@ Item {
         spacing: 28
 
         Image {
-            source: "file:///usr/share/pixmaps/vostok-logo.jpg"
+            source: Branding.imagePath("vostok-logo.jpg")
             width: 320
             height: 320
             fillMode: Image.PreserveAspectFit
@@ -136,7 +145,7 @@ Item {
 EOF
 
     # ==================================================
-    # STYLESHEET (БИРЮЗОВЫЙ)
+    # STYLESHEET
     # ==================================================
     cat > "${DESTDIR}/usr/share/calamares/branding/vostok/stylesheet.qss" << 'EOF'
 CalamaresWindow {
