@@ -117,7 +117,7 @@ Item {
         width: parent.width * 0.8
 
         Image {
-            source: config.branding.image("productLogo")
+            source: branding.image("productLogo")
             width: 240
             height: 240
             fillMode: Image.PreserveAspectFit
@@ -128,7 +128,6 @@ Item {
             text: "Welcome to Vostok Linux"
             font.pixelSize: 32
             font.bold: true
-            color: "#0f766e"
             horizontalAlignment: Text.AlignHCenter
             width: parent.width
         }
@@ -136,7 +135,6 @@ Item {
         Text {
             text: "Fast · Clean · NoSystemD"
             font.pixelSize: 16
-            color: "#334155"
             horizontalAlignment: Text.AlignHCenter
             width: parent.width
         }
