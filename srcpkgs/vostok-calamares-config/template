@@ -1,7 +1,7 @@
 # Template file for 'vostok-calamares-config'
 pkgname=vostok-calamares-config
 version=1.0
-revision=67
+revision=68
 archs="x86_64"
 
 short_desc="Calamares configuration and branding for Vostok Linux"
@@ -107,6 +107,7 @@ EOF
     cat > "${DESTDIR}/usr/share/calamares/branding/vostok/welcomeq.qml" << 'EOF'
 import QtQuick 2.15
 import io.calamares.core 1.0
+import io.calamares.ui 1.0
 
 Item {
     anchors.fill: parent
@@ -137,7 +138,7 @@ Item {
         }
 
         Text {
-            text: "Fast · Clean · Reliable"
+            text: "Fast · Clean · NoSystemD"
             font.pixelSize: 16
             color: "#334155"
             horizontalAlignment: Text.AlignHCenter
