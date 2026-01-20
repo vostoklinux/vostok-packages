@@ -121,13 +121,17 @@ Item {
         anchors.centerIn: parent
         spacing: 28
 
-        Image {
-            source: Branding.imagePath("vostok-logo.jpg")
-            width: 320
-            height: 320
-            fillMode: Image.PreserveAspectFit
-            smooth: true
-        }
+    Image {
+    id: logo
+    source: Branding.imagePath("vostok-logo.jpg")
+
+    width: parent.width * 0.5
+    height: parent.height * 0.5
+
+    anchors.centerIn: parent
+    fillMode: Image.PreserveAspectFit
+    smooth: true
+}
 
         Text {
             text: "Welcome to Vostok Linux"
