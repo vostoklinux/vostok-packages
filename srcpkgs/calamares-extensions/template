@@ -1,0 +1,148 @@
+# Template file for 'calamares-extensions'
+
+pkgname=calamares-extensions
+version=1.0
+revision=22
+archs="x86_64"
+
+short_desc="Custom Calamares job modules for Vostok Linux (XBPS)"
+maintainer="Vostok Linux <team@vostoklinux.org>"
+license="GPL-3.0-or-later"
+homepage="https://vostoklinux.org"
+
+depends="calamares>=3.3.7 xbps"
+
+do_install() {
+
+    # ==================================================
+    # XBPS INSTALL MODULE
+    # ==================================================
+    vmkdir usr/share/calamares/modules/xbpsinstall
+
+    cat > ${DESTDIR}/usr/share/calamares/modules/xbpsinstall/main.py << 'EOF'
+#!/usr/bin/env python3
+
+import os
+import subprocess
+import libcalamares
+
+def run():
+    cfg = libcalamares.job.configuration
+    repositories = cfg.get("repositories", [])
+    packages = cfg.get("packages", [])
+
+    os.makedirs("/mnt/etc/xbps.d", exist_ok=True)
+
+    with open("/mnt/etc/xbps.d/00-vostok.conf", "w") as f:
+        for repo in repositories:
+            f.write(f"repository={repo}\n")
+
+    subprocess.run(["cp", "/etc/resolv.conf", "/mnt/etc/resolv.conf"], check=False)
+
+    subprocess.run(["xbps-install", "-Sy", "-r", "/mnt"], check=True)
+    subprocess.run(["xbps-install", "-y", "-r", "/mnt"] + packages, check=True)
+
+    return None
+EOF
+
+    cat > ${DESTDIR}/usr/share/calamares/modules/xbpsinstall/module.desc << 'EOF'
+---
+type: job
+name: xbpsinstall
+interface: python
+script: main.py
+weight: 50
+EOF
+
+    chmod 755 ${DESTDIR}/usr/share/calamares/modules/xbpsinstall/main.py
+
+
+    # ==================================================
+    # POSTINSTALL MODULE
+    # ==================================================
+    vmkdir usr/share/calamares/modules/postinstall
+
+    cat > ${DESTDIR}/usr/share/calamares/modules/postinstall/main.py << 'EOF'
+#!/usr/bin/env python3
+
+import subprocess
+import libcalamares
+
+SERVICES = [
+    "dbus",
+    "elogind",
+    "polkitd",
+    "rtkit",
+    "NetworkManager",
+    "bluetoothd",
+    "chronyd",
+    "sddm",
+    "udevd"
+]
+
+GROUPS = [
+    "wheel",
+    "audio",
+    "video",
+    "input",
+    "network",
+    "storage",
+    "cdrom",
+    "optical",
+    "kvm",
+    "tty",
+    "users"
+]
+
+def run():
+    libcalamares.utils.info("Vostok Linux post-install configuration")
+
+    # Enable runit
+    subprocess.run(
+        ["chroot", "/mnt", "ln", "-sf",
+         "/etc/runit/runsvdir/default",
+         "/var/service"],
+        check=False
+    )
+
+    # Enable services
+    for svc in SERVICES:
+        subprocess.run(
+            ["chroot", "/mnt", "ln", "-sf",
+             f"/etc/sv/{svc}",
+             f"/var/service/{svc}"],
+            check=False
+        )
+
+    # Add user to groups
+    username = libcalamares.globalstorage.value("username")
+
+    if username:
+        for group in GROUPS:
+            subprocess.run(
+                ["chroot", "/mnt", "usermod", "-aG", group, username],
+                check=False
+            )
+
+    return None
+EOF
+
+    cat > ${DESTDIR}/usr/share/calamares/modules/postinstall/module.desc << 'EOF'
+---
+type: job
+name: postinstall
+interface: python
+script: main.py
+weight: 80
+EOF
+
+    chmod 755 ${DESTDIR}/usr/share/calamares/modules/postinstall/main.py
+}
+
+post_install() {
+    echo "========================================"
+    echo " Calamares extensions installed"
+    echo " Runit services enabled"
+    echo " User groups configured"
+    echo "========================================"
+}

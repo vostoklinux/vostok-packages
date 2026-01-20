@@ -1,0 +1,194 @@
+# Template file for 'vostok-calamares-config'
+pkgname=vostok-calamares-config
+version=1.0
+revision=63
+archs="x86_64"
+
+short_desc="Calamares configuration and branding for Vostok Linux"
+maintainer="Vostok Linux <team@vostoklinux.org>"
+license="GPL-3.0-or-later"
+homepage="https://vostoklinux.org"
+
+depends="calamares calamares-extensions"
+
+do_install() {
+
+    # ==================================================
+    # settings.conf
+    # ==================================================
+    vmkdir etc/calamares
+
+    cat > "${DESTDIR}/etc/calamares/settings.conf" << 'EOF'
+---
+branding: vostok
+
+modules-search:
+  - /usr/lib/calamares/modules
+  - /usr/share/calamares/modules
+
+prompt-install: true
+dont-chroot: false
+disable-cancel-during-exec: true
+hide-back-and-next-during-exec: true
+quit-at-end: false
+
+sequence:
+  - show:
+      - welcomeq
+      - locale
+      - keyboard
+      - partition
+      - users
+      - summary
+
+  - exec:
+      - partition
+      - xbpsinstall
+      - postinstall
+
+  - show:
+      - finished
+EOF
+
+    # ==================================================
+    # BRANDING
+    # ==================================================
+    vmkdir usr/share/calamares/branding/vostok
+
+    cat > "${DESTDIR}/usr/share/calamares/branding/vostok/branding.desc" << 'EOF'
+---
+componentName: vostok
+
+windowPlacement: center
+windowExpanding: normal
+
+style:
+  stylesheetFile: "stylesheet.qss"
+
+strings:
+  productName: Vostok Linux
+  shortProductName: Vostok
+  version: "1.0"
+  versionedName: "Vostok Linux 1.0"
+  bootloaderEntryName: Vostok
+
+images:
+  productLogo: "vostok-logo.jpg"
+  productIcon: "vostok-logo.jpg"
+
+sidebar: none
+navigation: widget
+
+slideshow: []
+slideshowAPI: 2
+EOF
+
+    # ==================================================
+    # LOGO (PNG — ОДИН ИСТОЧНИК)
+    # ==================================================
+    vinstall "${FILESDIR}/vostok-logo.jpg" 644 \
+        usr/share/calamares/branding/vostok/vostok-logo.jpg
+
+    # ==================================================
+    # WELCOME QML (ЦЕНТР + ЛОГОТИП)
+    # ==================================================
+    cat > "${DESTDIR}/usr/share/calamares/branding/vostok/welcomeq.qml" << 'EOF'
+import QtQuick 2.15
+import io.calamares.core 1.0
+
+Item {
+    anchors.fill: parent
+
+    Column {
+        anchors.centerIn: parent
+        spacing: 28
+
+        Image {
+            source: Branding.imagePath("vostok-logo.jpg")
+            width: 320
+            height: 320
+            fillMode: Image.PreserveAspectFit
+            smooth: true
+        }
+
+        Text {
+            text: "Welcome to Vostok Linux"
+            font.pixelSize: 32
+            font.bold: true
+            color: "#0f766e"
+        }
+    }
+}
+EOF
+
+    # ==================================================
+    # STYLESHEET (БИРЮЗОВЫЙ)
+    # ==================================================
+    cat > "${DESTDIR}/usr/share/calamares/branding/vostok/stylesheet.qss" << 'EOF'
+CalamaresWindow {
+    background-color: #f8fafc;
+}
+
+QWidget#contentWidget {
+    background-color: #f8fafc;
+}
+
+QPushButton {
+    background-color: #14b8a6;
+    color: #022c22;
+    border-radius: 10px;
+    padding: 8px 22px;
+    font-weight: 600;
+}
+
+QPushButton:hover {
+    background-color: #0d9488;
+    color: white;
+}
+
+QPushButton:disabled {
+    background-color: #94a3b8;
+    color: #475569;
+}
+
+QWidget#navigationWidget {
+    background-color: #ecfeff;
+    border-top: 1px solid #99f6e4;
+}
+EOF
+
+    # ==================================================
+    # XBPS INSTALL MODULE
+    # ==================================================
+    vmkdir usr/share/calamares/modules
+
+    cat > "${DESTDIR}/usr/share/calamares/modules/xbpsinstall.conf" << 'EOF'
+---
+repositories:
+  - https://repo.vostoklinux.org/current
+  - https://repo-default.voidlinux.org/current
+  - https://repo-default.voidlinux.org/current/nonfree
+
+packages:
+  - base-system
+  - base-devel
+  - xbps
+  - vostok-release
+  - vostok-logo
+  - grub-x86_64-efi
+  - efibootmgr
+  - xorg-minimal
+  - mesa-dri
+  - plasma-desktop
+  - sddm
+  - NetworkManager
+  - pipewire
+  - wireplumber
+  - pipewire-pulse
+  - firefox
+EOF
+}
+
+post_install() {
+    echo "✅ Vostok Calamares config installed"
+}

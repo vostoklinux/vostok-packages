@@ -1,0 +1,82 @@
+# Template file for 'calamares'
+pkgname=calamares
+version=3.3.7
+revision=4
+archs="x86_64"
+build_style=cmake
+
+distfiles="https://github.com/calamares/calamares/releases/download/v${version}/calamares-${version}.tar.gz"
+checksum="56589968f2447a2e79da67079602dabc77504bc0f8233b5e655a1a4d57007a34"
+
+configure_args="
+ -DCMAKE_BUILD_TYPE=Release
+ -DWITH_QT6=ON
+ -DWITH_KF6=ON
+ -DQT_MAJOR_VERSION=6
+ -DWITH_PYTHONQT=OFF
+ -DINSTALL_MODULES=ON
+ -DINSTALL_CONFIG=OFF
+"
+
+hostmakedepends="
+ pkg-config
+ git
+ cmake
+ extra-cmake-modules
+ qt6-tools
+ ninja
+ gettext
+"
+
+makedepends="
+ qt6-base-devel
+ qt6-svg-devel
+ qt6-webengine-devel
+ yaml-cpp-devel
+ kcoreaddons-devel
+ kconfig-devel
+ ki18n-devel
+ kpackage-devel
+ kservice-devel
+ kparts-devel
+ kcrash-devel
+ boost-devel
+ libatasmart-devel
+ python3-devel
+ polkit-devel
+ libpwquality-devel
+ kpmcore-devel
+ AppStream-qt-devel
+"
+
+depends="
+ xbps
+ parted
+ gptfdisk
+ grub
+ os-prober
+"
+
+short_desc="Distribution-independent installer framework"
+maintainer="Vostok Linux <team@vostoklinux.org>"
+license="GPL-3.0-or-later"
+homepage="https://calamares.io"
+
+patches="post_patch.patch"
+
+post_install() {
+    vmkdir usr/share/applications
+    vmkdir usr/share/icons/hicolor/scalable/apps
+
+    cat > ${DESTDIR}/usr/share/applications/calamares.desktop << 'EOF'
+[Desktop Entry]
+Name=Calamares
+GenericName=System Installer
+Comment=Install Vostok Linux
+Exec=calamares -d
+Icon=calamares
+Terminal=false
+Type=Application
+Categories=System;
+EOF
+}

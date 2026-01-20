@@ -1,0 +1,7 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -300,7 +300,8 @@
+ set( CMAKE_MODULE_PATH
+-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake
++    ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH}
+ )
