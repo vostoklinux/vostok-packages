@@ -1,7 +1,7 @@
 # Template file for 'vostok-calamares-config'
 pkgname=vostok-calamares-config
 version=1.0
-revision=71
+revision=72
 archs="x86_64"
 
 short_desc="Calamares configuration and branding for Vostok Linux"
@@ -117,12 +117,13 @@ Item {
         width: parent.width * 0.8
 
         Image {
-            source: Branding.imagePath("vostok-logo.jpg")
-            width: 240
-            height: 240
-            fillMode: Image.PreserveAspectFit
-            anchors.horizontalCenter: parent.horizontalCenter
-        }
+    // Указываем прямой путь к файлу в системе
+    source: "file:///usr/share/calamares/branding/vostok/vostok-logo.jpg"
+    width: 240
+    height: 240
+    fillMode: Image.PreserveAspectFit
+    anchors.horizontalCenter: parent.horizontalCenter
+}
 
         Text {
             text: "Welcome to Vostok Linux"
