@@ -1,7 +1,7 @@
 # Template file for 'vostok-calamares-config'
 pkgname=vostok-calamares-config
 version=1.0
-revision=72
+revision=73
 archs="x86_64"
 
 short_desc="Calamares configuration and branding for Vostok Linux"
@@ -13,8 +13,11 @@ depends="
  calamares
  calamares-extensions
  qt6-imageformats
+ kpmcore
+ partitionmanager
+ parted
+ util-linux
 "
-
 do_install() {
 
     # ==================================================
@@ -47,11 +50,203 @@ sequence:
 
   - exec:
       - partition
+      - mount
+      - unpackfs
+      - machineid
+      - fstab
+      - locale
+      - keyboard
+      - localecfg
+      - users
       - xbpsinstall
       - postinstall
-
+      - bootloader
+      - umount
+  
   - show:
       - finished
+EOF
+
+  # ==================================================
+    # КОНФИГУРАЦИЯ МОДУЛЕЙ в /etc/calamares/modules/
+    # ==================================================
+    vmkdir etc/calamares/modules
+
+ # 1. Модуль partition (ОБЯЗАТЕЛЬНО!)
+cat > "${DESTDIR}/etc/calamares/modules/partition.conf" << 'EOF'
+---
+# Vostok Linux Partition Configuration
+# Optimized for UEFI systems with Void/Runit
+
+partition:
+  # Тип таблицы разделов
+  initialPartitionTableChoice: gpt
+  
+  # НАСТРОЙКИ SWAP - КРИТИЧЕСКИ ВАЖНЫЕ ИСПРАВЛЕНИЯ
+  # Используем small для автоматического выбора, но не создаем через layout
+  initialSwapChoice: small
+  swapPartitionName: "swap"
+  swapPartitionSize: 4096  # 4GB в MiB
+  
+  # Файловые системы
+  defaultFileSystemType: "ext4"
+  availableFileSystemTypes: ["ext4", "btrfs", "xfs", "f2fs"]
+  
+  # EFI раздел (для UEFI систем)
+  efiSystemPartition: "/boot/efi"
+  efiSystemPartitionSize: 512M
+  efiSystemPartitionName: "EFI"
+  efiSystemPartitionMountPoint: "/boot/efi"
+  
+  # АВТОМАТИЧЕСКАЯ РАЗМЕТКА - УПРОЩЕННЫЙ ВАРИАНТ
+  # Создаем только root и оставляем место для swap (он создастся отдельно)
+  layout:
+    - name: "root"
+      filesystem: "ext4"
+      mountPoint: "/"
+      size: 30G
+    - name: "home"
+      filesystem: "ext4"
+      mountPoint: "/home"
+      size: 100%
+
+  # Параметры интерфейса
+  allowManualPartitioning: true
+  allowAutomatedPartitioning: true
+  drawNestedPartitions: false
+  alwaysShowPartitionLabels: true
+  
+  # Безопасные настройки
+  requiredStorage: 20G
+  checkPartitions: true
+  neverCreateSwap: false
+  ensureSuspendToDisk: true
+  
+  # Дополнительные настройки для Void
+  enableLuksAutomatedPartitioning: false
+  requiredPartitionTableType: "gpt"
+  
+  # Флаги для загрузчика - ВАЖНО для Void Linux!
+  flags:
+    efi: "esp"
+    boot: "boot"
+
+# Дополнительные настройки для Calamares
+config:
+  # Не показывать предупреждение о небольшом диске
+  showNotEnoughSpaceWarning: true
+  # Проверять наличие других ОС
+  checkForOtherOS: true
+  # Предлагать шифрование
+  showEncryptAutoPartitions: false
+EOF
+
+   # 2. Модуль locale
+    cat > "${DESTDIR}/etc/calamares/modules/locale.conf" << 'EOF'
+---
+# Региональные настройки
+locale:
+  region: "Europe"
+  zone: "Moscow"
+  localeGenPath: "/etc/locale.gen"
+  
+  # Системная локаль по умолчанию
+  systemLocale: "en_US.UTF-8"
+  
+  # Локали для генерации
+  locales:
+    - "en_US.UTF-8 UTF-8"
+    - "ru_RU.UTF-8 UTF-8"
+EOF
+
+ # 3. Модуль users
+    cat > "${DESTDIR}/etc/calamares/modules/users.conf" << 'EOF'
+---
+# Настройки пользователя
+user:
+  # Группы по умолчанию
+  defaultGroups:
+    - wheel
+    - input
+    - audio
+    - video
+    - storage
+    - optical
+    - network
+    - lp
+    - scanner
+    - power
+    - users
+    - xbuilder
+
+  # Автовход
+  autologinGroup: "autologin"
+  doAutologin: false
+  
+  # Пароли
+  setRootPassword: true
+  doReusePassword: false
+  
+  sudoersGroup: "wheel"
+  sudoStyle: "sudo"
+  
+  # Требования к паролю
+  passwordRequirements:
+    minLength: 4
+    maxLength: -1
+    nonempty: true
+EOF
+
+  # 4. Модуль keyboard
+    cat > "${DESTDIR}/etc/calamares/modules/keyboard.conf" << 'EOF'
+---
+# Раскладка клавиатуры
+keyboard:
+  # Модель
+  model: "pc105"
+  
+  # Раскладки
+  layouts:
+    - "us"
+    - "ru"
+  
+  # Варианты
+  variants:
+    - ""
+    - ""
+  
+  # По умолчанию
+  xOrgConfFileName: "00-keyboard.conf"
+  
+  # Переключатель
+  xOrgConfXkbVariant: ""
+  xOrgConfXkbOptions: "grp:alt_shift_toggle"
+EOF
+
+  # 5. Модуль bootloader
+    cat > "${DESTDIR}/etc/calamares/modules/bootloader.conf" << 'EOF'
+---
+# Загрузчик
+bootloader:
+  # Используемый загрузчик
+  bootloader: "grub"
+  
+  # Метод установки
+  efiBootMgr: true
+  
+  # Диск для установки
+  installPath: "/boot/efi"
+  efiBootLoaderId: "Vostok Linux"
+  
+  # Ядро
+  kernel: "/vmlinuz"
+  initramfs: "/initramfs"
+  
+  # Обнаружение других ОС
+  grubInstall: "grub-install"
+  grubMkconfig: "grub-mkconfig"
+  grubCfg: "/boot/grub/grub.cfg"
+  osProber: true
 EOF
 
     # ==================================================
@@ -193,8 +388,24 @@ repositories:
 
 packages:
   - base-system
+  - ark
+  - bluez
   - base-devel
   - xbps
+  - chrony
+  - dbus
+  - dbus-elogind
+  - elogind
+  - fastfetch
+  - git
+  - nano
+  - kde5
+  - kde5-baseapps
+  - nerd-fonts-symbols-ttf
+  - octoxbps
+  - polkit-elogind
+  - void-repo-nonfree
+  - xorg-minimal
   - vostok-release
   - vostok-logo
   - grub-x86_64-efi
@@ -212,5 +423,33 @@ EOF
 }
 
 post_install() {
-    echo "✅ Vostok Calamares config installed"
+    echo "========================================"
+    echo " Vostok Calamares Config Installed"
+    echo "========================================"
+    echo ""
+    echo "Проверка конфигурации:"
+    
+    # Проверка файлов
+    if [ -f "/etc/calamares/settings.conf" ]; then
+        echo "✓ settings.conf"
+    else
+        echo "✗ settings.conf"
+    fi
+    
+    if [ -f "/etc/calamares/modules/partition.conf" ]; then
+        echo "✓ partition.conf"
+    else
+        echo "✗ partition.conf"
+    fi
+    
+    if [ -f "/usr/share/calamares/modules/xbpsinstall.conf" ]; then
+        echo "✓ xbpsinstall.conf"
+    else
+        echo "✗ xbpsinstall.conf"
+    fi
+    
+    echo ""
+    echo "Для запуска установщика:"
+    echo "  sudo calamares -d"
+    echo "========================================"
 }
