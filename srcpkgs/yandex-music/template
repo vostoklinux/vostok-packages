@@ -1,0 +1,55 @@
+# Template file for 'yandex-music'
+pkgname=yandex-music
+version=5.90.0
+revision=1
+hostmakedepends="tar xz nodejs"
+makedepends="asar"
+depends="gtk+3 libnotify nss libXScrnSaver libXtst xdg-utils
+ at-spi2-core util-linux-libs libsecret"
+short_desc="Official Yandex Music App for Linux"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="custom:yandex"
+homepage="https://music.yandex.ru/download/"
+distfiles="https://desktop.app.music.yandex.net/stable/Yandex_Music_amd64_${version}.deb"
+checksum="b20b43ea91ff13fdff585fc7a845375cd8a72a68c730e7465c55a052b79076c2"
+
+do_extract() {
+	mkdir -p ${DESTDIR}
+	ar x ${XBPS_SRCDISTDIR}/yandex-music-${version}/Yandex_Music_amd64_${version}.deb
+}
+
+pre_install() {
+    tar xf data.tar.xz -C ${DESTDIR}
+
+    # Disable updater in app.asar
+    app_asar="$(find "${DESTDIR}/opt" -type f -path '*/resources/app.asar' | head -n1)"
+    [ -n "$app_asar" ] || die "app.asar not found in extracted package"
+
+    bash "${FILESDIR}/patch-asar-updater.sh" --in-place "$app_asar"
+    rm -f "${app_asar}.bak."*
+}
+
+do_install() {
+    # Rename folder if needed
+    if [ -d "${DESTDIR}/opt/Яндекс Музыка" ]; then
+        mv "${DESTDIR}/opt/Яндекс Музыка" "${DESTDIR}/opt/yandex-music"
+    fi
+
+	if [ -d "${DESTDIR}/opt/yandex-music/resources/assets/icons" ]; then
+		for size in 16 22 24 32 48; do
+			mkdir -p ${DESTDIR}/usr/share/icons/hicolor/${size}x${size}/apps
+
+			cp ${DESTDIR}/opt/yandex-music/resources/assets/icons/icon_${size}x${size}.png \
+			${DESTDIR}/usr/share/icons/hicolor/${size}x${size}/apps/yandexmusic.png
+		done
+	fi
+
+    # Fix .desktop
+    if [ -f "${DESTDIR}/usr/share/applications/yandexmusic.desktop" ]; then
+        sed -i 's|/opt/Яндекс Музыка|/opt/yandex-music|g' "${DESTDIR}/usr/share/applications/yandexmusic.desktop"
+        sed -i 's|Categories=Audio;|Categories=AudioVideo;Audio;|g' "${DESTDIR}/usr/share/applications/yandexmusic.desktop"
+        sed -i 's|Exec="/opt/yandex-music/yandexmusic"|Exec=yandexmusic|' "${DESTDIR}/usr/share/applications/yandexmusic.desktop"
+    fi
+
+    vbin ${FILESDIR}/yandexmusic.sh yandexmusic
+}
