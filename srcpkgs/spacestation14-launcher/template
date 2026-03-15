@@ -1,0 +1,31 @@
+# Template file for 'spacestation14-launcher'
+pkgname=spacestation14-launcher
+version=0.37.1
+revision=1
+arch="x86_64"
+depends="libopenal"
+short_desc="Space Station 14 launcher"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="MIT"
+_source_name="SS14.launcher.v${version}.zip"
+homepage="https://spacestation14.io/"
+distfiles="https://github.com/space-wizards/SS14.Launcher/releases/download/v${version}/SS14.Launcher_Linux.zip>${_source_name}"
+checksum="cb8c75b5a48ddadc4bed02fd989f6b5891015632c6e7643249a56ed2dd53c748"
+noverifyrdeps=yes
+disable_shlib_provides=yes
+
+do_install() {
+    vmkdir opt/SS14/
+    mv * ${DESTDIR}/opt/SS14/
+
+    vmkdir usr/bin/
+    ln -s /opt/SS14/SS14.Launcher ${DESTDIR}/usr/bin/spacestation14-launcher
+
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/SS14.desktop 644 usr/share/applications/
+
+	vmkdir usr/share/pixmaps
+    vinstall ${FILESDIR}/spacestation14.svg 644 usr/share/pixmaps/
+
+    chmod +x ${DESTDIR}/opt/SS14/SS14.Launcher
+}
