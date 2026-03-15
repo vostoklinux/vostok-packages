@@ -1,0 +1,11 @@
+case "${ACTION}" in
+pre)
+    ;;
+post)
+    # Print instructions for enabling the service
+    echo
+    echo "To enable the zapret2 service, run the following command as root:"
+    echo "  ln -s /etc/sv/zapret2 /var/service/"
+    echo "This will start the service via runit."
+    ;;
+esac
