@@ -1,7 +1,7 @@
 # Template file for 'zapret2'
 pkgname=zapret2
 version=0.9.4.5
-revision=1
+revision=2
 build_style=gnu-makefile
 makedepends="LuaJIT-devel libcap-devel zlib-devel libnetfilter_queue-devel"
 depends="bind bind-utils curl iptables libnetfilter_queue LuaJIT nmap"
