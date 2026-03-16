@@ -1,0 +1,41 @@
+# Template file for 'yandex-browser'
+pkgname=yandex-browser
+version=25.12.1.1319
+revision=2
+_channel=stable
+archs="x86_64"
+hostmakedepends="curl tar xz python3 python3-html2text python3-setuptools"
+depends="gtk+3 ffmpeg squashfs-tools"
+short_desc="Attempt at creating a safer, faster, and more stable browser"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="custom:yandex"
+homepage="https://browser.yandex.ru/"
+distfiles="https://repo.yandex.ru/yandex-browser/deb/pool/main/y/yandex-browser-stable/yandex-browser-${_channel}_${version}-1_amd64.deb"
+checksum=1b2dad6476a22ae473ce61da1edac0839d4125b5f0a704b8de959a333e0fc2a5
+restricted=yes
+
+_licenseUrl="https://yandex.ru/legal/browser_agreement"
+
+do_extract() {
+	mkdir -p ${DESTDIR}
+	ar x ${XBPS_SRCDISTDIR}/yandex-browser-${version}/yandex-browser-${_channel}_${version}-1_amd64.deb
+}
+
+do_install() {
+	tar xf data.tar.xz -C ${DESTDIR}
+
+	for size in 16 24 32 48 64 128 256; do
+		mkdir -p ${DESTDIR}/usr/share/icons/hicolor/${size}x${size}/apps
+
+		mv ${DESTDIR}/opt/yandex/browser/product_logo_${size}.png \
+		   ${DESTDIR}/usr/share/icons/hicolor/${size}x${size}/apps/yandex-browser.png
+	done
+
+	rm -rf ${DESTDIR}/etc
+	rm -rf ${DESTDIR}/opt/yandex/browser/cron
+}
+
+post_install() {
+	curl ${_licenseUrl} | html2text >> yandex-browser-eula.md
+	vlicense yandex-browser-eula.md
+}

@@ -1,0 +1,60 @@
+# Template file for 'amneziavpn'
+pkgname=amneziavpn
+version=4.8.14.5
+revision=1
+archs="x86_64"
+hostmakedepends="bsdtar"
+short_desc="Amnezia VPN Client"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/amnezia-vpn/amnezia-client"
+distfiles="https://github.com/amnezia-vpn/amnezia-client/releases/download/${version}/AmneziaVPN_${version}_linux_x64.tar"
+checksum=390ac477fbac0f0241c3e9e89f7dcb81bf5a4840278752000d37ab1971b87b4d
+nopie=yes
+noverifyrdeps=yes
+disable_shlib_provides=yes
+
+# Signature '\x37\x7A\xBC\xAF\x27\x1C' version '\x00\x04'
+_archive_offset=0x1ABF361
+_archive_size=0x5380539
+
+pre_install() {
+
+    if [ -e AmneziaVPN_Linux_Installer.bin ]; then
+        rm -rf AmneziaVPN
+
+        tail -c +$((_archive_offset+1)) AmneziaVPN_Linux_Installer.bin \
+            | head -c $((_archive_size)) > data.7z
+
+        rm -f AmneziaVPN_Linux_Installer.bin
+
+        mkdir AmneziaVPN
+        bsdtar -xf data.7z -C AmneziaVPN
+
+        rm -f data.7z
+    fi
+
+    rm -f ${wrksrc}/AmneziaVPN/client/bin/*.sha256
+
+    sed -i 's#/usr/share/pixmaps/AmneziaVPN.png#AmneziaVPN#g' \
+        ${wrksrc}/AmneziaVPN/AmneziaVPN.desktop
+}
+
+do_install() {
+	vmkdir opt/AmneziaVPN
+	vcopy AmneziaVPN/client opt/AmneziaVPN
+	vcopy AmneziaVPN/service opt/AmneziaVPN
+
+    chmod +x ${DESTDIR}/opt/AmneziaVPN/client/bin/{AmneziaVPN,ck-client,openvpn,ss-local,tun2socks,update-resolv-conf.sh,wireguard-go}
+    chmod +x ${DESTDIR}/opt/AmneziaVPN/client/AmneziaVPN.sh
+    chmod +x ${DESTDIR}/opt/AmneziaVPN/service/bin/AmneziaVPN-service
+    chmod +x ${DESTDIR}/opt/AmneziaVPN/service/AmneziaVPN-service.sh
+
+    vmkdir usr/bin
+    ln -s /opt/AmneziaVPN/client/AmneziaVPN.sh ${DESTDIR}/usr/bin/AmneziaVPN
+
+    vinstall ${wrksrc}/AmneziaVPN/AmneziaVPN.desktop 644 usr/share/applications
+    vinstall ${wrksrc}/AmneziaVPN/AmneziaVPN.png 644 usr/share/icons/hicolor/512x512/apps
+
+    vsv amneziavpn
+}

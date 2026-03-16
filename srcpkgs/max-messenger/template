@@ -1,0 +1,39 @@
+# Template file for 'max-messenger'
+pkgname=max-messenger
+version=26.7.0.49753
+revision=1
+archs="x86_64"
+hostmakedepends="rpmextract"
+depends="libxcb libXinerama libXcomposite libXaw libXres
+ xcb-util-wm libva libvdpau libnotify"
+short_desc="MAX messenger"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="custom:max"
+homepage="https://max.ru"
+distfiles="https://download.max.ru/linux/rpm/el/9/x86_64/MAX-${version}.rpm"
+checksum=75c22da51625d4eaba9259643c32bfb756008015159abd85817ca5b32cd27936
+nopie=yes
+noverifyrdeps=yes
+disable_shlib_provides=yes
+
+do_install() {
+	vmkdir opt/max/
+	vcopy share/max/* opt/max
+
+	vmkdir usr/share/applications
+    vcopy share/applications/* usr/share/applications
+
+	vmkdir usr/share/icons
+    vcopy share/icons/* usr/share/icons
+
+	vmkdir usr/share/pixmaps
+    vcopy share/pixmaps/* usr/share/pixmaps
+
+    # Fix .desktop
+    if [ -f "${DESTDIR}/usr/share/applications/max.desktop" ]; then
+        sed -i 's|Exec=/usr/share/max/bin/max|Exec=max|' "${DESTDIR}/usr/share/applications/max.desktop"
+    fi
+
+    vmkdir usr/bin/
+    ln -s /opt/max/bin/max ${DESTDIR}/usr/bin/
+}

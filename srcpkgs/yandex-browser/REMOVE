@@ -1,0 +1,9 @@
+case "${ACTION}" in
+pre)
+	;;
+post)
+    rm -rf /opt/yandex/browser/codecs_checksum
+    rm -rf /opt/yandex/browser/libffmpeg.so
+	;;
+esac
+
