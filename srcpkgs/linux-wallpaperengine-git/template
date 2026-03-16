@@ -1,0 +1,86 @@
+# Template file for 'linux-wallpaperengine-git'
+pkgname=linux-wallpaperengine-git
+_pkgname=linux-wallpaperengine
+_commit_full=cb0a0f6e1e9a77f93ac702e15a5bd38acf931a88
+_commit=cb0a0f6
+version=r594.${_commit}
+revision=1
+build_style=cmake
+configure_args="
+ -DCMAKE_BUILD_TYPE=Release
+ -DCMAKE_INSTALL_PREFIX=/opt/${_pkgname}
+ -DCMAKE_MODULE_PATH=${wrksrc}/build/cef/cmake
+ -Wno-dev
+"
+hostmakedepends="pkg-config"
+makedepends="liblz4-devel ffmpeg-devel mpv-devel glfw-devel glew-devel
+ libfreeglut-devel pulseaudio-devel cups-devel at-spi2-core-devel
+ nss-devel nspr-devel SDL2-devel glm wayland-protocols libXrandr-devel
+"
+depends="ffmpeg mpv"
+short_desc="Use Steam's Wallpaper Engine on Linux"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/Almamu/linux-wallpaperengine"
+_cef_ver="135.0.17+gcbc1c5b+chromium-135.0.7049.52"
+_cef_pkg="cef_binary_${_cef_ver}_linux64_minimal"
+distfiles="
+ https://github.com/Almamu/linux-wallpaperengine/archive/${_commit}.tar.gz
+ https://github.com/Almamu/glslang-WallpaperEngine/archive/refs/heads/main.zip>glslang-WallpaperEngine.zip
+ https://github.com/Almamu/SPIRV-Cross-WallpaperEngine/archive/refs/heads/main.zip>SPIRV-Cross-WallpaperEngine.zip
+ https://github.com/nothings/stb/archive/refs/heads/master.zip>stb.zip
+ https://github.com/nlohmann/json/archive/refs/heads/develop.zip>json.zip
+ https://github.com/lasselukkari/MimeTypes/archive/refs/heads/master.zip>MimeTypes.zip
+ https://github.com/mborgerding/kissfft/archive/refs/heads/master.zip>kissfft.zip
+ https://github.com/p-ranav/argparse/archive/refs/heads/master.zip>argparse.zip
+ https://github.com/catchorg/Catch2/archive/refs/heads/devel.zip>Catch2.zip
+ https://github.com/quickjs-ng/quickjs/archive/refs/heads/master.zip>quickjs.zip
+ https://cef-builds.spotifycdn.com/${_cef_pkg}.tar.bz2
+"
+checksum="
+ e911e50f78fb0cea5201e63adb7693ce455f0a4a989ac218fa604142439e16f7
+ 943ed566fd995fc01d1c91fb2ba4bd05db89cfe218d67e767096af6be6d5ee5e
+ 40bd2741804ca8a17f0d2e18c0460e8116381f5557875416ee6644d54939472a
+ f146f935600865f6d48ec17a4f6f78a6918447e56ddcbc0a3a3341447687093e
+ 410617e37abd76a7b1dc4a905d01b4887d788e12c712e41fca62c89cd09c4354
+ 14622c0062b348796763f404a878b457bdb880ce80ec12a365af41e1e19e8374
+ 3b21af49516c43ea55986f8006e601a2fce4a3fed97fd4bbdc045b825eb0886e
+ 5365148de683ef9cf7d2514a9167e31adf4cc840e2b3a6f9c06211fbc8391d37
+ 6f36ca4d507bdf9c27bec5265b6cc4380755521877bd30f26ece3dfba6a8d593
+ 14bb3ced1a9f1a24a717cf22fcf977071a9a0a7af3ab5bb0b9daf437598b66ea
+ 24ac1980e62be7b1aea2c337d6bd4bc770dccd8b37e47c6db94b397f13ec4dc6
+"
+skip_extraction="
+glslang-WallpaperEngine.zip
+SPIRV-Cross-WallpaperEngine.zip
+stb.zip
+json.zip
+MimeTypes.zip
+kissfft.zip
+argparse.zip
+Catch2.zip
+quickjs.zip
+${_cef_pkg}.tar.bz2
+"
+
+CFLAGS+=" -Wno-builtin-macro-redefined"
+CXXFLAGS+=" -ffat-lto-objects -Wno-builtin-macro-redefined"
+
+post_extract() {
+    for archive in $skip_extraction; do
+        case "$archive" in
+            cef_binary_*.tar.bz2)
+                vsrcextract -C "${wrksrc}/build/cef" "$archive"
+                ;;
+            *.zip)
+                target="${archive%.zip}"
+                vsrcextract -C "${wrksrc}/src/External/$target" "$archive"
+                ;;
+        esac
+    done
+}
+
+post_install() {
+#     DESTDIR=${DESTDIR} cmake --install build
+    vbin ${FILESDIR}/linux-wallpaperengine.sh linux-wallpaperengine
+}

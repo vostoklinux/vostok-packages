@@ -1,0 +1,14 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -107,8 +107,9 @@
+     set(CEF_PLATFORM "${CEF_PLATFORM}_${CEF_DISTRIBUTION_TYPE}")
+ endif()
+ message(STATUS "Using CEF for ${CMAKE_SYSTEM_NAME} - ${CEF_PLATFORM} (${CEF_ARCH_DETECTION})")
+-include(DownloadCEF)
+-DownloadCEF("${CEF_PLATFORM}" "${CEF_VERSION}" "${CMAKE_CURRENT_BINARY_DIR}/cef")
++# include(DownloadCEF)
++# DownloadCEF("${CEF_PLATFORM}" "${CEF_VERSION}" "${CMAKE_CURRENT_BINARY_DIR}/cef")
++# DISABLED as it's downloaded using xbpc-src
+ 
+ # add cef's cmake files to the lookup so we can use those directly
+ list(APPEND CMAKE_MODULE_PATH "${CEF_ROOT}/cmake")
