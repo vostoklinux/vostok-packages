@@ -1,5 +1,5 @@
-# Template file for 'linux-wallpaperengine-git'
-pkgname=linux-wallpaperengine-git
+# Template file for 'wallpaperengine-git'
+pkgname=wallpaperengine-git
 _pkgname=linux-wallpaperengine
 _commit_full=cb0a0f6e1e9a77f93ac702e15a5bd38acf931a88
 _commit=cb0a0f6
@@ -82,6 +82,5 @@ post_extract() {
 }
 
 post_install() {
-#     DESTDIR=${DESTDIR} cmake --install build
     vbin ${FILESDIR}/linux-wallpaperengine.sh linux-wallpaperengine
 }
