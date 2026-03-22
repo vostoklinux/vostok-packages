@@ -1,0 +1,27 @@
+# Template file for 'tlauncher-bin'
+pkgname=tlauncher-bin
+version=1.0.0
+revision=1
+hostmakedepends="tar xz"
+short_desc="TLauncher (prebuilt binary from upstream .deb)"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="MIT"
+homepage="https://tlauncher.org"
+distfiles="https://dl2.tlauncher.org/files/tlauncher-linux-installer.deb"
+checksum=418871838de35f024a285a7cebff5eb31b24cc3b3ddb086946a7027855cbff1a
+
+do_extract() {
+    ar x ${XBPS_SRCDISTDIR}/${pkgname}-${version}/tlauncher-linux-installer.deb
+    tar -xf data.tar.*
+}
+
+do_install() {
+    vmkdir usr/games
+    vcopy usr/games/* usr/games/
+    
+    vmkdir usr/share
+    vcopy usr/share/* usr/share/
+
+    vmkdir usr/bin
+    ln -s /usr/games/tlauncher ${DESTDIR}/usr/bin/tlauncher
+}
