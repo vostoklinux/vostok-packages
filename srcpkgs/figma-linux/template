@@ -26,17 +26,12 @@ do_extract() {
 }
 
 do_install() {
-	# 1. Создаём целевую папку и копируем файлы
 	vmkdir opt/figma-linux
 	cp -R ${wrksrc}/* ${DESTDIR}/opt/figma-linux/
 
-	# --- МАГИЯ: Создаем заглушку libsystemd прямо внутри пакета ---
-	# Это обманет бинарник Figma и успокоит XBPS
 	vmkdir opt/figma-linux/lib
 	ln -sf /usr/lib/libelogind.so.0 ${DESTDIR}/opt/figma-linux/lib/libsystemd.so.0
-	# --------------------------------------------------------------
 
-	# 2. Устанавливаем иконки и .desktop (из папки files/)
 	if [ -d "${FILESDIR}" ]; then
 		for size in 24 36 48 64 72 96 128 192 256 384 512; do
 			if [ -f "${FILESDIR}/${size}x${size}.png" ]; then
@@ -53,23 +48,18 @@ do_install() {
 		fi
 	fi
 
-	# 3. Симлинк для запуска
 	vmkdir usr/bin
 	ln -sf /opt/figma-linux/figma-linux ${DESTDIR}/usr/bin/figma-linux
 
-	# 4. ЖЁСТКАЯ КОРРЕКЦИЯ ПРАВ (самый конец функции)
 	find ${DESTDIR}/opt/figma-linux -type d -exec chmod 755 {} \;
 	find ${DESTDIR}/opt/figma-linux -type f -exec chmod 644 {} \;
 	chmod -R o-w ${DESTDIR}/opt/figma-linux
 
-	# Возвращаем исполняемые права
 	chmod 755 ${DESTDIR}/opt/figma-linux/figma-linux
 	if [ -f ${DESTDIR}/opt/figma-linux/chrome-sandbox ]; then
 		chmod 4755 ${DESTDIR}/opt/figma-linux/chrome-sandbox
 	fi
 
-    	# 1. Создаем ярлык меню (Desktop Entry)
-	# Создаем ярлык меню с оптимизациями для GPU
 	vmkdir usr/share/applications
 	cat > ${DESTDIR}/usr/share/applications/figma-linux.desktop <<EOF
 [Desktop Entry]
@@ -84,14 +74,9 @@ Categories=Graphics;Design;
 MimeType=application/figma;x-scheme-handler/figma;
 EOF
 
-	# 2. Устанавливаем иконку (берем самую большую из папки opt, если она там есть)
-	# Или просто копируем логотип, если ты его скачал. 
-	# Если иконки нет под рукой, KDE покажет стандартную.
-	# Но лучше прописать путь к иконке из папки figma:
 	vmkdir usr/share/pixmaps
 	vinstall ${FILESDIR}/figma-linux.png 644 usr/share/pixmaps
 
-	# 5. Лицензия
 	if [ -f "${wrksrc}/LICENSE" ]; then
 		vlicense "${wrksrc}/LICENSE"
 	else

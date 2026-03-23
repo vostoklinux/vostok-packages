@@ -3,7 +3,7 @@ pkgname=brave
 version=1.87.188
 revision=3
 archs="x86_64"
-wrksrc="brave-browser-${version}"  # предполагаемое имя папки, но уточним
+wrksrc="brave-browser-${version}"
 distfiles="https://github.com/brave/brave-browser/releases/download/v${version}/brave-browser-${version}-linux-amd64.zip"
 checksum="9c80f829f0a78903c8cff30abbee68b1b87c4839506ba528052a47aeead5d167"
 homepage="https://brave.com"
@@ -12,7 +12,6 @@ short_desc="Brave browser: Web browser that blocks ads and trackers by default (
 maintainer="Vostok Linux <vostoklinux.org>"
 nostrip=yes
 
-# Расширенный список зависимостей (на основе типичных для Electron и Chromium)
 depends="alsa-lib at-spi2-core cairo cups dbus expat fontconfig freetype
  gdk-pixbuf glib gtk+3 libX11 libXScrnSaver libXcomposite libXdamage libXext
  libXfixes libXrandr libXrender libXtst libdrm libgbm libsecret libxcb
@@ -21,26 +20,21 @@ depends="alsa-lib at-spi2-core cairo cups dbus expat fontconfig freetype
 
 
 do_install() {
-    # Определяем реальную структуру архива (если wrksrc не совпадает)
     local real_wrksrc
     if [ -d "${wrksrc}" ]; then
         real_wrksrc="${wrksrc}"
     else
-        # Ищем единственную подпапку
         real_wrksrc=$(find . -maxdepth 1 -type d ! -name . | head -1)
         real_wrksrc="${real_wrksrc#./}"
     fi
     : ${real_wrksrc:=.}
 
-    # Устанавливаем основные файлы в /opt/brave
     vmkdir opt/brave
     vcopy "${real_wrksrc}/*" opt/brave
 
-    # Создаём симлинк (исполняемый файл называется brave)
     vmkdir usr/bin
     ln -sf /opt/brave/brave ${DESTDIR}/usr/bin/brave
 
-    # .desktop файл (в архиве его нет, создаём свой)
     vmkdir usr/share/applications
     cat > ${DESTDIR}/usr/share/applications/brave.desktop <<EOF
 [Desktop Entry]
@@ -56,19 +50,16 @@ StartupWMClass=brave
 EOF
     chmod 644 ${DESTDIR}/usr/share/applications/brave.desktop
 
-    # Установка иконок (используем product_logo_*.png из архива)
     vmkdir usr/share/pixmaps
-    # Копируем основную иконку (128x128 или 256x256) как brave.png
+
     if [ -f ${real_wrksrc}/product_logo_128.png ]; then
         cp ${real_wrksrc}/product_logo_128.png ${DESTDIR}/usr/share/pixmaps/brave.png
     elif [ -f ${real_wrksrc}/product_logo_256.png ]; then
         cp ${real_wrksrc}/product_logo_256.png ${DESTDIR}/usr/share/pixmaps/brave.png
     else
-        # Если нет, используем любую
         cp ${real_wrksrc}/product_logo_64.png ${DESTDIR}/usr/share/pixmaps/brave.png 2>/dev/null || true
     fi
 
-    # Устанавливаем иконки в стандартные каталоги hicolor для разных размеров
     local size
     for size in 16 24 32 48 64 128 256; do
         if [ -f ${real_wrksrc}/product_logo_${size}.png ]; then
@@ -77,7 +68,6 @@ EOF
         fi
     done
 
-    # Лицензия (если есть)
     if [ -f ${real_wrksrc}/LICENSE ]; then
         vlicense ${real_wrksrc}/LICENSE
     else

@@ -6,8 +6,6 @@ archs="x86_64"
 wrksrc="steam-${version}"
 hostmakedepends="tar xz binutils"
 distfiles="https://repo.steampowered.com/steam/archive/stable/steam_latest.deb"
-# ВНИМАНИЕ: checksum часто меняется, т.к. ссылка ведёт на последнюю версию.
-# При ошибке "checksum mismatch" скачайте файл вручную и обновите хеш.
 checksum="b44634a6a604ca7c8b23809d0f2a921a0348bb2081c8cb8944116d0799872b70"
 homepage="https://store.steampowered.com"
 license="custom:Proprietary"
@@ -15,7 +13,6 @@ short_desc="Valve's Steam digital distribution platform (32-bit client) - binary
 maintainer="Vostok Linux <vostoklinux.org>"
 nostrip=yes
 
-# Все необходимые 32-битные зависимости + системные утилиты из официального шаблона
 depends="
 	xz
 	bzip2
@@ -76,15 +73,11 @@ do_extract() {
 }
 
 do_install() {
-	# 1. Копируем всю структуру /usr из deb
 	vcopy usr /
 
-	# 2. ХАК: подменяем steamdeps (чтобы Steam не вызывал apt-get)
 	rm -f ${DESTDIR}/usr/bin/steamdeps
 	ln -sf /bin/true ${DESTDIR}/usr/bin/steamdeps
 
-	# 3. ХАК: создаём симлинки для OpenSSL 1.1, если их нет в системе
-	#    Целевые библиотеки OpenSSL 3 должны существовать в /usr/lib32
 	if [ -f /usr/lib32/libssl.so.3 ] && [ -f /usr/lib32/libcrypto.so.3 ]; then
 		vmkdir usr/lib32
 		ln -sf /usr/lib32/libssl.so.3 ${DESTDIR}/usr/lib32/libssl.so.1.1
@@ -93,7 +86,6 @@ do_install() {
 		echo "Warning: 32-bit OpenSSL 3 libraries not found in /usr/lib32. Steam may fail to start." >&2
 	fi
 
-	# 4. Исправляем права на исполняемые файлы
 	chmod 755 ${DESTDIR}/usr/bin/steam
 	if [ -d ${DESTDIR}/usr/lib/steam ]; then
 		find ${DESTDIR}/usr/lib/steam -type d -exec chmod 755 {} +
@@ -101,17 +93,12 @@ do_install() {
 		find ${DESTDIR}/usr/lib/steam -type f ! -executable -exec chmod 644 {} +
 	fi
 
-	# 5. ХАК: боремся с ярлыком на рабочем столе KDE
 	if [ -f ${DESTDIR}/usr/share/applications/steam.desktop ]; then
-		# Убираем ярлык с рабочего стола, оставляя в меню
 		echo "NotShowIn=KDE" >> ${DESTDIR}/usr/share/applications/steam.desktop
-		# Возможно, пригодится для Wayland
 		echo "X-KDE-Wayland-Interfaces=protocols" >> ${DESTDIR}/usr/share/applications/steam.desktop
-		# Убираем автозапуск (если есть)
 		sed -i '/^X-GNOME-Autostart-enabled=/d' ${DESTDIR}/usr/share/applications/steam.desktop
 	fi
-
-	# 6. Лицензия
+	
 	if [ -f ${wrksrc}/usr/share/doc/steam/copyright ]; then
 		vlicense ${wrksrc}/usr/share/doc/steam/copyright
 	else

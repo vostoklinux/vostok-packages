@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=Install Vostok Linux
-Comment=Графический установщик Vostok Linux
-Exec=konsole -e sudo /usr/bin/vostok-installer
-Icon=vostok-installer
-Terminal=false
-Type=Application
-Categories=System;
-StartupNotify=true

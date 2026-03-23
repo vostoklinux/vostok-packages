@@ -61,32 +61,25 @@ do_extract() {
 }
 
 do_install() {
-	# 1. Создаём папку для бинарников в /usr/lib
 	vmkdir usr/lib/cursor
 
-	# 2. Копируем все файлы из usr/share/cursor распакованного .deb в /usr/lib/cursor
 	cp -R ${wrksrc}/usr/share/cursor/* ${DESTDIR}/usr/lib/cursor/
 
-	# 3. Удаляем оригинальную папку share/cursor, чтобы хук не ругался
 	rm -rf ${DESTDIR}/usr/share/cursor
 
-	# 4. Копируем иконки (должны остаться в /usr/share/icons)
 	if [ -d ${wrksrc}/usr/share/icons ]; then
 		cp -R ${wrksrc}/usr/share/icons ${DESTDIR}/usr/share/
 	fi
 
-	# 5. Копируем документацию и man-страницы, если есть
 	for d in man doc; do
 		if [ -d ${wrksrc}/usr/share/$d ]; then
 			cp -R ${wrksrc}/usr/share/$d ${DESTDIR}/usr/share/
 		fi
 	done
 
-	# 6. Симлинк в /usr/bin
 	vmkdir usr/bin
 	ln -sf /usr/lib/cursor/cursor ${DESTDIR}/usr/bin/cursor
 
-	# 7. Создаём свой .desktop файл
 	vmkdir usr/share/applications
 	cat > ${DESTDIR}/usr/share/applications/cursor.desktop <<EOF
 [Desktop Entry]
@@ -100,7 +93,6 @@ Categories=Development;TextEditor;
 StartupWMClass=Cursor
 EOF
 
-# Установка иконки из files/
 if [ -f ${FILESDIR}/cursor.png ]; then
     vmkdir usr/share/pixmaps
     vinstall ${FILESDIR}/cursor.png 644 usr/share/pixmaps cursor.png
@@ -108,12 +100,10 @@ if [ -f ${FILESDIR}/cursor.png ]; then
     vinstall ${FILESDIR}/cursor.png 644 usr/share/icons/hicolor/256x256/apps cursor.png
 fi
 
-	# 8. SUID для chrome-sandbox
 if [ -f ${DESTDIR}/usr/lib/cursor/chrome-sandbox ]; then
     chmod 4755 ${DESTDIR}/usr/lib/cursor/chrome-sandbox
 fi
 
-	# 9. Массовая коррекция прав
 	find ${DESTDIR}/usr/lib/cursor -type d -exec chmod 755 {} +
 	find ${DESTDIR}/usr/lib/cursor -type f -exec chmod 644 {} +
 	chmod 755 ${DESTDIR}/usr/lib/cursor/cursor
@@ -122,7 +112,6 @@ fi
 	find ${DESTDIR}/usr/lib/cursor/resources/app/resources/helpers -type f -exec chmod 755 {} +
 	find ${DESTDIR}/usr/lib/cursor -type f -name "rg" -exec chmod 755 {} +
 
-	# 10. Лицензия
 	if [ -f ${wrksrc}/usr/share/doc/cursor/copyright ]; then
 		vlicense ${wrksrc}/usr/share/doc/cursor/copyright
 	else
