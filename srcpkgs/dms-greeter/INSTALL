@@ -1,0 +1,8 @@
+case "$ACTION" in
+post)
+    # Create temp directory with proper permissions
+    mkdir -p /var/cache/dms-greeter
+    chown _greeter:_greeter /var/cache/dms-greeter
+    chmod 750 /var/cache/dms-greeter
+    ;;
+esac

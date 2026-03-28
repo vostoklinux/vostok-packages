@@ -1,0 +1,31 @@
+# Template file for 'dgop'
+pkgname=dgop
+version=0.2.2
+revision=1
+archs="x86_64"
+build_style=go
+go_import_path="github.com/AvengeMedia/dgop"
+go_build_tags=""
+go_ldflags="-linkmode=external"
+depends="glibc"
+short_desc="System monitoring CLI + REST API"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="MIT"
+homepage="https://github.com/AvengeMedia/dgop"
+distfiles="https://github.com/AvengeMedia/dgop/archive/refs/tags/v${version}.tar.gz"
+checksum=2e45d94d2227bb596844681e66f948aeea4a09be3f7ee88dcbbf38938cabec32
+
+do_build() {
+	cd ${wrksrc}
+	export CGO_CPPFLAGS="$CPPFLAGS"
+	export CGO_CFLAGS="$CFLAGS"
+	export CGO_CXXFLAGS="$CXXFLAGS"
+	export CGO_LDFLAGS="$LDFLAGS"
+	export GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw -ldflags=${go_ldflags}"
+	go build -o dgop ./cmd/dgop
+}
+
+do_install() {
+	vbin dgop
+	vinstall LICENSE 644 usr/share/licenses/${pkgname}/
+}
