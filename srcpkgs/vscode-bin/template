@@ -12,7 +12,7 @@ short_desc="Visual Studio Code - proprietary source code editor"
 maintainer="Vostok Linux <vostoklinux.org>"
 nostrip=yes
 
-depends="alsa-lib at-spi2-core cairo cups dbus expat fontconfig freetype
+depends="alsa-lib at-spi2-core cairo libcups dbus expat fontconfig freetype
  gdk-pixbuf glib gtk+3 libX11 libXScrnSaver libXcomposite libXdamage libXext
  libXfixes libXrandr libXrender libXtst libdrm nss nspr libxcb libxshmfence
  mesa pango eudev-libudev libgbm libsecret"
