@@ -51,10 +51,10 @@ jobs:
       - name: Prepare masterdir
         run: |
           echo "XBPS_CHROOT_CMD=uchroot" >> etc/conf
-          mkdir -p masterdir hostdir
-          chown -R builder:builder masterdir hostdir
-          # Разрешаем git для всех пользователей системно
+          # Сначала прописываем safe.directory системно (до chown)
           git config --system --add safe.directory /__w/vostok-packages/vostok-packages
+          # Теперь отдаём всю папку builder чтобы он мог создавать masterdir
+          chown -R builder:builder .
           sudo -Eu builder ./xbps-src binary-bootstrap
 
       - name: Find changed templates
