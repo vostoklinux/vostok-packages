@@ -36,6 +36,8 @@ jobs:
           sed -i 's|repo-default|repo-ci|g' /etc/xbps.d/*-repository-*.conf
           xbps-install -Syu xbps && xbps-install -yu
           xbps-install -y sudo bash curl git
+          useradd -G xbuilder -M builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,7 +46,8 @@ jobs:
 
       - name: Prepare masterdir
         run: |
-          ./xbps-src -o XBPS_ALLOW_CHROOT_BREAKOUT=yes binary-bootstrap
+          chown -R builder:builder .
+          sudo -Eu builder ./xbps-src binary-bootstrap
 
       - name: Find changed templates
         id: changed
@@ -72,7 +75,7 @@ jobs:
           FAILED=0
           for pkg in ${{ steps.changed.outputs.packages }}; do
             echo "━━━ Building: $pkg ━━━"
-            ./xbps-src -o XBPS_ALLOW_CHROOT_BREAKOUT=yes pkg "$pkg" || {
+            sudo -Eu builder ./xbps-src pkg "$pkg" || {
               echo "FAILED: $pkg"
               FAILED=1
             }
