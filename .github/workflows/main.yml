@@ -1,0 +1,194 @@
+name: Build and Deploy Vostok Packages
+
+on:
+  pull_request:
+    paths:
+      - 'srcpkgs/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'srcpkgs/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ──────────────────────────────────────────
+  # JOB 1: Сборка пакетов
+  # ──────────────────────────────────────────
+  build:
+    name: Build packages
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/void-linux/void-glibc-full
+      options: --privileged
+      volumes:
+        - /dev:/dev
+
+    outputs:
+      has_packages: ${{ steps.check.outputs.has_packages }}
+
+    steps:
+      - name: Prepare container
+        run: |
+          # Переключаемся на CI-зеркало (как у Void)
+          mkdir -p /etc/xbps.d
+          cp /usr/share/xbps.d/*-repository-*.conf /etc/xbps.d/
+          sed -i 's|repo-default|repo-ci|g' /etc/xbps.d/*-repository-*.conf
+          xbps-install -Syu xbps && xbps-install -yu
+          xbps-install -y sudo bash curl git
+          # Создаём непривилегированного пользователя для сборки
+          useradd -G xbuilder -M builder
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare masterdir
+        run: |
+          chown -R builder:builder .
+          # Скачиваем bootstrap (базовая система для сборки)
+          sudo -Eu builder ./xbps-src binary-bootstrap
+
+      - name: Find changed templates
+        id: changed
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+            HEAD="${{ github.sha }}"
+          fi
+
+          # Находим изменённые пакеты
+          PKGS=$(git diff --name-only "$BASE" "$HEAD" -- srcpkgs/ \
+            | grep -oP 'srcpkgs/\K[^/]+' \
+            | sort -u \
+            | tr '\n' ' ')
+
+          echo "packages=$PKGS" >> $GITHUB_OUTPUT
+          echo "Packages to build: $PKGS"
+
+      - name: Build packages
+        if: steps.changed.outputs.packages != ''
+        run: |
+          FAILED=0
+          for pkg in ${{ steps.changed.outputs.packages }}; do
+            echo "━━━ Building: $pkg ━━━"
+            sudo -Eu builder ./xbps-src pkg "$pkg" || {
+              echo "FAILED: $pkg"
+              FAILED=1
+            }
+          done
+          exit $FAILED
+
+      - name: Check that packages were built
+        id: check
+        run: |
+          if ls hostdir/binpkgs/main/*.xbps 2>/dev/null | grep -q .; then
+            echo "has_packages=true" >> $GITHUB_OUTPUT
+            ls -lh hostdir/binpkgs/main/*.xbps
+          else
+            echo "has_packages=false" >> $GITHUB_OUTPUT
+            echo "No .xbps files found"
+          fi
+
+      - name: Upload artifacts
+        if: steps.check.outputs.has_packages == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vostok-packages-${{ github.sha }}
+          path: hostdir/binpkgs/main/*.xbps
+          retention-days: 7
+
+  # ──────────────────────────────────────────
+  # JOB 2: Подпись и деплой на VPS
+  # Запускается только при пуше в main
+  # и только если есть собранные пакеты.
+  # Требует ручного подтверждения (environment: production)
+  # ──────────────────────────────────────────
+  deploy:
+    name: Sign and deploy to VPS
+    runs-on: ubuntu-latest
+    needs: build
+
+    # Запускаем только на push в main (не на PR)
+    if: |
+      needs.build.outputs.has_packages == 'true' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main'
+
+    # Этот environment требует твоего подтверждения в GitHub UI
+    environment: production
+
+    container:
+      image: ghcr.io/void-linux/void-glibc-full
+
+    steps:
+      - name: Prepare container
+        run: |
+          mkdir -p /etc/xbps.d
+          cp /usr/share/xbps.d/*-repository-*.conf /etc/xbps.d/
+          sed -i 's|repo-default|repo-ci|g' /etc/xbps.d/*-repository-*.conf
+          xbps-install -Syu xbps && xbps-install -yu
+          xbps-install -y openssh rsync
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vostok-packages-${{ github.sha }}
+          path: ./pkgs
+
+      - name: Restore XBPS signing key
+        env:
+          XBPS_SIGNING_KEY: ${{ secrets.XBPS_SIGNING_KEY }}
+        run: |
+          echo "$XBPS_SIGNING_KEY" | base64 -d > /tmp/vostok-repo.key
+          chmod 600 /tmp/vostok-repo.key
+
+      - name: Sign packages
+        run: |
+          cd ./pkgs
+
+          echo "Signing packages..."
+          for pkg in *.xbps; do
+            [ -f "$pkg" ] || continue
+            echo "  → $pkg"
+            xbps-rindex --sign-pkg \
+              --privkey /tmp/vostok-repo.key \
+              --signedby "Vostok Linux" \
+              "$pkg"
+          done
+
+          echo "Building repository index..."
+          xbps-rindex -a *.xbps
+          xbps-rindex -s \
+            --privkey /tmp/vostok-repo.key \
+            --signedby "Vostok Linux" \
+            .
+
+      - name: Deploy to VPS via rsync
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts
+
+          rsync -avz --progress \
+            -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=yes" \
+            ./pkgs/ \
+            "$VPS_USER@$VPS_HOST:/var/www/vostoklinux.org/repo/current/"
+
+      - name: Cleanup sensitive files
+        if: always()
+        run: rm -f /tmp/vostok-repo.key ~/.ssh/id_rsa
+
