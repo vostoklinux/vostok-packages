@@ -1,7 +1,7 @@
 # Template file for 'vscode'
 pkgname=vscode-bin
 version=1.113.0
-revision=7
+revision=8
 archs="x86_64"
 wrksrc="VSCode-linux-x64"
 distfiles=("https://update.code.visualstudio.com/${version}/linux-x64/stable>code-${version}.tar.gz")
