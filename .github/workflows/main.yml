@@ -176,15 +176,16 @@ jobs:
         env:
           XBPS_SIGNING_KEY: ${{ secrets.XBPS_SIGNING_KEY }}
         run: |
-          # Декодируем base64 в файл
-          echo "$XBPS_SIGNING_KEY" | base64 -d > /tmp/vostok-repo.raw
+          # 1. Декодируем base64 (удаляя возможные пробелы/переносы)
+          echo "$XBPS_SIGNING_KEY" | tr -d '\n\r ' | base64 -d > /tmp/vostok-repo.raw
           
-          # Принудительно конвертируем в классический RSA формат (PKCS#1)
-          # Это решит проблему с "failed to read the RSA privkey"
+          # 2. Конвертируем в классический RSA (PKCS#1)
           openssl rsa -in /tmp/vostok-repo.raw -out /tmp/vostok-repo.key
           
           chmod 600 /tmp/vostok-repo.key
           rm /tmp/vostok-repo.raw
+          echo "Ключ успешно подготовлен"
+
       
       - name: Sign packages
         run: |
