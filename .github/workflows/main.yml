@@ -80,11 +80,13 @@ jobs:
               PKGS="$PKGS $name"
             done
           else
-            echo "=== Changed files ==="
-            # БЕЗ -- srcpkgs/ в конце — фильтруем через grep
-            git diff --name-only "$BASE" "$HEAD"
+            # Явно подтягиваем BASE коммит чтобы git diff его нашёл
+            git fetch origin "$BASE" || git fetch --unshallow || true
 
-            for f in $(git diff --name-only "$BASE" "$HEAD"); do
+            echo "=== Changed files ==="
+            git diff --name-only "$BASE" "$HEAD" || true
+
+            for f in $(git diff --name-only "$BASE" "$HEAD" 2>/dev/null); do
               case "$f" in
                 srcpkgs/*)
                   name=$(echo "$f" | cut -d/ -f2)
