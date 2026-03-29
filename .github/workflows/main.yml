@@ -217,22 +217,25 @@ jobs:
             --signedby "Vostok Linux" \
             .
 
-
       - name: Deploy to VPS via rsync
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
+
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+
+          printf "%s\n" "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+
           ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts
 
           rsync -avz --progress \
-            -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=yes" \
+            -e "ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=no" \
             ./pkgs/ \
             "$VPS_USER@$VPS_HOST:/var/www/vostoklinux.org/repo/current/"
+ 
 
       - name: Cleanup sensitive files
         if: always()
