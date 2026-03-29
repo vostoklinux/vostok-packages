@@ -15,9 +15,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ──────────────────────────────────────────
-  # JOB 1: Сборка пакетов
-  # ──────────────────────────────────────────
   build:
     name: Build packages
     runs-on: ubuntu-latest
@@ -34,14 +31,11 @@ jobs:
     steps:
       - name: Prepare container
         run: |
-          # Переключаемся на CI-зеркало (как у Void)
           mkdir -p /etc/xbps.d
           cp /usr/share/xbps.d/*-repository-*.conf /etc/xbps.d/
           sed -i 's|repo-default|repo-ci|g' /etc/xbps.d/*-repository-*.conf
           xbps-install -Syu xbps && xbps-install -yu
           xbps-install -y sudo bash curl git
-          # Создаём непривилегированного пользователя для сборки
-          useradd -G xbuilder -M builder
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,9 +44,7 @@ jobs:
 
       - name: Prepare masterdir
         run: |
-          chown -R builder:builder .
-          # Скачиваем bootstrap (базовая система для сборки)
-          sudo -Eu builder ./xbps-src binary-bootstrap
+          ./xbps-src -o XBPS_ALLOW_CHROOT_BREAKOUT=yes binary-bootstrap
 
       - name: Find changed templates
         id: changed
@@ -65,10 +57,10 @@ jobs:
             HEAD="${{ github.sha }}"
           fi
 
-          # Находим изменённые пакеты
           PKGS=$(git diff --name-only "$BASE" "$HEAD" -- srcpkgs/ \
             | grep -oP 'srcpkgs/\K[^/]+' \
             | sort -u \
+            | grep -v '^base-files$' \
             | tr '\n' ' ')
 
           echo "packages=$PKGS" >> $GITHUB_OUTPUT
@@ -80,7 +72,7 @@ jobs:
           FAILED=0
           for pkg in ${{ steps.changed.outputs.packages }}; do
             echo "━━━ Building: $pkg ━━━"
-            sudo -Eu builder ./xbps-src pkg "$pkg" || {
+            ./xbps-src -o XBPS_ALLOW_CHROOT_BREAKOUT=yes pkg "$pkg" || {
               echo "FAILED: $pkg"
               FAILED=1
             }
@@ -106,24 +98,16 @@ jobs:
           path: hostdir/binpkgs/main/*.xbps
           retention-days: 7
 
-  # ──────────────────────────────────────────
-  # JOB 2: Подпись и деплой на VPS
-  # Запускается только при пуше в main
-  # и только если есть собранные пакеты.
-  # Требует ручного подтверждения (environment: production)
-  # ──────────────────────────────────────────
   deploy:
     name: Sign and deploy to VPS
     runs-on: ubuntu-latest
     needs: build
 
-    # Запускаем только на push в main (не на PR)
     if: |
       needs.build.outputs.has_packages == 'true' &&
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main'
 
-    # Этот environment требует твоего подтверждения в GitHub UI
     environment: production
 
     container:
@@ -191,4 +175,3 @@ jobs:
       - name: Cleanup sensitive files
         if: always()
         run: rm -f /tmp/vostok-repo.key ~/.ssh/id_rsa
-
