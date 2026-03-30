@@ -1,77 +1,32 @@
 # Template file for 'brave'
 pkgname=brave
-version=1.87.188
-revision=3
+version=1.88.136
+revision=1
 archs="x86_64"
-wrksrc="brave-browser-${version}"
-distfiles="https://github.com/brave/brave-browser/releases/download/v${version}/brave-browser-${version}-linux-amd64.zip"
-checksum="9c80f829f0a78903c8cff30abbee68b1b87c4839506ba528052a47aeead5d167"
-homepage="https://brave.com"
+wrksrc="."
+depends="alsa-lib libsecret libgbm eudev-libudev libpulseaudio libcups"
+short_desc="Web browser that blocks ads and trackers by default"
+maintainer="David Ivashevich <davidivashevich@gmail.com>"
 license="MPL-2.0"
-short_desc="Brave browser: Web browser that blocks ads and trackers by default (binary release)"
-maintainer="Vostok Linux <vostoklinux.org>"
+homepage="https://brave.com"
+distfiles="https://github.com/brave/brave-browser/releases/download/v${version}/brave-browser-${version}-linux-amd64.zip>brave-${version}-linux-amd64.zip"
+checksum=d3053b03b141815e1400dd5e9471ca207902ab276ddd9f9964f4035c9fbea0e9
 nostrip=yes
 
-depends="alsa-lib at-spi2-core cairo cups dbus expat fontconfig freetype
- gdk-pixbuf glib gtk+3 libX11 libXScrnSaver libXcomposite libXdamage libXext
- libXfixes libXrandr libXrender libXtst libdrm libgbm libsecret libxcb
- xcb-util-cursor libXinerama libxshmfence mesa-dri nss nspr pango
- libnotify libpulseaudio gnutls"
-
-
 do_install() {
-    local real_wrksrc
-    if [ -d "${wrksrc}" ]; then
-        real_wrksrc="${wrksrc}"
-    else
-        real_wrksrc=$(find . -maxdepth 1 -type d ! -name . | head -1)
-        real_wrksrc="${real_wrksrc#./}"
-    fi
-    : ${real_wrksrc:=.}
+	vmkdir opt/brave
+	vcopy "*" opt/brave
+	vmkdir usr/bin
+	ln -sf /opt/brave/brave ${DESTDIR}/usr/bin/brave
 
-    vmkdir opt/brave
-    vcopy "${real_wrksrc}/*" opt/brave
+	vinstall ${FILESDIR}/brave.desktop 644 usr/share/applications
 
-    vmkdir usr/bin
-    ln -sf /opt/brave/brave ${DESTDIR}/usr/bin/brave
+	for size in 16 24 32 48 64 128 256; do
+		[ -f product_logo_${size}.png ] || continue
+		vinstall product_logo_${size}.png 644 \
+			usr/share/icons/hicolor/${size}x${size}/apps brave.png
+	done
+	vinstall product_logo_128.png 644 usr/share/pixmaps brave.png
 
-    vmkdir usr/share/applications
-    cat > ${DESTDIR}/usr/share/applications/brave.desktop <<EOF
-[Desktop Entry]
-Version=1.0
-Name=Brave
-Comment=Brave browser
-Exec=/usr/bin/brave
-Icon=brave
-Terminal=false
-Type=Application
-Categories=Network;WebBrowser;
-StartupWMClass=brave
-EOF
-    chmod 644 ${DESTDIR}/usr/share/applications/brave.desktop
-
-    vmkdir usr/share/pixmaps
-
-    if [ -f ${real_wrksrc}/product_logo_128.png ]; then
-        cp ${real_wrksrc}/product_logo_128.png ${DESTDIR}/usr/share/pixmaps/brave.png
-    elif [ -f ${real_wrksrc}/product_logo_256.png ]; then
-        cp ${real_wrksrc}/product_logo_256.png ${DESTDIR}/usr/share/pixmaps/brave.png
-    else
-        cp ${real_wrksrc}/product_logo_64.png ${DESTDIR}/usr/share/pixmaps/brave.png 2>/dev/null || true
-    fi
-
-    local size
-    for size in 16 24 32 48 64 128 256; do
-        if [ -f ${real_wrksrc}/product_logo_${size}.png ]; then
-            vmkdir usr/share/icons/hicolor/${size}x${size}/apps
-            cp ${real_wrksrc}/product_logo_${size}.png ${DESTDIR}/usr/share/icons/hicolor/${size}x${size}/apps/brave.png
-        fi
-    done
-
-    if [ -f ${real_wrksrc}/LICENSE ]; then
-        vlicense ${real_wrksrc}/LICENSE
-    else
-        vmkdir usr/share/licenses/${pkgname}
-        echo "Brave browser is licensed under MPL-2.0. See https://github.com/brave/brave-browser" > ${DESTDIR}/usr/share/licenses/${pkgname}/LICENSE
-    fi
+	vlicense LICENSE
 }
