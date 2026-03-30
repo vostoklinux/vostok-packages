@@ -1,86 +1,41 @@
 # Template file for 'figma-linux'
 pkgname=figma-linux
 version=0.11.5
-revision=11
+revision=2
 archs="x86_64"
 wrksrc="figma-linux"
-hostmakedepends="unzip"
-distfiles="https://github.com/Figma-Linux/figma-linux/releases/download/v${version}/figma-linux_${version}_linux_amd64.zip"
-checksum="e667df1d31cc9ff12f31d092289394a29296818a212dfe3fad0e98af7a0aadcd"
-homepage="https://github.com/Figma-Linux/figma-linux"
+depends="elogind hicolor-icon-theme xdg-utils
+ alsa-lib libsecret libgbm libdrm libcups"
+short_desc="Unofficial Figma desktop client for Linux"
+maintainer="Vostok Linux <packaging@vostoklinux.org>"
 license="GPL-2.0-only"
-short_desc="Unofficial Figma desktop client for Linux (binary repack)"
-maintainer="Vostok Linux <vostoklinux.org>"
+homepage="https://github.com/Figma-Linux/figma-linux"
+distfiles="https://github.com/Figma-Linux/figma-linux/releases/download/v${version}/figma-linux_${version}_linux_amd64.zip>figma-linux-${version}-amd64.zip"
+checksum=e667df1d31cc9ff12f31d092289394a29296818a212dfe3fad0e98af7a0aadcd
 nostrip=yes
 noshlibs=yes
 
-depends="elogind>=252.39_1 libkeyutils>=1.6.3_1 hicolor-icon-theme xdg-utils
- alsa-lib at-spi2-core cairo cups dbus expat fontconfig freetype
- gdk-pixbuf glib gtk+3 libX11 libXScrnSaver libXcomposite libXdamage libXext
- libXfixes libXrandr libXrender libXtst libdrm libgbm libsecret libxcb
- xcb-util-cursor libXinerama libxshmfence mesa-dri nss nspr pango"
-
 do_extract() {
 	mkdir -p ${wrksrc}
-	unzip -q -d ${wrksrc} ${XBPS_SRCDISTDIR}/${pkgname}-${version}/figma-linux_${version}_linux_amd64.zip
+	bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/figma-linux-${version}-amd64.zip \
+		-C ${wrksrc}
 }
 
 do_install() {
 	vmkdir opt/figma-linux
-	cp -R ${wrksrc}/* ${DESTDIR}/opt/figma-linux/
+	vcopy "*" opt/figma-linux
 
 	vmkdir opt/figma-linux/lib
 	ln -sf /usr/lib/libelogind.so.0 ${DESTDIR}/opt/figma-linux/lib/libsystemd.so.0
 
-	if [ -d "${FILESDIR}" ]; then
-		for size in 24 36 48 64 72 96 128 192 256 384 512; do
-			if [ -f "${FILESDIR}/${size}x${size}.png" ]; then
-				vmkdir usr/share/icons/hicolor/${size}x${size}/apps
-				cp "${FILESDIR}/${size}x${size}.png" ${DESTDIR}/usr/share/icons/hicolor/${size}x${size}/apps/figma-linux.png
-			fi
-		done
-		if [ -f "${FILESDIR}/scalable.svg" ]; then
-			vmkdir usr/share/icons/hicolor/scalable/apps
-			cp "${FILESDIR}/scalable.svg" ${DESTDIR}/usr/share/icons/hicolor/scalable/apps/figma-linux.svg
-		fi
-		if [ -f "${FILESDIR}/figma-linux.desktop" ]; then
-			vinstall "${FILESDIR}/figma-linux.desktop" 644 usr/share/applications
-		fi
-	fi
-
 	vmkdir usr/bin
 	ln -sf /opt/figma-linux/figma-linux ${DESTDIR}/usr/bin/figma-linux
 
-	find ${DESTDIR}/opt/figma-linux -type d -exec chmod 755 {} \;
-	find ${DESTDIR}/opt/figma-linux -type f -exec chmod 644 {} \;
 	chmod -R o-w ${DESTDIR}/opt/figma-linux
-
 	chmod 755 ${DESTDIR}/opt/figma-linux/figma-linux
 	if [ -f ${DESTDIR}/opt/figma-linux/chrome-sandbox ]; then
 		chmod 4755 ${DESTDIR}/opt/figma-linux/chrome-sandbox
 	fi
 
-	vmkdir usr/share/applications
-	cat > ${DESTDIR}/usr/share/applications/figma-linux.desktop <<EOF
-[Desktop Entry]
-Name=Figma
-Comment=Unofficial Figma desktop client (Optimized)
-Exec=/usr/bin/figma-linux --no-sandbox --enable-features=UseOzonePlatform --ozone-platform=wayland --enable-gpu-rasterization --force-gpu-rasterization --ignore-gpu-blacklist --enable-oop-rasterization --enable-accelerated-2d-canvas --enable-zero-copy --ui-enable-zero-copy --enable-native-gpu-memory-buffers --enable-webgl-image-chromium --enable-accelerated-video %U
-Terminal=false
-Type=Application
-Icon=/usr/share/pixmaps/figma-linux.png
-StartupWMClass=figma-linux
-Categories=Graphics;Design;
-MimeType=application/figma;x-scheme-handler/figma;
-EOF
-
-	vmkdir usr/share/pixmaps
-	vinstall ${FILESDIR}/figma-linux.png 644 usr/share/pixmaps
-
-	if [ -f "${wrksrc}/LICENSE" ]; then
-		vlicense "${wrksrc}/LICENSE"
-	else
-		vmkdir usr/share/licenses/${pkgname}
-		echo "Figma Linux client is licensed under GPL-2.0. See https://github.com/Figma-Linux/figma-linux" > ${DESTDIR}/usr/share/licenses/${pkgname}/LICENSE
-	fi
+	vlicense ${wrksrc}/LICENSE.electron.txt
 }
