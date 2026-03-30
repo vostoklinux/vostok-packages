@@ -1,20 +1,25 @@
 # Template file for 'steam-bin'
 pkgname=steam-bin
 version=1.0.0.85
-revision=8
+revision=9
 archs="x86_64"
 depends="zenity xz curl dbus freetype gdk-pixbuf hicolor-icon-theme desktop-file-utils
  liberation-fonts-ttf file tar bash coreutils lsof steam-udev-rules
  libgcc-32bit libstdc++-32bit
  libX11-32bit libXext-32bit libXrandr-32bit libXrender-32bit libXfixes-32bit
- libglvnd-32bit vulkan-loader-32bit
- alsa-lib-32bit libpulseaudio-32bit"
+ libXcomposite-32bit libXdamage-32bit libXinerama-32bit libXi-32bit libXcursor-32bit
+ libxcb-32bit libxshmfence-32bit
+ libglvnd-32bit libdrm-32bit vulkan-loader-32bit
+ nss-32bit nspr-32bit
+ alsa-lib-32bit libpulseaudio-32bit
+ SDL2-32bit"
 short_desc="Valve's Steam digital distribution platform"
 maintainer="Vostok Linux <packaging@vostoklinux.org>"
 license="custom:Valve-SSA"
 homepage="https://steampowered.com/"
 distfiles="https://repo.steampowered.com/steam/pool/steam/s/steam/steam_${version}.tar.gz"
 checksum=7f2d374a2fb413ced5b8125151456219d918a255872b4bb77016cbccf38bb7f1
+repository=nonfree
 nostrip=yes
 
 do_install() {
