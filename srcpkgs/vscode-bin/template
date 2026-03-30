@@ -1,59 +1,31 @@
-# Template file for 'vscode'
+# Template file for 'vscode-bin'
 pkgname=vscode-bin
 version=1.113.0
-revision=10
+revision=11
 archs="x86_64"
 wrksrc="VSCode-linux-x64"
-distfiles=("https://update.code.visualstudio.com/${version}/linux-x64/stable>code-${version}.tar.gz")
-checksum=a7ef2196ae9e07f777a323cc8ab278651a98eb9c50c849348dcf24d8589dbae6
-homepage="https://code.visualstudio.com"
-license="custom:Microsoft EULA"
+depends="alsa-lib libcups libsecret eudev-libudev"
 short_desc="Visual Studio Code - proprietary source code editor"
-maintainer="Vostok Linux <vostoklinux.org>"
+maintainer="Vostok Linux <packaging@vostoklinux.org>"
+license="custom:Microsoft-EULA"
+homepage="https://code.visualstudio.com"
+distfiles="https://update.code.visualstudio.com/${version}/linux-x64/stable>code-${version}.tar.gz"
+checksum=a7ef2196ae9e07f777a323cc8ab278651a98eb9c50c849348dcf24d8589dbae6
 nostrip=yes
-
-depends="alsa-lib at-spi2-core cairo libcups dbus expat fontconfig freetype
- gdk-pixbuf glib gtk+3 libX11 libXScrnSaver libXcomposite libXdamage libXext
- libXfixes libXrandr libXrender libXtst libdrm nss nspr libxcb libxshmfence
- mesa pango eudev-libudev libgbm libsecret"
 
 do_install() {
 	vmkdir usr/lib/vscode
-
-	vcopy "${wrksrc}/*" usr/lib/vscode
-
-	vmkdir usr/bin
+	vcopy "*" usr/lib/vscode
 	ln -sf /usr/lib/vscode/bin/code ${DESTDIR}/usr/bin/code
 
-	if [ -f "${wrksrc}/resources/app/resources/linux/code.desktop" ]; then
-		vinstall "${wrksrc}/resources/app/resources/linux/code.desktop" 644 usr/share/applications
-	else
-		cat > code.desktop <<EOF
-[Desktop Entry]
-Name=Visual Studio Code
-Comment=Code Editing. Redefined.
-Exec=/usr/bin/code
-Icon=vscode
-Terminal=false
-Type=Application
-Categories=Development;IDE;
-StartupWMClass=Code
-EOF
-		vinstall code.desktop 644 usr/share/applications
-	fi
+	vinstall ${FILESDIR}/code.desktop 644 usr/share/applications
 
-	if [ -f "${wrksrc}/resources/app/resources/linux/code.png" ]; then
-		vinstall "${wrksrc}/resources/app/resources/linux/code.png" 644 usr/share/pixmaps
-		vmkdir usr/share/icons/hicolor/48x48/apps
-		cp "${wrksrc}/resources/app/resources/linux/code.png" ${DESTDIR}/usr/share/icons/hicolor/48x48/apps/vscode.png
-	fi
+	vinstall resources/app/resources/linux/code.png 644 \
+		usr/share/icons/hicolor/1024x1024/apps vscode.png
+	vinstall resources/app/resources/linux/code.png 644 \
+		usr/share/pixmaps vscode.png
 
-	if [ -f "${wrksrc}/LICENSE" ]; then
-		vlicense "${wrksrc}/LICENSE"
-	elif [ -f "${wrksrc}/LICENSES.chromium.html" ]; then
-		vlicense "${wrksrc}/LICENSES.chromium.html"
-	else
-		vmkdir usr/share/licenses/${pkgname}
-		echo "Visual Studio Code is licensed under the Microsoft EULA." > ${DESTDIR}/usr/share/licenses/${pkgname}/LICENSE
-	fi
+	chmod -R o-w ${DESTDIR}/usr/lib/vscode/resources/app
+
+	vlicense resources/app/LICENSES.chromium.html
 }
