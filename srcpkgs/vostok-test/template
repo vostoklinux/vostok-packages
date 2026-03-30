@@ -1,6 +1,6 @@
 pkgname=vostok-test
 version=1.0
-revision=17
+revision=18
 short_desc="Test package for Vostok CI/CD"
 maintainer="Vostok Linux <vostoklinux.org>"
 license="MIT"
