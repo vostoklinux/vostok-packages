@@ -1,12 +1,12 @@
 # Template file for 'vscode-bin'
 pkgname=vscode-bin
 version=1.113.0
-revision=11
+revision=12
 archs="x86_64"
 wrksrc="VSCode-linux-x64"
 depends="alsa-lib libcups libsecret eudev-libudev"
 short_desc="Visual Studio Code - proprietary source code editor"
-maintainer="Vostok Linux <packaging@vostoklinux.org>"
+maintainer="David Ivashevich <davidivashevich@gmail.com>"
 license="custom:Microsoft-EULA"
 homepage="https://code.visualstudio.com"
 distfiles="https://update.code.visualstudio.com/${version}/linux-x64/stable>code-${version}.tar.gz"
@@ -16,6 +16,7 @@ nostrip=yes
 do_install() {
 	vmkdir usr/lib/vscode
 	vcopy "*" usr/lib/vscode
+	vmkdir usr/bin
 	ln -sf /usr/lib/vscode/bin/code ${DESTDIR}/usr/bin/code
 
 	vinstall ${FILESDIR}/code.desktop 644 usr/share/applications
