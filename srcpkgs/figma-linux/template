@@ -1,9 +1,10 @@
 # Template file for 'figma-linux'
 pkgname=figma-linux
 version=0.11.5
-revision=3
+revision=4
 archs="x86_64"
 wrksrc="figma-linux"
+hostmakedepends="gtk+3"
 depends="elogind hicolor-icon-theme xdg-utils
  alsa-lib libsecret libgbm libdrm libcups"
 short_desc="Unofficial Figma desktop client for Linux"
