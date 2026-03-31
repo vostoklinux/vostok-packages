@@ -114,6 +114,7 @@ jobs:
         run: |
           [ -d masterdir ] && chown -R builder:builder masterdir
           [ -d hostdir ] && chown -R builder:builder hostdir
+          echo "XBPS_ALLOW_RESTRICTED=yes" >> etc/conf
           
           FAILED=0
           for pkg in ${{ steps.changed.outputs.packages }}; do
