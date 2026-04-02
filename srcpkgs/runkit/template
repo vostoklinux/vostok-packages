@@ -1,0 +1,47 @@
+# Template file for 'runkit'
+pkgname=runkit
+version=1.4.0
+revision=1
+build_style=cargo
+hostmakedepends="pkg-config gtk4-devel libadwaita-devel glib-devel pango-devel"
+makedepends="gtk4-devel libadwaita-devel glib-devel pango-devel"
+short_desc="GUI manager for runit services"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="MIT"
+homepage="https://github.com/Letdown2491/runkit"
+distfiles="https://github.com/Letdown2491/runkit/archive/refs/tags/v${version}.tar.gz"
+checksum=63c49259d086e1830baee12aa47e5f7ad7bdf1ded98e377d5b9b347bf73065cf
+
+do_build() {
+        cargo build --release
+}
+
+do_install() {
+	vinstall target/release/runkit 755 usr/libexec
+	vinstall target/release/runkitd 755 usr/libexec
+
+    vinstall assets/applications/tech.geektoshi.Runkit.desktop 644 usr/share/applications tech.geektoshi.Runkit.desktop
+	vinstall assets/dbus-1/services/tech.geektoshi.Runkit.service 644 usr/share/dbus-1/services tech.geektoshi.Runkit.service
+	vinstall assets/dbus-1/system-services/tech.geektoshi.Runkit1.service 644 usr/share/dbus-1/system-services tech.geektoshi.Runkit1.service
+	vinstall assets/dbus-1/system.d/tech.geektoshi.Runkit1.conf 644 usr/share/dbus-1/system.d tech.geektoshi.Runkit1.conf
+    vinstall assets/polkit-1/actions/tech.geektoshi.Runkit.policy 644 usr/share/polkit-1/actions tech.geektoshi.Runkit.policy
+	vinstall assets/icons/hicolor/scalable/apps/runkit.svg 644 usr/share/icons/hicolor/scalable/apps runkit.svg
+
+	for size in 16x16 24x24 32x32 48x48 64x64 96x96 128x128 256x256 512x512; do
+		vinstall "assets/icons/hicolor/${size}/apps/runkit.png" 644 "usr/share/icons/hicolor/${size}/apps" "runkit.png"
+	done
+
+    vlicense LICENSE
+
+    vmkdir usr/bin/
+    ln -s /usr/libexec/runkit ${DESTDIR}/usr/bin/
+}
+
+post_install() {
+	if [ -x /usr/bin/gtk-update-icon-cache ]; then
+		/usr/bin/gtk-update-icon-cache -f usr/share/icons/hicolor || true
+	fi
+	if [ -x /usr/bin/update-desktop-database ]; then
+		/usr/bin/update-desktop-database usr/share/applications || true
+	fi
+}
