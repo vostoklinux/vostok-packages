@@ -1,0 +1,24 @@
+# Template file for 'wallpaper-engine-gui'
+pkgname=wallpaper-engine-gui
+version=0.3.3
+revision=1
+arch="x86_64"
+depends="wallpaperengine-git"
+short_desc="A wallpaper management app for steam's wallpaper-engine"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="MIT"
+homepage="https://github.com/jagrat7/linux-wallpaper-engine"
+distfiles="https://github.com/jagrat7/linux-wallpaper-engine/releases/download/v${version}/Linux.Wallpaper.Engine-linux-x64-${version}.zip"
+checksum=489ad48c55be260ef3a8d94ba9497066a890158d4df9e355399d26652807c84b
+noverifyrdeps=yes
+disable_shlib_provides=yes
+
+do_install() {
+    vmkdir opt/linux-wallpaper-engine/
+    mv * ${DESTDIR}/opt/linux-wallpaper-engine/
+
+    vbin ${FILESDIR}/linux-wallpaper-engine.sh linux-wallpaper-engine
+
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/linux-wallpaper-engine.desktop 644 usr/share/applications/
+}
