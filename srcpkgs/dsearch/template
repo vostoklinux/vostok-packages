@@ -1,6 +1,6 @@
 # Template file for 'dsearch'
 pkgname=dsearch
-version=0.2.0
+version=0.2.1
 revision=1
 build_style=go
 go_import_path="github.com/AvengeMedia/danksearch"
@@ -10,16 +10,16 @@ maintainer="nerdyslacker <karyan40024@gmail.com>"
 license="MIT"
 homepage="https://github.com/AvengeMedia/danksearch"
 distfiles="https://github.com/AvengeMedia/danksearch/archive/refs/tags/v${version}.tar.gz"
-checksum=fc8ee0cdf541c79616f561a730fb75c207d0db5a250c988881922c42449ff52c
+checksum=e2c263a233e45661e55bd841ee1395b9241132091f1b1e3d98caebb26d455727
 
 do_build() {
-    export CGO_CPPFLAGS="${CPPFLAGS}"
-    export CGO_CFLAGS="${CFLAGS}"
-    export CGO_CXXFLAGS="${CXXFLAGS}"
-    export CGO_LDFLAGS="${LDFLAGS}"
-    export GOFLAGS="-buildmode=pie -trimpath -ldflags=-linkmode=external -mod=readonly -modcacherw"
+	export CGO_CPPFLAGS="${CPPFLAGS}"
+	export CGO_CFLAGS="${CFLAGS}"
+	export CGO_CXXFLAGS="${CXXFLAGS}"
+	export CGO_LDFLAGS="${LDFLAGS}"
+	export GOFLAGS="-buildmode=pie -trimpath -ldflags=-linkmode=external -mod=readonly -modcacherw"
 
-    go build -o dsearch ./cmd/dsearch
+	go build -o dsearch ./cmd/dsearch
 }
 
 do_install() {
