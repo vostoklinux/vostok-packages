@@ -1,0 +1,30 @@
+# Template file for 'vostok-niri-dms-config'
+pkgname=vostok-niri-dms-config
+version=0.0.1
+revision=1
+bootstrap=yes
+short_desc="Vostok Linux Niri with DankMaterialShell config files"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="Public Domain"
+homepage="https://vostoklinux.org"
+conf_files="
+	/etc/greetd/config.toml
+	/etc/skel/.config/DankMaterialShell/settings.json
+	/etc/skel/.config/dgop/colors.json
+	/etc/skel/.config/niri/config.kdl
+	/etc/skel/.config/qt5ct/colors/matugen.conf
+	/etc/skel/.config/qt6ct/colors/matugen.conf
+	/etc/skel/.config/kitty/dank-tabs.conf
+	/etc/skel/.config/kitty/dank-theme.conf
+"
+
+do_install() {
+    vmkdir etc/greetd
+    vcopy ${FILESDIR}/greetd/* "etc/greetd/"
+
+    vmkdir usr/share/wallpapers
+    vinstall ${FILESDIR}/vostok.jpg 644 "usr/share/wallpapers/"
+
+    vmkdir etc/skel/.config
+    vcopy ${FILESDIR}/dot_config/* "etc/skel/.config/"
+}

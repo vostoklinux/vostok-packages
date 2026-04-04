@@ -1,0 +1,44 @@
+# Template file for 'material-symbols'
+pkgname=material-symbols
+_pkgname=material-symbols
+version=1.0.0
+revision=1
+depends="fontconfig"
+short_desc="Material Design icons by Google (fonts collection)"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="Apache-2.0"
+homepage="https://github.com/lazylinuxos/material-design-icons"
+distfiles="https://github.com/lazylinuxos/material-design-icons/archive/refs/tags/${version}.tar.gz"
+checksum=a458713e34149a8d9e4ea1b36f7d092580007c14fa4190f4f53cb1a225c5656b
+
+do_install() {
+	vmkdir usr/share/fonts/${pkgname}
+
+	for f in font/*.{ttf,otf} variablefont/*.{ttf,woff2}; do
+		[ -f "$f" ] && vinstall "$f" 644 usr/share/fonts/${pkgname}/
+	done
+}
+
+material-icons-ttf_package() {
+	short_desc="Material Design classic icons (TTF/OTF)"
+	pkg_install() {
+		vmkdir usr/share/fonts/material-icons-ttf
+		vcopy ${DESTDIR}/usr/share/fonts/${_pkgname}/MaterialIcons* usr/share/fonts/material-icons-ttf/
+	}
+}
+
+material-symbols-variable-ttf_package() {
+	short_desc="Material Design Symbols variable fonts (TTF)"
+	pkg_install() {
+		vmkdir usr/share/fonts/material-symbols-variable-ttf
+		vcopy ${DESTDIR}/usr/share/fonts/${_pkgname}/*wght*.ttf usr/share/fonts/material-symbols-variable-ttf/
+	}	
+}
+
+material-symbols-variable-woff2_package() {
+	short_desc="Material Design Symbols variable fonts (WOFF2)"
+	pkg_install() {
+		vmkdir usr/share/fonts/material-symbols-variable-woff2
+		vcopy ${DESTDIR}/usr/share/fonts/${_pkgname}/*.woff2 usr/share/fonts/material-symbols-variable-woff2/
+	}		
+}

@@ -1,0 +1,18 @@
+# Template file for 'quickshell'
+pkgname=quickshell
+version=0.2.1
+revision=2
+build_style=cmake
+configure_args="-DDISTRIBUTOR=Void -DDISTRIBUTOR_DEBUGINFO_AVAILABLE=YES
+ -DINSTALL_QML_PREFIX=lib/qt6/qml -DCRASH_REPORTER=OFF"
+hostmakedepends="pkg-config wayland-devel qt6-base qt6-declarative-tools"
+makedepends="cli11 jemalloc-devel qt6-base-private-devel qt6-declarative-private-devel
+ qt6-shadertools-devel qt6-wayland-private-devel pipewire-devel pam-devel SPIRV-Tools-devel"
+depends="wayland jemalloc mesa qt6-base qt6-declarative qt6-svg libpipewire libxcb libdrm"
+short_desc="Flexible QtQuick-based desktop shell toolkit"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="LGPL-3.0-only"
+homepage="https://quickshell.org"
+#https://git.outfoxxed.me/quickshell/quickshell/archive/v${version}.tar.gz
+distfiles="https://github.com/quickshell-mirror/quickshell/archive/refs/tags/v${version}.tar.gz"
+checksum=337bab5d4badb92e51d01ac1cfbeaeb784478bad82f3c8297fd7be42a6995af2

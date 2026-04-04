@@ -1,0 +1,16 @@
+# Template file for 'matugen'
+pkgname=matugen
+version=4.1.0
+revision=1
+build_style=cargo
+short_desc="Material You color generation tool with templates"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="GPL-2.0"
+homepage="https://github.com/InioX/matugen"
+distfiles="https://github.com/InioX/matugen/archive/refs/tags/v${version}.tar.gz"
+checksum=b46507be24d01a6233597077512501f21075fe4ce19b60b410354f439f569ddf
+
+do_install() {
+    vbin target/x86_64-unknown-linux-gnu/release/matugen
+    vlicense LICENSE
+}
