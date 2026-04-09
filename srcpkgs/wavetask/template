@@ -1,0 +1,23 @@
+# Template file for 'wavetask'
+pkgname=wavetask
+version=1.0.0
+revision=1
+build_style=cmake
+configure_args="
+ -DBUILD_TESTING=OFF
+ -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
+"
+hostmakedepends="extra-cmake-modules gettext pkg-config "
+makedepends="qt6-base-devel qt6-declarative-devel kf6-ki18n-devel kf6-kservice-devel
+ kf6-kwindowsystem-devel kf6-kconfig-devel kf6-kconfigwidgets-devel kf6-knotifications-devel
+ kf6-kio-devel kf6-kcoreaddons-devel kf6-kitemmodels-devel kf6-kirigami-devel kirigami-addons-devel
+ libplasma-devel plasma-activities-devel plasma-activities-stats-devel plasma-workspace-devel
+ libksysguard-devel kwin-devel libepoxy-devel libdrm-devel
+"
+depends="qt6-base qt6-declarative plasma-workspace"
+short_desc="Qt6 QML Task Manager plugin for Plasma 6 with zoom"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="custom:wavetask"
+homepage="https://github.com/vickoc911/org.vicko.wavetask"
+distfiles="https://github.com/vickoc911/org.vicko.wavetask/archive/refs/tags/v${version}.tar.gz"
+checksum=3fff5f88703d4d43f35747c181468d8dc739c6986bc20509d55a2456df380462
