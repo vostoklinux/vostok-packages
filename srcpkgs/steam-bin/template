@@ -1,121 +1,29 @@
 # Template file for 'steam-bin'
 pkgname=steam-bin
-version=1.0.0.85          
-revision=7   
+version=1.0.0.85
+revision=13
 archs="x86_64"
-wrksrc="steam-${version}"
-hostmakedepends="tar xz binutils"
-distfiles="https://repo.steampowered.com/steam/archive/stable/steam_latest.deb"
-# ВНИМАНИЕ: checksum часто меняется, т.к. ссылка ведёт на последнюю версию.
-# При ошибке "checksum mismatch" скачайте файл вручную и обновите хеш.
-checksum="b44634a6a604ca7c8b23809d0f2a921a0348bb2081c8cb8944116d0799872b70"
-homepage="https://store.steampowered.com"
-license="custom:Proprietary"
-short_desc="Valve's Steam digital distribution platform (32-bit client) - binary repack"
-maintainer="Vostok Linux <vostoklinux.org>"
+depends="zenity xz curl dbus freetype gdk-pixbuf hicolor-icon-theme desktop-file-utils
+ liberation-fonts-ttf file tar bash coreutils lsof steam-udev-rules
+ libgcc-32bit libstdc++-32bit
+ libX11-32bit libXext-32bit libXrandr-32bit libXrender-32bit libXfixes-32bit
+ libXcomposite-32bit libXdamage-32bit libXinerama-32bit libXi-32bit libXcursor-32bit
+ libxcb-32bit libxshmfence-32bit
+ libglvnd-32bit libdrm-32bit vulkan-loader-32bit
+ nss-32bit nspr-32bit
+ alsa-lib-32bit libpulseaudio-32bit
+ SDL2-32bit"
+short_desc="Valve's Steam digital distribution platform"
+maintainer="Vostok Linux <packaging@vostoklinux.org>"
+license="custom:Valve-SSA"
+homepage="https://steampowered.com"
+distfiles="https://repo.steampowered.com/steam/pool/steam/s/steam/steam_${version}.tar.gz"
+checksum=7f2d374a2fb413ced5b8125151456219d918a255872b4bb77016cbccf38bb7f1
 nostrip=yes
 
-# Все необходимые 32-битные зависимости + системные утилиты из официального шаблона
-depends="
-	xz
-	bzip2
-	zenity
-	desktop-file-utils
-	steam-udev-rules
-	dbus
-	curl
-	liberation-fonts-ttf
-	libgcc-32bit
-	libstdc++-32bit
-	libX11-32bit
-	libXext-32bit
-	libXrandr-32bit
-	libXrender-32bit
-	libXfixes-32bit
-	libXcursor-32bit
-	libXi-32bit
-	libXinerama-32bit
-	libXxf86vm-32bit
-	mesa-dri-32bit
-	nvidia-libs-32bit
-	libdrm-32bit
-	libxcb-32bit
-	freetype-32bit
-	fontconfig-32bit
-	libusb-32bit
-	libpulseaudio-32bit
-	alsa-lib-32bit
-	dbus-libs-32bit
-	expat-32bit
-	libffi-32bit
-	zlib-32bit
-	bzip2-32bit
-	libpng-32bit
-	libjpeg-turbo-32bit
-	libcurl-32bit
-	libgcrypt-32bit
-	libgpg-error-32bit
-	libcap-32bit
-	eudev-libudev-32bit
-	libvdpau-32bit
-	libva-32bit
-	libopenal-32bit
-	SDL2-32bit
-	nss-32bit
-	nspr-32bit
-	libnm-32bit
-	vulkan-loader-32bit
-	openssl-32bit
-"
-
-do_extract() {
-	mkdir -p ${wrksrc}
-	cd ${wrksrc}
-	ar x ${XBPS_SRCDISTDIR}/${pkgname}-${version}/${distfiles##*/}
-	tar xf data.tar.xz
-}
-
 do_install() {
-	# 1. Копируем всю структуру /usr из deb
-	vcopy usr /
-
-	# 2. ХАК: подменяем steamdeps (чтобы Steam не вызывал apt-get)
-	rm -f ${DESTDIR}/usr/bin/steamdeps
-	ln -sf /bin/true ${DESTDIR}/usr/bin/steamdeps
-
-	# 3. ХАК: создаём симлинки для OpenSSL 1.1, если их нет в системе
-	#    Целевые библиотеки OpenSSL 3 должны существовать в /usr/lib32
-	if [ -f /usr/lib32/libssl.so.3 ] && [ -f /usr/lib32/libcrypto.so.3 ]; then
-		vmkdir usr/lib32
-		ln -sf /usr/lib32/libssl.so.3 ${DESTDIR}/usr/lib32/libssl.so.1.1
-		ln -sf /usr/lib32/libcrypto.so.3 ${DESTDIR}/usr/lib32/libcrypto.so.1.1
-	else
-		echo "Warning: 32-bit OpenSSL 3 libraries not found in /usr/lib32. Steam may fail to start." >&2
-	fi
-
-	# 4. Исправляем права на исполняемые файлы
-	chmod 755 ${DESTDIR}/usr/bin/steam
-	if [ -d ${DESTDIR}/usr/lib/steam ]; then
-		find ${DESTDIR}/usr/lib/steam -type d -exec chmod 755 {} +
-		find ${DESTDIR}/usr/lib/steam -type f -executable -exec chmod 755 {} +
-		find ${DESTDIR}/usr/lib/steam -type f ! -executable -exec chmod 644 {} +
-	fi
-
-	# 5. ХАК: боремся с ярлыком на рабочем столе KDE
-	if [ -f ${DESTDIR}/usr/share/applications/steam.desktop ]; then
-		# Убираем ярлык с рабочего стола, оставляя в меню
-		echo "NotShowIn=KDE" >> ${DESTDIR}/usr/share/applications/steam.desktop
-		# Возможно, пригодится для Wayland
-		echo "X-KDE-Wayland-Interfaces=protocols" >> ${DESTDIR}/usr/share/applications/steam.desktop
-		# Убираем автозапуск (если есть)
-		sed -i '/^X-GNOME-Autostart-enabled=/d' ${DESTDIR}/usr/share/applications/steam.desktop
-	fi
-
-	# 6. Лицензия
-	if [ -f ${wrksrc}/usr/share/doc/steam/copyright ]; then
-		vlicense ${wrksrc}/usr/share/doc/steam/copyright
-	else
-		vmkdir usr/share/licenses/${pkgname}
-		echo "Steam is proprietary software. See https://store.steampowered.com/legal/" > ${DESTDIR}/usr/share/licenses/${pkgname}/LICENSE
-	fi
+    make DESTDIR=${DESTDIR} install
+    rm -rf ${DESTDIR}/etc/apt ${DESTDIR}/usr/share/keyrings
+    ln -sf /bin/true ${DESTDIR}/usr/bin/steamdeps
+    vlicense steam_subscriber_agreement.txt LICENSE
 }

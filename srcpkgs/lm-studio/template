@@ -30,47 +30,34 @@ depends="hicolor-icon-theme xdg-utils nss nspr glib dbus-libs
  libdbusmenu-gtk3 pango"
 
 do_extract() {
-	# 1. Переходим в корень сборки (там, где xbps-src создает папки)
 	cd ${XBPS_BUILDDIR}
 
-	# 2. Делаем AppImage исполняемым
 	chmod +x ${XBPS_SRCDISTDIR}/${pkgname}-${version}/LM-Studio-${version}-${revision}-x64.AppImage
 	
-	# 3. Распаковываем его (он создаст папку squashfs-root ПРЯМО ТУТ)
 	${XBPS_SRCDISTDIR}/${pkgname}-${version}/LM-Studio-${version}-${revision}-x64.AppImage --appimage-extract
 	
-	# 4. УДАЛЯЕМ пустую папку, которую xbps-src создал по умолчанию (она мешает перемещению)
 	rm -rf ${pkgname}-${version}
 	
-	# 5. Переименовываем результат распаковки в рабочую папку
 	mv squashfs-root ${pkgname}-${version}
 }
 
 do_install() {
-	# 1. Копируем всё содержимое
 	vmkdir opt/lm-studio
 	vcopy "*" opt/lm-studio
 
-	# 2. ФИНАЛЬНАЯ ПРАВКА ПРАВ (Делаем это ПЕРЕД точечными фиксами)
-	# Сначала всё в 755 (папки) и 644 (файлы)
 	find ${DESTDIR}/opt/lm-studio -type d -exec chmod 755 {} +
 	find ${DESTDIR}/opt/lm-studio -type f -exec chmod 644 {} +
 
-	# 3. А теперь возвращаем исполняемость тем, кому она НУЖНА
-	# Даем права на запуск ВСЕМ бинарникам и библиотекам (самый надежный способ для Electron)
 	chmod -R 755 ${DESTDIR}/opt/lm-studio
 
-	# 4. Хак для Sandbox (ОБЯЗАТЕЛЬНО 4755)
 	if [ -f ${DESTDIR}/opt/lm-studio/chrome-sandbox ]; then
 		chmod 4755 ${DESTDIR}/opt/lm-studio/chrome-sandbox
 	fi
 
-	# 5. Хак для Crashpad (чтобы не было Permission denied)
 	if [ -f ${DESTDIR}/opt/lm-studio/chrome_crashpad_handler ]; then
 		chmod 755 ${DESTDIR}/opt/lm-studio/chrome_crashpad_handler
 	fi
 
-	# 6. Симлинк, Ярлык и Иконки (тут всё окей)
 	vmkdir usr/bin
 	ln -sf /opt/lm-studio/lm-studio ${DESTDIR}/usr/bin/lmstudio
 

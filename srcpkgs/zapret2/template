@@ -1,11 +1,10 @@
 # Template file for 'zapret2'
 pkgname=zapret2
 version=0.9.4.5
-revision=1
+revision=2
 build_style=gnu-makefile
-makedepends="libnetfilter_queue-devel LuaJIT-devel libcap-devel
- zlib-devel libmnl-devel libnfnetlink-devel"
-depends="bind curl iptables libnetfilter_queue LuaJIT nmap"
+makedepends="LuaJIT-devel libcap-devel zlib-devel libnetfilter_queue-devel"
+depends="bind bind-utils curl iptables libnetfilter_queue LuaJIT nmap"
 short_desc="Anti-DPI software"
 maintainer="nerdyslacker <karyan40024@gmail.com>"
 license="MIT"
@@ -24,6 +23,7 @@ do_build() {
 
 do_install() {
     vmkdir opt/${pkgname}
+	vmkdir usr/bin
 
     for i in ip2net mdig; do
         vmkdir opt/${pkgname}/${i}
@@ -31,6 +31,7 @@ do_install() {
     done
 
     vinstall blockcheck2.sh 755 opt/${pkgname}
+	vbin /${FILESDIR}/zapret2_blockcheck
 
     for i in custom standard; do
         vmkdir opt/${pkgname}/blockcheck2.d/${i}
@@ -65,7 +66,6 @@ do_install() {
     vinstall init.d/sysv/functions 755 opt/${pkgname}/init.d/sysv
     vinstall init.d/sysv/${pkgname} 755 opt/${pkgname}/init.d/sysv
 
-    vmkdir usr/bin
     ln -s /opt/${pkgname}/init.d/sysv/${pkgname} \
         ${DESTDIR}/usr/bin/${pkgname}
 
@@ -74,11 +74,8 @@ do_install() {
 
     vinstall config.default 644 opt/${pkgname} config
 
-    vmkdir usr/bin
-    for i in nfq2/nfqws2; do
-        vinstall binaries/my/${i##*/} 755 opt/${pkgname} ${i##*/}
-        ln -s /opt/${pkgname}/${i##*/} ${DESTDIR}/usr/bin/${i##*/}
-    done
+	vinstall binaries/my/nfqws2 755 opt/${pkgname}/nfq2/
+	ln -s /opt/${pkgname}/nfq2/nfqws2 ${DESTDIR}/usr/bin/
 
     vmkdir usr/share/doc/${pkgname}
     for f in docs/*.*; do

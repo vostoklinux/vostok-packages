@@ -1,0 +1,94 @@
+name: Test Vostok Infrastructure
+
+on: [workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Test VPS Connection
+      env:
+        VPS_HOST: ${{ secrets.VPS_HOST }}
+        VPS_USER: ${{ secrets.VPS_USER }}
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      run: |
+        echo "=== Testing Vostok Infrastructure ==="
+        
+        # Setup SSH
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        
+        # КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: используем переменную окружения, а не прямую подстановку
+        # Записываем ключ с сохранением переносов строк
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+        
+        # Исправляем возможные проблемы с переносами строк
+        # Если ключ потерял переносы, восстанавливаем их
+        sed -i 's/\\n/\n/g' ~/.ssh/id_ed25519
+        
+        chmod 600 ~/.ssh/id_ed25519
+        
+        # Проверяем, что файл не пустой
+        FILE_SIZE=$(wc -c < ~/.ssh/id_ed25519)
+        if [ "$FILE_SIZE" -lt 100 ]; then
+          echo "❌ ERROR: SSH key file is too small ($FILE_SIZE bytes)"
+          echo "=== Debug: VPS_SSH_KEY variable ==="
+          echo "Length: ${#VPS_SSH_KEY} characters"
+          echo "First 50 chars: ${VPS_SSH_KEY:0:50}"
+          echo "Last 50 chars: ${VPS_SSH_KEY: -50}"
+          exit 1
+        fi
+        
+        # Verify the key
+        echo "=== Verifying SSH key ==="
+        echo "File size: $(wc -c < ~/.ssh/id_ed25519) bytes"
+        echo "Lines in file: $(wc -l < ~/.ssh/id_ed25519)"
+        
+        # Validate the key
+        if ssh-keygen -l -f ~/.ssh/id_ed25519 2>/dev/null; then
+          echo "✅ SSH key is valid"
+        else
+          echo "❌ SSH key is invalid"
+          echo "=== Debug: First 100 bytes of key ==="
+          head -c 100 ~/.ssh/id_ed25519 | hexdump -C
+          echo "=== Trying to fix key format ==="
+          # Пробуем исправить формат ключа
+          fix_ssh_key ~/.ssh/id_ed25519
+          if ssh-keygen -l -f ~/.ssh/id_ed25519 2>/dev/null; then
+            echo "✅ Fixed! Key is now valid"
+          else
+            exit 1
+          fi
+        fi
+        
+        # Add VPS to known_hosts
+        ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts 2>/dev/null
+        
+        # Test connection
+        echo ""
+        echo "=== Testing SSH connection ==="
+        ssh -o ConnectTimeout=10 -i ~/.ssh/id_ed25519 $VPS_USER@$VPS_HOST "echo '✅ SSH connection successful!'"
+        
+        # Test Nginx
+        echo ""
+        echo "=== Testing Nginx ==="
+        ssh -i ~/.ssh/id_ed25519 $VPS_USER@$VPS_HOST "systemctl status nginx --no-pager | head -5"
+  
+        # Test repository directory
+        echo ""
+        echo "=== Testing repository directory ==="
+        ssh -i ~/.ssh/id_ed25519 $VPS_USER@$VPS_HOST "ls -la /var/www/vostoklinux.org/repo/current/"
+  
+        # Test website
+        echo ""
+        echo "=== Testing website ==="
+        curl -s -I https://vostoklinux.org | head -1
+  
+        # Test repository URL
+        echo ""
+        echo "=== Testing repository URL ==="
+        curl -s -I https://repo.vostoklinux.org/current/ | head -1
+  
+        echo ""
+        echo "=== All tests completed successfully! ==="

@@ -1,0 +1,22 @@
+# Template file for 'bitwarden-bin'
+pkgname=bitwarden-bin
+_pkgname=bitwarden
+version=2026.2.1
+revision=1
+hostmakedepends="tar xz"
+short_desc="Bitwarden desktop client"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://bitwarden.com"
+distfiles="https://github.com/bitwarden/clients/releases/download/desktop-v${version}/Bitwarden-${version}-amd64.deb"
+checksum=c6bf04c054ac30c88b69cec823634134e51b22f52627ad5a44ac92d634a77167
+
+do_extract() {
+	mkdir -p ${DESTDIR}
+	ar x ${XBPS_SRCDISTDIR}/${pkgname}-${version}/Bitwarden-${version}-amd64.deb
+	tar xf data.tar.xz -C ${DESTDIR}
+}
+
+do_install() {
+	vsed -i 's|bitwarden %U|bitwarden-app %U|' ${DESTDIR}/usr/share/applications/bitwarden.desktop
+}

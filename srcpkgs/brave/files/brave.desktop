@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Brave Web Browser
+GenericName=Web Browser
+Comment=Browse the web protecting your privacy
+Exec=/usr/bin/brave %U
+Icon=brave
+Terminal=false
+Type=Application
+Categories=Network;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;
+StartupWMClass=brave-browser
+StartupNotify=true

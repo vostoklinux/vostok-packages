@@ -1,11 +1,23 @@
+if [ -t 1 ]; then
+    GREEN="\033[1;32m"
+    CYAN="\033[1;36m"
+    RESET="\033[0m"
+else
+    GREEN=""
+    CYAN=""
+    RESET=""
+fi
+
 case "${ACTION}" in
 pre)
     ;;
 post)
-    # Print instructions for enabling the service
-    echo
-    echo "To enable the zapret2 service, run the following command as root:"
-    echo "  ln -s /etc/sv/zapret2 /var/service/"
-    echo "This will start the service via runit."
+    printf "\n"
+    printf "${GREEN}To enable zapret2 service, run the following command as root:${RESET}\n"
+    printf "  ${CYAN}ln -s /etc/sv/zapret2 /var/service/${RESET}\n"
+    printf "\n"
+    printf "${GREEN}To find which DPI bypass strategies work for your network run the block test tool as root:${RESET}\n"
+    printf "  ${CYAN}zapret2_blockcheck${RESET}\n"
+    printf "\n"
     ;;
 esac

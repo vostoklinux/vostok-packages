@@ -15,7 +15,7 @@ distfiles="https://codeberg.org/itszariep/qrunsvmgr/archive/${version}.tar.gz"
 checksum=ff412f9acd8cc3536cb95ab5159da58ee0e2d4444c071606f461400b2e1281bd
 
 post_install() {
-    vbin build/qrunsvmgr
-    vbin build/qrunsvmgr-qt
-    vbin build/qrunsvmgr-helper-runit
+	vbin build/qrunsvmgr
+	vbin build/qrunsvmgr-qt
+	vbin build/qrunsvmgr-helper-runit
 }
