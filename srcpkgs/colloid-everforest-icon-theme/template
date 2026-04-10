@@ -1,0 +1,35 @@
+# Template file for 'colloid-everforest-icon-theme'
+pkgname=colloid-everforest-icon-theme
+version=2025.07.19
+revision=1
+depends="gtk-update-icon-cache hicolor-icon-theme"
+short_desc="Colloid icon theme for Linux desktops (everforest)"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://github.com/vinceliuice/Colloid-icon-theme"
+distfiles="https://github.com/vinceliuice/Colloid-icon-theme/archive/refs/tags/2025-07-19.tar.gz"
+checksum=3ae00b7c31089954a6d1dc9cd4de2a7d876a32663128d1a24d8a7ba3a6aa23e7
+nostrip=yes
+
+pre_install() {
+	# Disable gtk-update-icon-cache execution
+	sed -i '/gtk-update-icon-cache/d' install.sh
+}
+
+do_install() {
+	vmkdir usr/share/icons
+	./install.sh -s everforest -t default -d ${DESTDIR}/usr/share/icons
+}
+
+colloid-icon-theme-cursors_package() {
+	short_desc="Colloid cursor theme"
+	pkg_install() {
+		cd ${wrksrc}/cursors
+
+		vmkdir usr/share/icons/Colloid-cursors
+		vmkdir usr/share/icons/Colloid-dark-cursors
+
+		vcopy dist/* usr/share/icons/Colloid-cursors
+		vcopy dist-dark/* usr/share/icons/Colloid-dark-cursors
+	}
+}
