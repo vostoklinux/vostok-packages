@@ -1,0 +1,4 @@
+#!/bin/sh
+
+ZAPRET_BASE="/opt/zapret2"
+exec ${ZAPRET_BASE}/blockcheck2.sh

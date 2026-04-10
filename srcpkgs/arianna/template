@@ -1,0 +1,23 @@
+# Template file for 'arianna'
+pkgname=arianna
+version=25.12.3
+revision=1
+build_style=cmake
+configure_args="-DBUILD_TESTING=OFF"
+hostmakedepends="extra-cmake-modules pkg-config gettext"
+makedepends="kf6-baloo-devel kf6-karchive-devel kf6-kcolorscheme-devel kf6-kconfig-devel kf6-kcoreaddons-devel
+ kf6-kcrash-devel kf6-kdbusaddons-devel kf6-kfilemetadata-devel kf6-ki18n-devel kf6-kirigami-devel kirigami-addons-devel
+ kf6-kitemmodels-devel kf6-kquickcharts-devel kf6-kwindowsystem-devel kf6-qqc2-desktop-style-devel qt6-base-devel
+ qt6-declarative-devel qt6-httpserver-devel qt6-webchannel-devel qt6-webengine-devel qt6-svg-devel
+"
+depends="qt6-base qt6-declarative qt6-httpserver qt6-webengine kf6-baloo kf6-karchive kf6-kcolorscheme kf6-kconfig
+ kf6-kcoreaddons kf6-kcrash kf6-kdbusaddons kf6-kfilemetadata kf6-ki18n kf6-kwindowsystem
+"
+short_desc="Qt-Based eBook Reader"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="GPL-2.0-or-later, LGPL-2.0-or-later"
+homepage="https://apps.kde.org/arianna/"
+distfiles="https://download.kde.org/stable/release-service/${version}/src/${pkgname}-${version}.tar.xz"
+checksum=03369b86f259256300f280b8d883b25bd02e50cf9dc45096b2496d6302fe8308
+noverifyrdeps=yes
+disable_shlib_provides=yes

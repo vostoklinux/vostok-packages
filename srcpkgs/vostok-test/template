@@ -1,0 +1,12 @@
+pkgname=vostok-test
+version=1.0
+revision=20
+short_desc="[games]Test - Test package for Vostok CI/CD"
+maintainer="Vostok Linux <vostoklinux.org>"
+license="MIT"
+homepage="https://vostoklinux.org"
+
+do_install() {
+	vmkdir usr/share/vostok
+	echo "Vostok CI Test - OK" > ${DESTDIR}/usr/share/vostok/test.txt
+}

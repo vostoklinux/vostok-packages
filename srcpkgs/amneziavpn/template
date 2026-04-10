@@ -1,9 +1,9 @@
 # Template file for 'amneziavpn'
 pkgname=amneziavpn
 version=4.8.14.5
-revision=1
+revision=2
 archs="x86_64"
-hostmakedepends="bsdtar"
+hostmakedepends="tar"
 short_desc="Amnezia VPN Client"
 maintainer="nerdyslacker <karyan40024@gmail.com>"
 license="GPL-3.0-only"

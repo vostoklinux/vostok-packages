@@ -1,7 +1,7 @@
 # Template file for 'yandex-music'
 pkgname=yandex-music
 version=5.90.0
-revision=1
+revision=2
 hostmakedepends="tar xz nodejs"
 makedepends="asar"
 depends="gtk+3 libnotify nss libXScrnSaver libXtst xdg-utils

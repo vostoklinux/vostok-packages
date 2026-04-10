@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Cursor
+GenericName=Text Editor
+Comment=AI-first code editor
+Exec=/usr/bin/cursor %F
+Icon=cursor
+Terminal=false
+Type=Application
+Categories=Development;TextEditor;IDE;
+MimeType=text/plain;inode/directory;application/x-cursor-workspace;
+StartupWMClass=Cursor
+StartupNotify=true
