@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Wallpaper Engine
+Comment=A wallpaper management app for steam's wallpaper-engine
+Exec=/usr/bin/linux-wallpaper-engine
+Icon=preferences-desktop-wallpaper
+Terminal=false
+Type=Application
+Categories=Utility;Settings;DesktopSettings;Qt;
+Keywords=wallpaper;engine;background;steam;
+StartupNotify=true
