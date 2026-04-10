@@ -1,0 +1,43 @@
+# Template file for 'helium-browser'
+pkgname=helium-browser
+version=0.10.8.1
+revision=1
+archs="x86_64"
+wrksrc="helium-${version}"
+depends="alsa-lib libsecret libgbm libdrm libcups eudev-libudev"
+short_desc="Private, fast, and honest web browser"
+maintainer="Vostok Linux <packaging@vostoklinux.org>"
+license="GPL-3.0-only"
+homepage="https://github.com/imputnet/helium"
+distfiles="https://github.com/imputnet/helium-linux/releases/download/${version}/helium-${version}-x86_64.AppImage>helium-${version}.AppImage"
+checksum=a4dfc8c3500d8200cec7115bd82378dfaa9b72bb3cfdb0dc12a8d90bcd20ad0b
+nostrip=yes
+noshlibs=yes
+
+do_extract() {
+	local appimage="${XBPS_SRCDISTDIR}/${pkgname}-${version}/helium-${version}.AppImage"
+	chmod +x "${appimage}"
+	"${appimage}" --appimage-extract
+	mkdir -p ${wrksrc}
+	cp -aL squashfs-root/. ${wrksrc}/
+	rm -rf squashfs-root
+}
+
+do_install() {
+	vmkdir opt/helium
+	vcopy "*" opt/helium
+
+	vmkdir usr/bin
+	ln -sf /opt/helium/AppRun ${DESTDIR}/usr/bin/helium
+
+	vinstall ${FILESDIR}/helium.desktop 644 usr/share/applications
+
+	vinstall helium.png 644 usr/share/icons/hicolor/512x512/apps
+	vinstall helium.png 644 usr/share/pixmaps
+
+	chmod -R o-w ${DESTDIR}/opt/helium
+	chmod 755 ${DESTDIR}/opt/helium/AppRun
+
+	local sandbox="${DESTDIR}/opt/helium/chrome-sandbox"
+	[ -f "${sandbox}" ] && chmod 4755 "${sandbox}" || true
+}

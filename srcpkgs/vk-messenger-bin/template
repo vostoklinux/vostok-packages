@@ -1,0 +1,22 @@
+# Template file for 'vk-messenger-bin'
+pkgname=vk-messenger-bin
+_pkgname=vk-messenger
+version=6.0.57.36
+revision=1
+hostmakedepends="tar xz"
+short_desc="Quick and easy messaging"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="ISC"
+homepage="https://vk.me/app"
+distfiles="https://upload.object2.vk-apps.com/vk-me-desktop-dev-5837a06d-5f28-484a-ac22-045903cb1b1a/latest/${_pkgname}.deb"
+checksum=cb4fa7a8fb3c6af5c432696e4653751393c9c5c655b6bf0e2d944ff7483ec784
+nostrip=yes
+
+do_extract() {
+	mkdir -p ${DESTDIR}
+	ar x ${XBPS_SRCDISTDIR}/${pkgname}-${version}/${_pkgname}.deb
+}
+
+do_install() {
+	tar xf data.tar.xz -C ${DESTDIR}
+}

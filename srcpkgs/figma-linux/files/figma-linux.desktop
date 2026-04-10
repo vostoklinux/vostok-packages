@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Figma
+GenericName=Design Tool
+Comment=Unofficial Figma desktop client
+Exec=/usr/bin/figma-linux --no-sandbox --enable-features=UseOzonePlatform --ozone-platform=wayland --enable-gpu-rasterization --enable-zero-copy %U
+Icon=figma-linux
+Terminal=false
+Type=Application
+Categories=Graphics;Design;
+MimeType=application/figma;x-scheme-handler/figma;
+StartupWMClass=figma-linux
+StartupNotify=true

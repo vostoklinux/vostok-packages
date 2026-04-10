@@ -1,0 +1,10 @@
+# Template file for 'steam-bin-nvidia'
+pkgname=steam-bin-nvidia
+version=1.0.0.85
+revision=1
+metapackage=yes
+depends="steam-bin>=${version}_${revision} nvidia-libs-32bit"
+short_desc="Steam with NVIDIA GPU support"
+maintainer="Vostok Linux <packaging@vostoklinux.org>"
+license="custom:Valve-SSA"
+homepage="https://steampowered.com"

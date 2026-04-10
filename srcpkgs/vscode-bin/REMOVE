@@ -1,0 +1,11 @@
+#!/bin/sh
+ACTION="$1"
+UPDATE="$2"
+
+if [ "$UPDATE" = "no" ]; then
+	case "$ACTION" in
+		post)
+			rm -rf usr/lib/vscode
+			;;
+	esac
+fi

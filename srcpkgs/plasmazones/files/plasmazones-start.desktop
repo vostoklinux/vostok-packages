@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Plasmazones
-Exec=/usr/bin/plasmazonesd
-Hidden=false
-NoDisplay=false
-X-GNOME-Autostart-enabled=true
-StartupNotify=false

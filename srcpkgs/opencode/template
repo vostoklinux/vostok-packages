@@ -21,13 +21,11 @@ do_extract() {
 }
 
 do_install() {
-	# 1. Устанавливаем бинарник
 	vmkdir usr/bin
 	vcopy ${wrksrc}/opencode usr/bin/opencode-cli
 	chmod 755 ${DESTDIR}/usr/bin/opencode-cli
 	ln -sf opencode-cli ${DESTDIR}/usr/bin/opencode
 
-	# 2. Иконка (из папки files/)
 	if [ -f ${FILESDIR}/opencode.png ]; then
 		vmkdir usr/share/icons/hicolor/256x256/apps
 		vinstall ${FILESDIR}/opencode.png 644 usr/share/icons/hicolor/256x256/apps opencode.png
@@ -35,7 +33,6 @@ do_install() {
 		vinstall ${FILESDIR}/opencode.png 644 usr/share/pixmaps opencode.png
 	fi
 
-	# 3. .desktop файл для запуска в Konsole
 	vmkdir usr/share/applications
 	cat > ${DESTDIR}/usr/share/applications/opencode.desktop <<EOF
 [Desktop Entry]
@@ -49,11 +46,9 @@ Categories=Development;AI;
 StartupNotify=true
 EOF
 
-	# 4. Лицензия (создаём сами)
 	vmkdir usr/share/licenses/${pkgname}
 	echo "OpenCode is licensed under MIT. See https://github.com/anomalyco/opencode" > ${DESTDIR}/usr/share/licenses/${pkgname}/LICENSE
 
-	# 5. Финальная коррекция прав
 	find ${DESTDIR}/usr -type d -exec chmod 755 {} +
 	find ${DESTDIR}/usr -type f -exec chmod 644 {} +
 	chmod 755 ${DESTDIR}/usr/bin/opencode-cli
