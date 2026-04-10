@@ -1,132 +1,45 @@
 # Template file for 'cursor'
 pkgname=cursor
-version=2.5.17
-revision=3
+version=2.6.22
+revision=2
 archs="x86_64"
 wrksrc="cursor-${version}"
-hostmakedepends="tar xz binutils"
-distfiles="https://downloads.cursor.com/production/7b98dcb824ea96c9c62362a5e80dbf0d1aae4775/linux/x64/deb/amd64/deb/cursor_${version}_amd64.deb"
-checksum="9bf4209817c4719c787a6b1197ed60312a7bb098d1410f2f0e2e58357ed68f49"
+distfiles="https://downloads.cursor.com/production/c6285feaba0ad62603f7c22e72f0a170dc8415a5/linux/x64/deb/amd64/deb/cursor_${version}_amd64.deb>cursor-${version}-amd64.deb"
+checksum=2af873096282e927702c11575c960bdef5a104a931952e5c97e29d501e03f617
 homepage="https://www.cursor.com"
-license="custom: Cursor EULA"
-short_desc="AI-first coding environment (binary repack)"
-maintainer="Vostok Linux <vostoklinux.org>"
+license="custom:Cursor-EULA"
+short_desc="AI-first code editor based on VSCode"
+maintainer="Vostok Linux <packaging@vostoklinux.org>"
+depends="alsa-lib libsecret libgbm libdrm libcups eudev-libudev
+ hicolor-icon-theme xdg-utils"
 nostrip=yes
 noshlibs=yes
 
-depends="
-    dbus-libs
-    nss
-    nspr
-    at-spi2-core
-    libcups
-    libdrm
-    libgbm
-    libsecret
-    libxkbcommon
-    libxkbfile
-    pango
-    cairo
-    gdk-pixbuf
-    gtk+3
-    libX11
-    libXcomposite
-    libXdamage
-    libXext
-    libXfixes
-    libXrandr
-    libXrender
-    libXtst
-    libXinerama
-    libxshmfence
-    mesa-dri
-    alsa-lib
-    hicolor-icon-theme
-    xdg-utils
-    ripgrep
-"
-
 do_extract() {
 	mkdir -p ${wrksrc}
-	cd ${wrksrc}
-	ar x ${XBPS_SRCDISTDIR}/${pkgname}-${version}/cursor_${version}_amd64.deb
-	if [ -f data.tar.xz ]; then
-		tar xf data.tar.xz
-	elif [ -f data.tar.gz ]; then
-		tar xf data.tar.gz
-	else
-		echo "ERROR: No data archive found in .deb" >&2
-		exit 1
-	fi
+	bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/cursor-${version}-amd64.deb \
+		-C ${wrksrc} --include='data.tar*'
+	bsdtar -xf ${wrksrc}/data.tar* -C ${wrksrc}
+	rm ${wrksrc}/data.tar*
 }
 
 do_install() {
-	# 1. Создаём папку для бинарников в /usr/lib
 	vmkdir usr/lib/cursor
+	vcopy usr/share/cursor/* usr/lib/cursor
 
-	# 2. Копируем все файлы из usr/share/cursor распакованного .deb в /usr/lib/cursor
-	cp -R ${wrksrc}/usr/share/cursor/* ${DESTDIR}/usr/lib/cursor/
-
-	# 3. Удаляем оригинальную папку share/cursor, чтобы хук не ругался
-	rm -rf ${DESTDIR}/usr/share/cursor
-
-	# 4. Копируем иконки (должны остаться в /usr/share/icons)
-	if [ -d ${wrksrc}/usr/share/icons ]; then
-		cp -R ${wrksrc}/usr/share/icons ${DESTDIR}/usr/share/
-	fi
-
-	# 5. Копируем документацию и man-страницы, если есть
-	for d in man doc; do
-		if [ -d ${wrksrc}/usr/share/$d ]; then
-			cp -R ${wrksrc}/usr/share/$d ${DESTDIR}/usr/share/
-		fi
-	done
-
-	# 6. Симлинк в /usr/bin
 	vmkdir usr/bin
 	ln -sf /usr/lib/cursor/cursor ${DESTDIR}/usr/bin/cursor
 
-	# 7. Создаём свой .desktop файл
-	vmkdir usr/share/applications
-	cat > ${DESTDIR}/usr/share/applications/cursor.desktop <<EOF
-[Desktop Entry]
-Name=Cursor
-Comment=AI-first coding environment
-Exec=cursor --enable-features=UseOzonePlatform --ozone-platform=wayland %U
-Icon=cursor
-Terminal=false
-Type=Application
-Categories=Development;TextEditor;
-StartupWMClass=Cursor
-EOF
+	vinstall ${FILESDIR}/cursor.desktop 644 usr/share/applications
+	vinstall ${FILESDIR}/cursor.png 644 usr/share/icons/hicolor/256x256/apps
+	vinstall ${FILESDIR}/cursor.png 644 usr/share/pixmaps
 
-# Установка иконки из files/
-if [ -f ${FILESDIR}/cursor.png ]; then
-    vmkdir usr/share/pixmaps
-    vinstall ${FILESDIR}/cursor.png 644 usr/share/pixmaps cursor.png
-    vmkdir usr/share/icons/hicolor/256x256/apps
-    vinstall ${FILESDIR}/cursor.png 644 usr/share/icons/hicolor/256x256/apps cursor.png
-fi
-
-	# 8. SUID для chrome-sandbox
-if [ -f ${DESTDIR}/usr/lib/cursor/chrome-sandbox ]; then
-    chmod 4755 ${DESTDIR}/usr/lib/cursor/chrome-sandbox
-fi
-
-	# 9. Массовая коррекция прав
-	find ${DESTDIR}/usr/lib/cursor -type d -exec chmod 755 {} +
-	find ${DESTDIR}/usr/lib/cursor -type f -exec chmod 644 {} +
+	chmod -R o-w ${DESTDIR}/usr/lib/cursor
 	chmod 755 ${DESTDIR}/usr/lib/cursor/cursor
 	chmod 755 ${DESTDIR}/usr/lib/cursor/chrome_crashpad_handler
-	find ${DESTDIR}/usr/lib/cursor -type f -name "*.node" -exec chmod 755 {} +
-	find ${DESTDIR}/usr/lib/cursor/resources/app/resources/helpers -type f -exec chmod 755 {} +
-	find ${DESTDIR}/usr/lib/cursor -type f -name "rg" -exec chmod 755 {} +
-
-	# 10. Лицензия
-	if [ -f ${wrksrc}/usr/share/doc/cursor/copyright ]; then
-		vlicense ${wrksrc}/usr/share/doc/cursor/copyright
-	else
-		vmkdir usr/share/licenses/${pkgname}
-		echo "Cursor is proprietary software. See https://www.cursor.com/terms" > ${DESTDIR}/usr/share/licenses/${pkgname}/LICENSE
+	if [ -f ${DESTDIR}/usr/lib/cursor/chrome-sandbox ]; then
+		chmod 4755 ${DESTDIR}/usr/lib/cursor/chrome-sandbox
 	fi
+
+	vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
 }

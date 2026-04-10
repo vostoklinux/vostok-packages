@@ -1,0 +1,49 @@
+# Template file for 'claude-desktop'
+pkgname=claude-desktop
+version=1.569.0
+_release=1.3.27
+revision=1
+archs="x86_64"
+wrksrc="claude-desktop-${version}"
+depends="alsa-lib libsecret libgbm libdrm libcups eudev-libudev
+ libayatana-appindicator hicolor-icon-theme xdg-utils"
+short_desc="Native Linux client for Claude AI (unofficial AppImage repack)"
+maintainer="David Ivashevich <davidivashevich@gmail.com>"
+license="custom:Anthropic-TOS"
+homepage="https://github.com/aaddrick/claude-desktop-debian"
+distfiles="https://github.com/aaddrick/claude-desktop-debian/releases/download/v${_release}%2Bclaude${version}/claude-desktop-${version}-${_release}-amd64.AppImage>claude-desktop-${version}.AppImage"
+checksum=38bc2342aaf15a06b740d5d7e8d09e0b9a8a7baf3452ec8a0e72081879e61860
+nostrip=yes
+noshlibs=yes
+
+do_extract() {
+	local appimage="${XBPS_SRCDISTDIR}/${pkgname}-${version}/claude-desktop-${version}.AppImage"
+	chmod +x "${appimage}"
+	"${appimage}" --appimage-extract
+	mkdir -p ${wrksrc}
+	cp -aL squashfs-root/. ${wrksrc}/
+	rm -rf squashfs-root
+}
+
+do_install() {
+	vinstall io.github.aaddrick.claude-desktop-debian.png 644 usr/share/icons/hicolor/256x256/apps claude-desktop.png
+	vinstall io.github.aaddrick.claude-desktop-debian.png 644 usr/share/pixmaps claude-desktop.png
+
+	vinstall ${FILESDIR}/claude-desktop.desktop 644 usr/share/applications
+
+	vmkdir opt/claude-desktop
+	vcopy "*" opt/claude-desktop
+
+	vmkdir usr/bin
+	ln -sf /opt/claude-desktop/AppRun ${DESTDIR}/usr/bin/claude-desktop
+
+	chmod -R o-w ${DESTDIR}/opt/claude-desktop
+	chmod 755 ${DESTDIR}/opt/claude-desktop/AppRun
+
+	local electron="${DESTDIR}/opt/claude-desktop/usr/lib/node_modules/electron/dist/electron"
+	[ -f "${electron}" ] && chmod 755 "${electron}"
+
+	local sandbox="${DESTDIR}/opt/claude-desktop/usr/lib/node_modules/electron/dist/chrome-sandbox"
+	[ -f "${sandbox}" ] && chmod 4755 "${sandbox}"
+}
+

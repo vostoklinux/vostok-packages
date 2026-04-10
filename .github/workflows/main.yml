@@ -1,0 +1,251 @@
+name: Build and Deploy Vostok Packages
+
+on:
+  pull_request:
+    paths:
+      - 'srcpkgs/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'srcpkgs/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build packages
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/void-linux/void-glibc-full
+      options: --privileged
+      volumes:
+        - /dev:/dev
+
+    outputs:
+      has_packages: ${{ steps.check.outputs.has_packages }}
+
+    steps:
+      - name: Prepare container
+        run: |
+          mkdir -p /etc/xbps.d
+          cp /usr/share/xbps.d/*-repository-*.conf /etc/xbps.d/
+          sed -i 's|repo-default|repo-ci|g' /etc/xbps.d/*-repository-*.conf
+          xbps-install -Syu xbps && xbps-install -yu
+          xbps-install -y sudo bash curl git xtools
+          useradd -G xbuilder -M builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+          echo "builder:100000:65536" >> /etc/subuid
+          echo "builder:100000:65536" >> /etc/subgid
+          # Разрешаем git работать в папке Actions
+          git config --global --add safe.directory /__w/vostok-packages/vostok-packages
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare masterdir
+        run: |
+          echo "XBPS_CHROOT_CMD=uchroot" >> etc/conf
+          # Сначала прописываем safe.directory системно (до chown)
+          git config --system --add safe.directory /__w/vostok-packages/vostok-packages
+          # Теперь отдаём всю папку builder чтобы он мог создавать masterdir
+          chown -R builder:builder .
+          sudo -Eu builder ./xbps-src binary-bootstrap
+
+      - name: Find changed templates
+        id: changed
+        run: |
+          echo "=== DEBUG ==="
+          echo "Event: ${{ github.event_name }}"
+          echo "Before: ${{ github.event.before }}"
+          echo "SHA: ${{ github.sha }}"
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+            HEAD="${{ github.sha }}"
+          fi
+
+          echo "BASE=$BASE HEAD=$HEAD"
+
+          PKGS=""
+
+          if [ "$BASE" = "0000000000000000000000000000000000000000" ] || [ -z "$BASE" ]; then
+            echo "First push — building all packages"
+            for d in srcpkgs/*/; do
+              name=$(basename "$d")
+              [ "$name" = "base-files" ] && continue
+              PKGS="$PKGS $name"
+            done
+          else
+            git fetch origin "$BASE" || git fetch --unshallow || true
+
+            echo "=== Changed files ==="
+            git diff --name-only "$BASE" "$HEAD" || true
+
+            for f in $(git diff --name-only "$BASE" "$HEAD" 2>/dev/null); do
+              case "$f" in
+                srcpkgs/*)
+                  name=$(echo "$f" | cut -d/ -f2)
+                  [ "$name" = "base-files" ] && continue
+                  [ -z "$name" ] && continue
+                  case " $PKGS " in
+                    *" $name "*) ;;
+                    *) PKGS="$PKGS $name" ;;
+                  esac
+                  ;;
+              esac
+            done
+          fi
+
+          PKGS=$(echo "$PKGS" | xargs)
+          echo "Packages to build: '$PKGS'"
+          echo "packages=$PKGS" >> $GITHUB_OUTPUT
+
+      - name: Build packages
+        if: steps.changed.outputs.packages != ''
+        run: |
+          [ -d masterdir ] && chown -R builder:builder masterdir
+          [ -d hostdir ] && chown -R builder:builder hostdir
+          echo "XBPS_ALLOW_RESTRICTED=yes" >> etc/conf
+          
+          FAILED=0
+          for pkg in ${{ steps.changed.outputs.packages }}; do
+            echo "━━━ Building: $pkg ━━━"
+            sudo -Eu builder ./xbps-src pkg "$pkg" || {
+              echo "FAILED: $pkg"
+              FAILED=1
+            }
+          done
+          exit $FAILED
+
+      - name: Check that packages were built
+        id: check
+        run: |
+          echo "=== Full binpkgs tree ==="
+          find hostdir/binpkgs/ -name "*.xbps" 2>/dev/null || echo "Nothing found"
+
+          if find hostdir/binpkgs/ -name "*.xbps" 2>/dev/null | grep -q .; then
+            echo "has_packages=true" >> $GITHUB_OUTPUT
+            find hostdir/binpkgs/ -name "*.xbps"
+          else
+            echo "has_packages=false" >> $GITHUB_OUTPUT
+            echo "No .xbps files found"
+          fi
+
+      - name: Upload artifacts
+        if: steps.check.outputs.has_packages == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vostok-packages-${{ github.sha }}
+          path: hostdir/binpkgs/**/*.xbps
+          retention-days: 7
+
+  deploy:
+    name: Sign and deploy to VPS
+    runs-on: ubuntu-latest
+    needs: build
+    if: needs.build.outputs.has_packages == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: production
+
+    container:
+      image: ghcr.io/void-linux/void-glibc-full
+
+    steps:
+      - name: Prepare container
+        run: |
+          mkdir -p /etc/xbps.d
+          cp /usr/share/xbps.d/*-repository-*.conf /etc/xbps.d/
+          sed -i 's|repo-default|repo-ci|g' /etc/xbps.d/*-repository-*.conf
+          xbps-install -Syu xbps && xbps-install -yu
+          xbps-install -y openssh rsync
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vostok-packages-${{ github.sha }}
+          path: ./pkgs
+
+      - name: Restore XBPS signing key
+        env:
+          XBPS_SIGNING_KEY: ${{ secrets.XBPS_SIGNING_KEY }}
+        run: |
+          # 1. Декодируем base64 (удаляя возможные пробелы/переносы)
+          echo "$XBPS_SIGNING_KEY" | tr -d '\n\r ' | base64 -d > /tmp/vostok-repo.raw
+          
+          # 2. Конвертируем в классический RSA (PKCS#1)
+          openssl rsa -in /tmp/vostok-repo.raw -out /tmp/vostok-repo.key
+          
+          chmod 600 /tmp/vostok-repo.key
+          rm /tmp/vostok-repo.raw
+          echo "Ключ успешно подготовлен"
+
+      
+      - name: Sign packages
+        run: |
+          cd ./pkgs
+          find . -mindepth 2 -name "*.xbps" -exec mv -t . {} +
+          
+          if [ -z "$(ls *.xbps 2>/dev/null)" ]; then
+            echo "Ошибка: Пакеты .xbps не найдены в ./pkgs"
+            exit 1
+          fi
+
+          echo "Signing packages..."
+          for pkg in *.xbps; do
+            [ -f "$pkg" ] || continue
+            echo "  → $pkg"
+            xbps-rindex --sign-pkg \
+              --privkey /tmp/vostok-repo.key \
+              --signedby "Vostok Linux" \
+              "$pkg"
+          done
+
+          echo "Building repository index..."
+          for pkg in *.xbps; do
+            xbps-rindex -a "$pkg"
+          done
+          
+          xbps-rindex -s \
+            --privkey /tmp/vostok-repo.key \
+            --signedby "Vostok Linux" \
+            .
+
+      - name: Deploy to VPS via rsync
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: builder  # Мы точно знаем, что это builder
+        run: |
+          # 1. Создаем временный файл ключа прямо в папке проекта
+          echo "$SSH_PRIVATE_KEY" > deploy_key
+          
+          # Очищаем от возможных кривых переносов строк
+          sed -i 's/\\n/\n/g' deploy_key
+          chmod 600 deploy_key
+
+          # 2. Добавляем хост в known_hosts текущей папки
+          ssh-keyscan -H "$VPS_HOST" > vps_hosts
+
+          # 3. Запускаем rsync с явными путями
+          # МЫ УКАЗЫВАЕМ ПОЛНЫЙ ПУТЬ К deploy_key ЧЕРЕЗ $PWD
+          rsync -avz \
+            -e "ssh -i $PWD/deploy_key -o UserKnownHostsFile=$PWD/vps_hosts -o StrictHostKeyChecking=no" \
+            ./pkgs/ \
+            "$VPS_USER@$VPS_HOST:/var/www/vostoklinux.org/repo/current/"
+
+          # 4. Удаляем временные файлы
+          rm deploy_key vps_hosts
+
+
+
+      - name: Cleanup sensitive files
+        if: always()
+        run: rm -f /tmp/vostok-repo.key ~/.ssh/id_rsa

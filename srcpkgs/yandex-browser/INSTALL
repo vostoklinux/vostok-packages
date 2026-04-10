@@ -1,0 +1,17 @@
+case "${ACTION}" in
+pre)
+	;;
+post)
+    rm -rf /opt/yandex/browser/codecs_checksum
+    rm -rf /opt/yandex/browser/libffmpeg.so
+	;;
+esac
+
+case "${ACTION}" in
+pre)
+	;;
+post)
+  #Install external ffmpeg library for more compatability
+  /opt/yandex/browser/update_codecs /opt/yandex/browser || true
+	;;
+esac

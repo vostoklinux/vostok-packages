@@ -1,0 +1,36 @@
+# Template file for 'noi-bin'
+pkgname=noi-bin
+version=1.1.0
+revision=2
+archs="x86_64"
+_electronversion=35
+hostmakedepends="tar xz zstd"
+depends="electron${_electronversion}"
+short_desc="Less chaos. More flow"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="custom:noi"
+homepage="https://noib.app"
+distfiles="https://github.com/lencx/Noi/releases/download/v${version}/noi_${version}_amd64.deb"
+checksum=44af0932caab3f3462c154afd16fbd093f80bc48536f984cbf29971102846def
+
+do_extract() {
+  mkdir -p ${DESTDIR}
+  ar x ${XBPS_SRCDISTDIR}/${pkgname}-${version}/noi_${version}_amd64.deb
+  tar --zstd -xf data.tar.zst -C ${DESTDIR}
+}
+
+post_extract() {
+    # Fix .desktop file
+    # SwiftShader is used as a fallback for WebGL when hardware GPU acceleration isn't available
+    # Force x11 as wayland has issues in fullscreen mode
+    sed -i \
+        -e "s/Exec=noi/Exec=noi --enable-unsafe-swiftshader --ozone-platform=x11/g" \
+		-e "s/Icon=noi/Icon=noi-logo/g" \
+        -e "6iStartupWMClass=Noi" \
+        ${DESTDIR}/usr/share/applications/noi.desktop
+}
+
+do_install() {
+    vinstall ${DESTDIR}/usr/lib/noi/resources/icons/icon.png 644 usr/share/pixmaps noi-logo.png
+    vlicense ${DESTDIR}/usr/share/doc/noi/copyright LICENSE
+}
