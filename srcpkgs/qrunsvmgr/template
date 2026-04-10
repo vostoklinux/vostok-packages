@@ -1,0 +1,21 @@
+# Template file for 'qrunsvmgr'
+pkgname=qrunsvmgr
+version=0.2.5
+revision=1
+build_style=cmake
+build_wrksrc=src
+configure_args="-DBUILD_DINIT_HELPER=OFF"
+hostmakedepends="pkg-config"
+makedepends="qt6-base-devel"
+short_desc="Qt runit service manager"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://codeberg.org/itszariep/qrunsvmgr"
+distfiles="https://codeberg.org/itszariep/qrunsvmgr/archive/${version}.tar.gz"
+checksum=ff412f9acd8cc3536cb95ab5159da58ee0e2d4444c071606f461400b2e1281bd
+
+post_install() {
+	vbin build/qrunsvmgr
+	vbin build/qrunsvmgr-qt
+	vbin build/qrunsvmgr-helper-runit
+}
