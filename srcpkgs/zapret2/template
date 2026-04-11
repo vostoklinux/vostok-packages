@@ -1,7 +1,7 @@
 # Template file for 'zapret2'
 pkgname=zapret2
-version=0.9.4.5
-revision=2
+version=0.9.4.7
+revision=1
 build_style=gnu-makefile
 makedepends="LuaJIT-devel libcap-devel zlib-devel libnetfilter_queue-devel"
 depends="bind bind-utils curl iptables libnetfilter_queue LuaJIT nmap"
@@ -10,79 +10,79 @@ maintainer="nerdyslacker <karyan40024@gmail.com>"
 license="MIT"
 homepage="https://github.com/bol-van/zapret2"
 distfiles="https://github.com/bol-van/zapret2/archive/refs/tags/v${version}.tar.gz"
-checksum=dcdae6608cc9c15112888716c43fd43304b83744251945e3bafe2b6cec75ec8b
+checksum=6b5c742aff7fbe4155443be28cf17af9165181c1c1e552da2e02c899f55d5524
 
 do_prepare() {
-    cd ipset
-    mv -f zapret-hosts-user-exclude.txt.default zapret-hosts-user-exclude.txt
+	cd ipset
+	mv -f zapret-hosts-user-exclude.txt.default zapret-hosts-user-exclude.txt
 }
 
 do_build() {
-    make
+	make
 }
 
 do_install() {
-    vmkdir opt/${pkgname}
+	vmkdir opt/${pkgname}
 	vmkdir usr/bin
 
-    for i in ip2net mdig; do
-        vmkdir opt/${pkgname}/${i}
-        vinstall binaries/my/${i} 755 opt/${pkgname}/${i}
-    done
+	for i in ip2net mdig; do
+		vmkdir opt/${pkgname}/${i}
+		vinstall binaries/my/${i} 755 opt/${pkgname}/${i}
+	done
 
-    vinstall blockcheck2.sh 755 opt/${pkgname}
+	vinstall blockcheck2.sh 755 opt/${pkgname}
 	vbin /${FILESDIR}/zapret2_blockcheck
 
-    for i in custom standard; do
-        vmkdir opt/${pkgname}/blockcheck2.d/${i}
-        for f in blockcheck2.d/${i}/*; do
-            [ -f "$f" ] && vinstall "$f" 644 opt/${pkgname}/blockcheck2.d/${i}
-        done
-    done
+	for i in custom standard; do
+		vmkdir opt/${pkgname}/blockcheck2.d/${i}
+		for f in blockcheck2.d/${i}/*; do
+			[ -f "$f" ] && vinstall "$f" 644 opt/${pkgname}/blockcheck2.d/${i}
+		done
+	done
 
-    for i in fake; do
-        vmkdir opt/${pkgname}/files/${i}
-        for f in files/${i}/*; do
-            [ -f "$f" ] && vinstall "$f" 644 opt/${pkgname}/files/${i}
-        done
-    done
+	for i in fake; do
+		vmkdir opt/${pkgname}/files/${i}
+		for f in files/${i}/*; do
+			[ -f "$f" ] && vinstall "$f" 644 opt/${pkgname}/files/${i}
+		done
+	done
 
-    vmkdir opt/${pkgname}/ipset
-    for f in ipset/*; do
-        [ -f "$f" ] && vinstall "$f" 755 opt/${pkgname}/ipset
-    done
+	vmkdir opt/${pkgname}/ipset
+	for f in ipset/*; do
+		[ -f "$f" ] && vinstall "$f" 755 opt/${pkgname}/ipset
+	done
 
-    vmkdir opt/${pkgname}/common
-    for f in common/*; do
-        [ -f "$f" ] && vinstall "$f" 644 opt/${pkgname}/common
-    done
+	vmkdir opt/${pkgname}/common
+	for f in common/*; do
+		[ -f "$f" ] && vinstall "$f" 644 opt/${pkgname}/common
+	done
 
-    vmkdir opt/${pkgname}/lua
-    for f in lua/*; do
-        [ -f "$f" ] && vinstall "$f" 644 opt/${pkgname}/lua
-    done
+	vmkdir opt/${pkgname}/lua
+	for f in lua/*; do
+		[ -f "$f" ] && vinstall "$f" 644 opt/${pkgname}/lua
+	done
 
-    vmkdir opt/${pkgname}/init.d/sysv/custom.d
-    vinstall init.d/sysv/functions 755 opt/${pkgname}/init.d/sysv
-    vinstall init.d/sysv/${pkgname} 755 opt/${pkgname}/init.d/sysv
+	vmkdir opt/${pkgname}/init.d/sysv/custom.d
+	vinstall init.d/sysv/functions 755 opt/${pkgname}/init.d/sysv
+	vinstall init.d/sysv/${pkgname} 755 opt/${pkgname}/init.d/sysv
 
-    ln -s /opt/${pkgname}/init.d/sysv/${pkgname} \
-        ${DESTDIR}/usr/bin/${pkgname}
+	ln -s /opt/${pkgname}/init.d/sysv/${pkgname} \
+		${DESTDIR}/usr/bin/${pkgname}
 
-    sed -e '1s/$/\n\nWS_USER=zapret2/' -i \
-        ${DESTDIR}/opt/zapret2/init.d/sysv/functions
+	sed -e '1s/$/\n\nWS_USER=zapret2/' -i \
+		${DESTDIR}/opt/zapret2/init.d/sysv/functions
 
-    vinstall config.default 644 opt/${pkgname} config
+	vinstall config.default 644 opt/${pkgname} config
 
 	vinstall binaries/my/nfqws2 755 opt/${pkgname}/nfq2/
 	ln -s /opt/${pkgname}/nfq2/nfqws2 ${DESTDIR}/usr/bin/
 
-    vmkdir usr/share/doc/${pkgname}
-    for f in docs/*.*; do
-        [ -f "$f" ] && vinstall "$f" 644 usr/share/doc/${pkgname}
-    done
+	vmkdir usr/share/doc/${pkgname}
+	for f in docs/*.*; do
+		[ -f "$f" ] && vinstall "$f" 644 usr/share/doc/${pkgname}
+	done
 
-    vlicense docs/LICENSE.txt
+	vlicense docs/LICENSE.txt
 
-    vsv zapret2
+	vsv zapret2
 }
