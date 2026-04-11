@@ -1,6 +1,6 @@
 # Template file for 'yandex-browser'
 pkgname=yandex-browser
-version=26.3.1.1041
+version=26.3.1.1088
 revision=1
 _channel=stable
 archs="x86_64"
@@ -11,7 +11,7 @@ maintainer="nerdyslacker <karyan40024@gmail.com>"
 license="custom:yandex"
 homepage="https://browser.yandex.ru/"
 distfiles="https://repo.yandex.ru/yandex-browser/deb/pool/main/y/yandex-browser-stable/yandex-browser-${_channel}_${version}-1_amd64.deb"
-checksum=cfcd123dafc4649e18499011ae59c1c63d2dba755e1a83fc99f2035688db2149 
+checksum=8af56b588c48f2965386886f98ae9f95b98c8b5f1c20847b06f7cb2cd2932ba0
 restricted=yes
 
 _licenseUrl="https://yandex.ru/legal/browser_agreement"
