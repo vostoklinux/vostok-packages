@@ -1,0 +1,25 @@
+# Template file for 'logitune'
+pkgname=logitune
+version=0.2.3
+revision=1
+build_style=cmake
+configure_args="
+ -DCMAKE_BUILD_TYPE=Release
+ -DBUILD_TESTING=OFF
+"
+hostmakedepends="ninja qt6-tools pkg-config"
+makedepends="qt6-base-devel qt6-declarative-devel qt6-svg-devel qt6-qt5compat-devel"
+short_desc="Logitech device configurator — per-app profiles, DPI, gestures"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://github.com/mmaher88/logitune"
+distfiles="https://github.com/mmaher88/logitune/archive/v${version}.tar.gz"
+checksum=31cc9454187695f4af79851c7bd4f4b56acefb709ce05c3180f80e01d8c93f5c
+noverifyrdeps=yes
+noshlibprovides=yes
+
+post_install() {
+	if [ -d ${DESTDIR}/usr/etc ]; then
+		mv ${DESTDIR}/usr/etc ${DESTDIR}/
+	fi
+}
