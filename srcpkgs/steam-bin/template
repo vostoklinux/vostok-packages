@@ -1,7 +1,7 @@
 # Template file for 'steam-bin'
 pkgname=steam-bin
 version=1.0.0.85
-revision=13
+revision=14
 archs="x86_64"
 depends="zenity xz curl dbus freetype gdk-pixbuf hicolor-icon-theme desktop-file-utils
  liberation-fonts-ttf file tar bash coreutils lsof steam-udev-rules
@@ -13,7 +13,7 @@ depends="zenity xz curl dbus freetype gdk-pixbuf hicolor-icon-theme desktop-file
  nss-32bit nspr-32bit
  alsa-lib-32bit libpulseaudio-32bit
  SDL2-32bit"
-short_desc="Valve's Steam digital distribution platform"
+short_desc="[games]Steam - Valve's Steam digital distribution platform"
 maintainer="Vostok Linux <packaging@vostoklinux.org>"
 license="custom:Valve-SSA"
 homepage="https://steampowered.com"
