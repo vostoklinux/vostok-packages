@@ -1,12 +1,12 @@
 # Template file for 'steam-bin-mesa'
 pkgname=steam-bin-mesa
 version=1.0.0.85
-revision=2
+revision=3
 metapackage=yes
 depends="steam-bin>=${version}_${revision}
          mesa-dri-32bit mesa-vulkan-radeon-32bit mesa-vulkan-intel-32bit
          mesa-vulkan-radeon mesa-vulkan-intel"
-short_desc="[games]Steam - with Mesa GPU support (AMD/Intel)"
+short_desc="[games]Steam Mesa - with Mesa GPU support (AMD/Intel)"
 maintainer="Vostok Linux <packaging@vostoklinux.org>"
 license="custom:Valve-SSA"
 homepage="https://steampowered.com"
