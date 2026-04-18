@@ -1,18 +1,18 @@
 # Template file for 'telegram-bin'
 pkgname=telegram-bin
-version=6.7.5
-revision=3
+version=6.7.6
+revision=1
 archs="x86_64"
 wrksrc="Telegram"
 depends="alsa-lib libgbm libdrm libsecret dbus
  hicolor-icon-theme xdg-utils"
-short_desc="[communication]Telegram Desktop - Telegram messaging app (official binary)"
+short_desc="Telegram messaging app (official binary)"
 maintainer="David Ivashevich <davidivashevich@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://desktop.telegram.org"
 changelog="https://github.com/telegramdesktop/tdesktop/blob/v${version}/changelog.txt"
 distfiles="https://github.com/telegramdesktop/tdesktop/releases/download/v${version}/tsetup.${version}.tar.xz"
-checksum=e1eb3110e71771028f0ee7cd5fdd8d7fe03d78fcee362a85eb77b06a531c447d
+checksum=b3a38a7b4bcd5891857992b672ccebf91fb83a63c07ba3d15a023fad8e482222
 nostrip=yes
 
 do_install() {
