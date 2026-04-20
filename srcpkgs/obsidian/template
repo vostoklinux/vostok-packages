@@ -1,0 +1,49 @@
+# Template file for 'obsidian'
+pkgname=obsidian
+version=1.12.7
+revision=1
+archs="x86_64"
+wrksrc="obsidian-${version}"
+depends="alsa-lib libsecret libgbm libdrm libcups eudev-libudev
+ hicolor-icon-theme xdg-utils"
+noverifyrdeps=yes
+short_desc="Knowledge base and note-taking app using Markdown"
+maintainer="Vostok Linux <davidivashevich@gmail.com>"
+license="custom:Obsidian-EULA"
+homepage="https://obsidian.md"
+changelog="https://obsidian.md/changelog"
+distfiles="https://github.com/obsidianmd/obsidian-releases/releases/download/v${version}/Obsidian-${version}.AppImage>obsidian-${version}.AppImage"
+checksum=f6d8b96fe685a8632c819cc093a248ace0f6bab410f44a6c929a2611b1ebb17c
+nostrip=yes
+noshlibs=yes
+
+do_extract() {
+	local appimage="${XBPS_SRCDISTDIR}/${pkgname}-${version}/obsidian-${version}.AppImage"
+	chmod +x "${appimage}"
+	"${appimage}" --appimage-extract
+	mkdir -p ${wrksrc}
+	cp -aL squashfs-root/. ${wrksrc}/
+	rm -rf squashfs-root
+}
+
+do_install() {
+	vmkdir opt/obsidian
+	vcopy "*" opt/obsidian
+
+	vmkdir usr/bin
+	ln -sf /opt/obsidian/AppRun ${DESTDIR}/usr/bin/obsidian
+
+	vinstall ${FILESDIR}/obsidian.desktop 644 usr/share/applications
+
+	vinstall usr/share/icons/hicolor/512x512/apps/obsidian.png 644 \
+		usr/share/icons/hicolor/512x512/apps
+	vinstall usr/share/icons/hicolor/512x512/apps/obsidian.png 644 \
+		usr/share/pixmaps
+
+	chmod -R o-w ${DESTDIR}/opt/obsidian
+	chmod 755 ${DESTDIR}/opt/obsidian/AppRun
+
+	if [ -f ${DESTDIR}/opt/obsidian/chrome-sandbox ]; then
+		chmod 4755 ${DESTDIR}/opt/obsidian/chrome-sandbox
+	fi
+}

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Obsidian
+GenericName=Knowledge Base
+Comment=A powerful knowledge base that works on top of a local folder of Markdown files
+Exec=/opt/obsidian/obsidian --disable-gpu --disable-gpu-sandbox %u
+Icon=obsidian
+Terminal=false
+Type=Application
+Categories=Office;TextEditor;
+MimeType=x-scheme-handler/obsidian;
+StartupWMClass=obsidian
+StartupNotify=true
