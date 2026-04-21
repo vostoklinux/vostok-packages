@@ -1,0 +1,16 @@
+# Template file for 'ani-cli'
+pkgname=ani-cli
+version=4.11
+revision=1
+depends="grep sed curl mpv aria2 ffmpeg fzf"
+short_desc="CLI to browse and watch anime"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/pystardust/ani-cli"
+distfiles="https://github.com/pystardust/ani-cli/archive/refs/tags/v${version}.tar.gz"
+checksum=96a0addc9021a029e7b0e421aa60136c004568d23e5e34ca189c395a979f2a29
+
+do_install() {
+	vbin ani-cli
+	vman ani-cli.1
+}
