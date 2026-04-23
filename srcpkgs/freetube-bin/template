@@ -1,0 +1,22 @@
+# Template file for 'freetube-bin'
+pkgname=freetube-bin
+version=0.24.0
+revision=1
+archs="x86_64"
+hostmakedepends="rpmextract"
+depends="liberation-fonts-ttf"
+short_desc="Open source desktop YouTube player built with privacy in mind"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="AGPL-3.0-only"
+homepage="https://freetubeapp.io/"
+distfiles="https://github.com/FreeTubeApp/FreeTube/releases/download/v${version}-beta/freetube-${version}-beta.amd64.rpm"
+checksum=4fa0d72fba5e652d78d5f7f951cfd7de370cda8076686ef90b9716aef0ab47a8
+
+do_install() {
+	vcopy * /
+
+	vmkdir usr/bin/
+	ln -s /opt/FreeTube/freetube ${DESTDIR}/usr/bin/
+
+	vlicense opt/FreeTube/LICENSE.electron.txt
+}
