@@ -1,7 +1,7 @@
 # Template file for 'claude-desktop'
 pkgname=claude-desktop
-version=1.3109.0
-_release=1.3.32
+version=1.4758.0
+_release=2.0.5
 revision=1
 archs="x86_64"
 wrksrc="claude-desktop-${version}"
@@ -11,13 +11,13 @@ short_desc="Claude Desktop native Linux client for Claude AI"
 maintainer="David Ivashevich <davidivashevich@gmail.com>"
 license="custom:Anthropic-TOS"
 homepage="https://github.com/aaddrick/claude-desktop-debian"
-distfiles="https://github.com/aaddrick/claude-desktop-debian/releases/download/v${_release}%2Bclaude${version}/claude-desktop-${version}-${_release}-amd64.AppImage>claude-desktop-${version}.AppImage"
-checksum=8238a2c55599525a10bcd4dbf1ebcf0a36104fb77a82015f2361cbea3f0c9c1c
+distfiles="https://github.com/aaddrick/claude-desktop-debian/releases/download/v${_release}%2Bclaude${version}/claude-desktop-${version}-${_release}-amd64.AppImage"
+checksum="29b78d803a1db46093d3b1b1887b8dc9d579cfe7554082b005ed384be81b582e"
 nostrip=yes
 noshlibs=yes
 
 do_extract() {
-	local appimage="${XBPS_SRCDISTDIR}/${pkgname}-${version}/claude-desktop-${version}.AppImage"
+	local appimage="${XBPS_SRCDISTDIR}/${pkgname}-${version}/claude-desktop-${version}-${_release}-amd64.AppImage"
 	chmod +x "${appimage}"
 	"${appimage}" --appimage-extract
 	mkdir -p ${wrksrc}
