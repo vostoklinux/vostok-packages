@@ -1,6 +1,6 @@
 # Template file for 'arianna'
 pkgname=arianna
-version=25.12.3
+version=26.04.0
 revision=1
 build_style=cmake
 configure_args="-DBUILD_TESTING=OFF"
@@ -18,6 +18,6 @@ maintainer="nerdyslacker <karyan40024@gmail.com>"
 license="GPL-2.0-or-later, LGPL-2.0-or-later"
 homepage="https://apps.kde.org/arianna/"
 distfiles="https://download.kde.org/stable/release-service/${version}/src/${pkgname}-${version}.tar.xz"
-checksum=03369b86f259256300f280b8d883b25bd02e50cf9dc45096b2496d6302fe8308
+checksum=60c888a03f22a6272e55d8efe4fd85c96c9a2b9f0475670bbc38d0120559cdc0
 noverifyrdeps=yes
 disable_shlib_provides=yes
