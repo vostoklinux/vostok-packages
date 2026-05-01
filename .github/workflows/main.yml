@@ -164,7 +164,7 @@ jobs:
         run: |
           mkdir -p /etc/xbps.d
           cp /usr/share/xbps.d/*-repository-*.conf /etc/xbps.d/
-          sed -i 's|repo-default|repo-ci|g' /etc/xbps.d/*-repository-*.conf
+          #sed -i 's|repo-default|repo-ci|g' /etc/xbps.d/*-repository-*.conf
           xbps-install -Syu xbps && xbps-install -yu
           xbps-install -y openssh rsync
 
