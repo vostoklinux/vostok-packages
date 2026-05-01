@@ -56,6 +56,7 @@ jobs:
           # Теперь отдаём всю папку builder чтобы он мог создавать masterdir
           chown -R builder:builder .
           sudo -Eu builder ./xbps-src binary-bootstrap
+          sudo -Eu builder ./xbps-src update-sys
 
       - name: Find changed templates
         id: changed
