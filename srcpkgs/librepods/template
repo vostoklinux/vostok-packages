@@ -1,7 +1,7 @@
 # Template file for 'librepods'
 pkgname=librepods
 version=0.2.5
-revision=2
+revision=3
 build_style=cmake
 build_wrksrc="linux"
 configure_args="-DCMAKE_BUILD_TYPE=Release"
