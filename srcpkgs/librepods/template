@@ -1,0 +1,27 @@
+# Template file for 'librepods'
+pkgname=librepods
+version=0.2.5
+revision=1
+build_style=cmake
+build_wrksrc="linux"
+configure_args="-DCMAKE_BUILD_TYPE=Release"
+hostmakedepends="pkg-config qt6-tools qt6-declarative-host-tools"
+makedepends="qt6-base-devel qt6-declarative-devel qt6-svg-devel
+ qt6-connectivity-devel libbluetooth-devel pulseaudio-devel"
+depends="bluez qt6-svg"
+short_desc="AirPods features unlocked for Linux - noise control, ear detection, battery"
+maintainer="Vostok Linux <packaging@vostoklinux.org>"
+license="GPL-3.0-or-later"
+homepage="https://github.com/kavishdevar/librepods"
+distfiles="https://github.com/kavishdevar/librepods/archive/refs/tags/v${version}.tar.gz>librepods-${version}.tar.gz"
+checksum=c32051e917c96b7d183d3d490f99dc4ab4fd50dcbd8b18f38619794e478f4db3
+
+do_install() {
+	vbin build/librepods
+	vinstall ${FILESDIR}/librepods.desktop 644 usr/share/applications
+	vinstall ${FILESDIR}/librepods.png 644 \
+		usr/share/icons/hicolor/256x256/apps
+	vinstall ${FILESDIR}/librepods.png 644 usr/share/pixmaps
+
+	vlicense ${FILESDIR}/LICENSE
+}

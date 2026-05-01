@@ -1,0 +1,2 @@
+site=https://github.com/kavishdevar/librepods/releases/latest
+pattern='href="/kavishdevar/librepods/releases/tag/v\K[\d\.]+(?=")'
