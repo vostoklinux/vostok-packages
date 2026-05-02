@@ -1,0 +1,5 @@
+#!/bin/sh
+# Runit service for dsearch - Fast filesystem search service
+
+exec 2>&1
+exec /usr/bin/dsearch serve
