@@ -1,7 +1,7 @@
 # Template file for 'amneziavpn'
 pkgname=amneziavpn
-version=4.8.14.5
-revision=2
+version=4.8.15.4
+revision=1
 archs="x86_64"
 hostmakedepends="tar"
 short_desc="Amnezia VPN Client"
@@ -9,7 +9,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-only"
 homepage="https://github.com/amnezia-vpn/amnezia-client"
 distfiles="https://github.com/amnezia-vpn/amnezia-client/releases/download/${version}/AmneziaVPN_${version}_linux_x64.tar"
-checksum=390ac477fbac0f0241c3e9e89f7dcb81bf5a4840278752000d37ab1971b87b4d
+checksum=64f385da8d014a45e96c770f6e0f9a0fc3124e35e557d5b2ec22725264f92b90
 nopie=yes
 noverifyrdeps=yes
 disable_shlib_provides=yes
