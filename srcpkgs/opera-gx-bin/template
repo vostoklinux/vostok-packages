@@ -1,0 +1,27 @@
+# Template file for 'opera-gx-bin'
+pkgname=opera-gx-bin
+_pkgname=opera-gx
+version=129.0.5823.70
+revision=1
+hostmakedepends="tar xz"
+short_desc="Gaming Browser"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="custom:opera"
+homepage="https://www.opera.com/gx"
+distfiles="https://get.geo.opera.com/ftp/pub/opera_gx/${version}/linux/${_pkgname}-stable_${version}_amd64.deb"
+checksum=53c8fa5c6872068d7a64d55a07f32d7f6e6b1e7c4e36524d8e3410950f364726
+
+do_extract() {
+	ar x ${XBPS_SRCDISTDIR}/${pkgname}-${version}/${_pkgname}-stable_${version}_amd64.deb
+	tar -xf data.tar.*
+}
+
+do_install() {
+	vmkdir usr
+	vcopy usr/* usr/
+
+	copyright_file="$(find "usr/share/doc" -type f -name copyright | head -n1)"
+	if [[ -n "$copyright_file" ]]; then
+		vlicense "$copyright_file"
+	fi
+}
