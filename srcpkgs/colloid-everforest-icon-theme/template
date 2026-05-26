@@ -12,7 +12,6 @@ checksum=3ae00b7c31089954a6d1dc9cd4de2a7d876a32663128d1a24d8a7ba3a6aa23e7
 nostrip=yes
 
 pre_install() {
-	# Disable gtk-update-icon-cache execution
 	sed -i '/gtk-update-icon-cache/d' install.sh
 }
 
