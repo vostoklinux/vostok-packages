@@ -11,6 +11,7 @@ CURRENT=$(grep '^version=' "${TEMPLATE}" | cut -d= -f2)
 echo "Fetching latest VSCode version..."
 INFO=$(curl -fsSL "${API_URL}")
 
+
 LATEST=$(echo "${INFO}" | python3 -c "
 import sys, json
 d = json.load(sys.stdin)
