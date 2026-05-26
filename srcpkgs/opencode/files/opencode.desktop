@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=OpenCode
+Comment=Open source AI coding agent (terminal interface)
+Exec=opencode
+Icon=opencode
+Terminal=true
+Type=Application
+Categories=Development;AI;
+StartupNotify=true
