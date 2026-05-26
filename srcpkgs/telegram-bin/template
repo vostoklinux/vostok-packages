@@ -22,6 +22,7 @@ do_install() {
 	vmkdir usr/bin
 	ln -sf /opt/telegram/Telegram ${DESTDIR}/usr/bin/telegram-desktop
 
+
 	# Desktop file must be named telegramdesktop.desktop — Telegram checks
 	# for this exact name at startup to avoid creating a duplicate in ~/.local
 	#vinstall ${FILESDIR}/telegramdesktop.desktop 644 usr/share/applications
