@@ -1,0 +1,33 @@
+# Template file for 'copyq'
+pkgname=copyq
+version=15.0.0
+revision=1
+build_style=cmake
+configure_args="
+ -DCMAKE_BUILD_TYPE=Release
+ -DWITH_QT6=ON
+ -DWITH_PLUGINS=ON
+ -DWITH_QCA_ENCRYPTION=OFF
+ -DWITH_KEYCHAIN=OFF
+ -DWITH_NATIVE_NOTIFICATIONS=OFF
+ -DWITH_GNOME_CLIPBOARD_EXTENSION=OFF
+ -DWITH_AUDIO=OFF
+ -DWITH_APPIMAGE=OFF
+"
+hostmakedepends="cmake extra-cmake-modules pkg-config qt6-tools"
+makedepends="
+ libXtst-devel
+ libXfixes-devel
+ qt6-base-devel
+ qt6-declarative-devel
+ qt6-svg-devel
+ qt6-tools-devel
+ qt6-wayland-devel
+ wayland-devel
+"
+short_desc="Advanced clipboard manager with editing and scripting features"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://github.com/hluk/CopyQ"
+distfiles="https://github.com/hluk/CopyQ/archive/refs/tags/v${version}.tar.gz"
+checksum="19665e503997e9d2ffd6f062df43255ee2be38d888d8cc22215474196016bb39"

@@ -1,60 +1,132 @@
 # Template file for 'amneziavpn'
 pkgname=amneziavpn
-version=4.8.14.5
-revision=2
+version=4.8.15.4
+revision=1
 archs="x86_64"
-hostmakedepends="tar"
+wrksrc="${pkgname}-${version}"
+hostmakedepends="p7zip python3"
 short_desc="Amnezia VPN Client"
-maintainer="nerdyslacker <karyan40024@gmail.com>"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-only"
 homepage="https://github.com/amnezia-vpn/amnezia-client"
 distfiles="https://github.com/amnezia-vpn/amnezia-client/releases/download/${version}/AmneziaVPN_${version}_linux_x64.tar"
-checksum=390ac477fbac0f0241c3e9e89f7dcb81bf5a4840278752000d37ab1971b87b4d
+checksum=64f385da8d014a45e96c770f6e0f9a0fc3124e35e557d5b2ec22725264f92b90
 nopie=yes
 noverifyrdeps=yes
 disable_shlib_provides=yes
 
-# Signature '\x37\x7A\xBC\xAF\x27\x1C' version '\x00\x04'
-_archive_offset=0x1ABF361
-_archive_size=0x5380539
+do_extract() {
+	mkdir -p ${wrksrc}
+	bsdtar -xf "${XBPS_SRCDISTDIR}/${pkgname}-${version}/AmneziaVPN_${version}_linux_x64.tar" \
+		-C ${wrksrc}
+}
 
-pre_install() {
+post_extract() {
+	local installer
+	installer=$(find ${wrksrc} -name "*.bin" | head -1)
+	[ -z "${installer}" ] && msg_error "amneziavpn: installer .bin not found"
+	echo "=> Installer: ${installer} ($(du -sh ${installer} | cut -f1))"
 
-    if [ -e AmneziaVPN_Linux_Installer.bin ]; then
-        rm -rf AmneziaVPN
+	python3 - "${installer}" "${wrksrc}" << 'PYEOF'
+import sys, os, subprocess
 
-        tail -c +$((_archive_offset+1)) AmneziaVPN_Linux_Installer.bin \
-            | head -c $((_archive_size)) > data.7z
+installer, wrksrc = sys.argv[1], sys.argv[2]
+sig = b'\x37\x7a\xbc\xaf\x27\x1c'
 
-        rm -f AmneziaVPN_Linux_Installer.bin
+with open(installer, 'rb') as f:
+    data = f.read()
 
-        mkdir AmneziaVPN
-        bsdtar -xf data.7z -C AmneziaVPN
+offsets = []
+idx = 0
+while True:
+    pos = data.find(sig, idx)
+    if pos < 0:
+        break
+    offsets.append(pos)
+    idx = pos + 1
 
-        rm -f data.7z
-    fi
+print(f"Found {len(offsets)} 7z signatures: {offsets}")
 
-    rm -f ${wrksrc}/AmneziaVPN/client/bin/*.sha256
+best_offset = None
+best_count = 0
+out_7z = os.path.join(wrksrc, "data.7z")
 
-    sed -i 's#/usr/share/pixmaps/AmneziaVPN.png#AmneziaVPN#g' \
-        ${wrksrc}/AmneziaVPN/AmneziaVPN.desktop
+for offset in reversed(offsets):
+    size = len(data) - offset
+    print(f"Trying offset {offset} ({size/1024/1024:.1f} MB)...")
+
+    with open(out_7z, 'wb') as f:
+        f.write(data[offset:])
+
+    r = subprocess.run(
+        ["7z", "l", out_7z],
+        capture_output=True, text=True
+    )
+
+    count = r.stdout.count('\n')
+    print(f"  Listed lines: {count}, returncode: {r.returncode}")
+
+    if count > best_count:
+        best_count = count
+        best_offset = offset
+
+    if 'client' in r.stdout and 'service' in r.stdout:
+        print(f"  => MATCH: contains client and service dirs")
+        break
+
+if best_offset is None:
+    print("ERROR: No valid archive found")
+    sys.exit(1)
+
+print(f"=> Using offset {best_offset}")
+with open(out_7z, 'wb') as f:
+    f.write(data[best_offset:])
+
+out_dir = os.path.join(wrksrc, "AmneziaVPN")
+os.makedirs(out_dir, exist_ok=True)
+r = subprocess.run(
+    ["7z", "x", out_7z, f"-o{out_dir}", "-y"],
+    capture_output=True, text=True
+)
+print(r.stdout[-500:] if len(r.stdout) > 500 else r.stdout)
+if r.returncode not in (0, 1):
+    print(f"STDERR: {r.stderr[-200:]}")
+os.remove(out_7z)
+os.remove(installer)
+print("=> Done")
+PYEOF
+
+	rm -f ${wrksrc}/AmneziaVPN/client/bin/*.sha256 2>/dev/null || true
+
+	echo "=> AmneziaVPN contents:"
+	ls -la ${wrksrc}/AmneziaVPN/ || true
+
+	[ -d "${wrksrc}/AmneziaVPN/client/bin" ] \
+		|| msg_error "amneziavpn: client/bin not found — extraction failed"
+
+	echo "=> OK: $(ls ${wrksrc}/AmneziaVPN/client/bin/ | wc -l) binaries"
 }
 
 do_install() {
+	sed -i 's#/usr/share/pixmaps/AmneziaVPN.png#AmneziaVPN#g' \
+		${wrksrc}/AmneziaVPN/AmneziaVPN.desktop
+
 	vmkdir opt/AmneziaVPN
-	vcopy AmneziaVPN/client opt/AmneziaVPN
-	vcopy AmneziaVPN/service opt/AmneziaVPN
+	vcopy "${wrksrc}/AmneziaVPN/client" opt/AmneziaVPN
+	vcopy "${wrksrc}/AmneziaVPN/service" opt/AmneziaVPN
 
-    chmod +x ${DESTDIR}/opt/AmneziaVPN/client/bin/{AmneziaVPN,ck-client,openvpn,ss-local,tun2socks,update-resolv-conf.sh,wireguard-go}
-    chmod +x ${DESTDIR}/opt/AmneziaVPN/client/AmneziaVPN.sh
-    chmod +x ${DESTDIR}/opt/AmneziaVPN/service/bin/AmneziaVPN-service
-    chmod +x ${DESTDIR}/opt/AmneziaVPN/service/AmneziaVPN-service.sh
+	chmod +x ${DESTDIR}/opt/AmneziaVPN/client/bin/*
+	chmod +x ${DESTDIR}/opt/AmneziaVPN/client/AmneziaVPN.sh
+	chmod +x ${DESTDIR}/opt/AmneziaVPN/service/bin/AmneziaVPN-service
+	chmod +x ${DESTDIR}/opt/AmneziaVPN/service/AmneziaVPN-service.sh
 
-    vmkdir usr/bin
-    ln -s /opt/AmneziaVPN/client/AmneziaVPN.sh ${DESTDIR}/usr/bin/AmneziaVPN
+	vmkdir usr/bin
+	ln -sf /opt/AmneziaVPN/client/AmneziaVPN.sh ${DESTDIR}/usr/bin/AmneziaVPN
 
-    vinstall ${wrksrc}/AmneziaVPN/AmneziaVPN.desktop 644 usr/share/applications
-    vinstall ${wrksrc}/AmneziaVPN/AmneziaVPN.png 644 usr/share/icons/hicolor/512x512/apps
+	vinstall ${wrksrc}/AmneziaVPN/AmneziaVPN.desktop 644 usr/share/applications
+	vinstall ${wrksrc}/AmneziaVPN/AmneziaVPN.png 644 \
+		usr/share/icons/hicolor/512x512/apps
+	vinstall ${wrksrc}/AmneziaVPN/AmneziaVPN.png 644 usr/share/pixmaps
 
-    vsv amneziavpn
+	vsv amneziavpn
 }

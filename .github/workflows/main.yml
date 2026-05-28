@@ -3,12 +3,12 @@ name: Build and Deploy Vostok Packages
 on:
   pull_request:
     paths:
-      - 'srcpkgs/**'
+      - "srcpkgs/**"
   push:
     branches:
       - main
     paths:
-      - 'srcpkgs/**'
+      - "srcpkgs/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -33,7 +33,7 @@ jobs:
         run: |
           mkdir -p /etc/xbps.d
           cp /usr/share/xbps.d/*-repository-*.conf /etc/xbps.d/
-          sed -i 's|repo-default|repo-ci|g' /etc/xbps.d/*-repository-*.conf
+          #sed -i 's|repo-default|repo-ci|g' /etc/xbps.d/*-repository-*.conf
           xbps-install -Syu xbps && xbps-install -yu
           xbps-install -y sudo bash curl git xtools
           useradd -G xbuilder -M builder
@@ -56,6 +56,7 @@ jobs:
           # Теперь отдаём всю папку builder чтобы он мог создавать masterdir
           chown -R builder:builder .
           sudo -Eu builder ./xbps-src binary-bootstrap
+          sudo -Eu builder ./xbps-src update-sys
 
       - name: Find changed templates
         id: changed
@@ -115,7 +116,7 @@ jobs:
           [ -d masterdir ] && chown -R builder:builder masterdir
           [ -d hostdir ] && chown -R builder:builder hostdir
           echo "XBPS_ALLOW_RESTRICTED=yes" >> etc/conf
-          
+
           FAILED=0
           for pkg in ${{ steps.changed.outputs.packages }}; do
             echo "━━━ Building: $pkg ━━━"
@@ -163,7 +164,7 @@ jobs:
         run: |
           mkdir -p /etc/xbps.d
           cp /usr/share/xbps.d/*-repository-*.conf /etc/xbps.d/
-          sed -i 's|repo-default|repo-ci|g' /etc/xbps.d/*-repository-*.conf
+          #sed -i 's|repo-default|repo-ci|g' /etc/xbps.d/*-repository-*.conf
           xbps-install -Syu xbps && xbps-install -yu
           xbps-install -y openssh rsync
 
@@ -179,20 +180,19 @@ jobs:
         run: |
           # 1. Декодируем base64 (удаляя возможные пробелы/переносы)
           echo "$XBPS_SIGNING_KEY" | tr -d '\n\r ' | base64 -d > /tmp/vostok-repo.raw
-          
+
           # 2. Конвертируем в классический RSA (PKCS#1)
           openssl rsa -in /tmp/vostok-repo.raw -out /tmp/vostok-repo.key
-          
+
           chmod 600 /tmp/vostok-repo.key
           rm /tmp/vostok-repo.raw
           echo "Ключ успешно подготовлен"
 
-      
       - name: Sign packages
         run: |
           cd ./pkgs
           find . -mindepth 2 -name "*.xbps" -exec mv -t . {} +
-          
+
           if [ -z "$(ls *.xbps 2>/dev/null)" ]; then
             echo "Ошибка: Пакеты .xbps не найдены в ./pkgs"
             exit 1
@@ -212,7 +212,7 @@ jobs:
           for pkg in *.xbps; do
             xbps-rindex -a "$pkg"
           done
-          
+
           xbps-rindex -s \
             --privkey /tmp/vostok-repo.key \
             --signedby "Vostok Linux" \
@@ -222,11 +222,11 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: builder  # Мы точно знаем, что это builder
+          VPS_USER: builder # Мы точно знаем, что это builder
         run: |
           # 1. Создаем временный файл ключа прямо в папке проекта
           echo "$SSH_PRIVATE_KEY" > deploy_key
-          
+
           # Очищаем от возможных кривых переносов строк
           sed -i 's/\\n/\n/g' deploy_key
           chmod 600 deploy_key
@@ -243,8 +243,6 @@ jobs:
 
           # 4. Удаляем временные файлы
           rm deploy_key vps_hosts
-
-
 
       - name: Cleanup sensitive files
         if: always()

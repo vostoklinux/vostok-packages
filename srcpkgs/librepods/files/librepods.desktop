@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=LibrePods
+GenericName=AirPods Manager
+Comment=AirPods features unlocked for Linux
+Exec=/usr/bin/librepods
+Icon=librepods
+Terminal=false
+Type=Application
+Categories=Network;AudioVideo;Utility;
+StartupWMClass=librepods
+StartupNotify=true

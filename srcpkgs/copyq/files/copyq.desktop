@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=CopyQ
+Comment=Advanced clipboard manager
+Exec=copyq
+Icon=copyq
+Terminal=false
+Categories=Utility;
+Keywords=clipboard;history;manager;
+StartupNotify=true

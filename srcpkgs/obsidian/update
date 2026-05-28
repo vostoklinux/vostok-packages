@@ -1,0 +1,2 @@
+site=https://github.com/obsidianmd/obsidian-releases/releases/latest
+pattern='href="/obsidianmd/obsidian-releases/releases/tag/v\K[\d\.]+(?=")'

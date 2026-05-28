@@ -5,6 +5,6 @@ revision=1
 metapackage=yes
 depends="steam-bin>=${version}_${revision} nvidia-libs-32bit"
 short_desc="Steam with NVIDIA GPU support"
-maintainer="Vostok Linux <packaging@vostoklinux.org>"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="custom:Valve-SSA"
 homepage="https://steampowered.com"

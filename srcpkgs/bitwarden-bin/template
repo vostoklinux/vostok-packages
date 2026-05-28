@@ -1,15 +1,20 @@
 # Template file for 'bitwarden-bin'
 pkgname=bitwarden-bin
 _pkgname=bitwarden
-version=2026.2.1
+version=2026.4.0
 revision=1
+archs="x86_64"
 hostmakedepends="tar xz"
-short_desc="Bitwarden desktop client"
-maintainer="nerdyslacker <karyan40024@gmail.com>"
+depends="alsa-lib libgbm libsecret libdrm libcups eudev-libudev"
+short_desc="Bitwarden web desktop client"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://bitwarden.com"
 distfiles="https://github.com/bitwarden/clients/releases/download/desktop-v${version}/Bitwarden-${version}-amd64.deb"
-checksum=c6bf04c054ac30c88b69cec823634134e51b22f52627ad5a44ac92d634a77167
+checksum=bdd4d36f978ee0843e7cc87b56e63c3b7f281b4e46cbc58e9fe44316afa96294
+noverifyrdeps=yes
+nostrip=yes
+noshlibs=yes
 
 do_extract() {
 	mkdir -p ${DESTDIR}
@@ -18,5 +23,6 @@ do_extract() {
 }
 
 do_install() {
-	vsed -i 's|bitwarden %U|bitwarden-app %U|' ${DESTDIR}/usr/share/applications/bitwarden.desktop
+	vsed -i 's|bitwarden %U|bitwarden-app %U|' \
+		${DESTDIR}/usr/share/applications/bitwarden.desktop
 }

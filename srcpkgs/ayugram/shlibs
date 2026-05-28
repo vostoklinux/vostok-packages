@@ -1,0 +1,3 @@
+libvpx.so.12 libvpx>=1.14.0_1
+libabsl_strings.so.2505.0.0 abseil-cpp>=20250127.0_1
+libabsl_throw_delegate.so.2505.0.0 abseil-cpp>=20250127.0_1

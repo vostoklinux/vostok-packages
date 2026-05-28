@@ -1,16 +1,16 @@
 # Template file for 'zapret2'
 pkgname=zapret2
-version=0.9.4.5
-revision=2
+version=0.9.5.2
+revision=1
 build_style=gnu-makefile
 makedepends="LuaJIT-devel libcap-devel zlib-devel libnetfilter_queue-devel"
 depends="bind bind-utils curl iptables libnetfilter_queue LuaJIT nmap"
 short_desc="Anti-DPI software"
-maintainer="nerdyslacker <karyan40024@gmail.com>"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://github.com/bol-van/zapret2"
 distfiles="https://github.com/bol-van/zapret2/archive/refs/tags/v${version}.tar.gz"
-checksum=dcdae6608cc9c15112888716c43fd43304b83744251945e3bafe2b6cec75ec8b
+checksum="6ef1834a34171ee76791594498b4cc01507da3efcbe941c4906aeb679b4c4e8d"
 
 do_prepare() {
     cd ipset

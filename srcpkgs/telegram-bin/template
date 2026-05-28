@@ -1,0 +1,39 @@
+# Template file for 'telegram-bin'
+pkgname=telegram-bin
+version=6.8.2
+revision=1
+archs="x86_64"
+wrksrc="Telegram"
+depends="alsa-lib libgbm libdrm libsecret dbus
+ hicolor-icon-theme xdg-utils"
+short_desc="Telegram messaging app (official binary)"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://desktop.telegram.org"
+changelog="https://github.com/telegramdesktop/tdesktop/blob/v${version}/changelog.txt"
+distfiles="https://github.com/telegramdesktop/tdesktop/releases/download/v${version}/tsetup.${version}.tar.xz"
+checksum=3e31fdabc2be8bc62e486da0586932e8115087e22dece8098977d14f1d13cf2b
+nostrip=yes
+
+do_install() {
+	vmkdir opt/telegram
+	vcopy "*" opt/telegram
+
+	vmkdir usr/bin
+	ln -sf /opt/telegram/Telegram ${DESTDIR}/usr/bin/telegram-desktop
+
+
+	# Desktop file must be named telegramdesktop.desktop — Telegram checks
+	# for this exact name at startup to avoid creating a duplicate in ~/.local
+	#vinstall ${FILESDIR}/telegramdesktop.desktop 644 usr/share/applications
+
+	for size in 16 32 48 64 128 256 512; do
+		[ -f ${FILESDIR}/${size}x${size}.png ] || continue
+		vinstall ${FILESDIR}/${size}x${size}.png 644 \
+			usr/share/icons/hicolor/${size}x${size}/apps telegramdesktop.png
+	done
+	vinstall ${FILESDIR}/256x256.png 644 usr/share/pixmaps telegramdesktop.png
+
+	chmod -R o-w ${DESTDIR}/opt/telegram
+	chmod 755 ${DESTDIR}/opt/telegram/Telegram
+}

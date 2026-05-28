@@ -1,12 +1,12 @@
 # Template file for 'opencode'
 pkgname=opencode
-version=1.2.6
-revision=8
+version=1.15.11
+revision=1
 archs="x86_64"
 wrksrc="opencode-${version}"
 hostmakedepends="tar"
 distfiles="https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-linux-x64.tar.gz"
-checksum="1299d49d1c9e8b07217d92cea14050650c0b5a81c2ac380d6ec0d1d26abbe61a"
+checksum=49317253722c698394980e1921ff28e919d79bb29d5c3f4cf314a4adaf7037cd
 homepage="https://github.com/anomalyco/opencode"
 license="MIT"
 short_desc="Open source AI coding agent (CLI/TUI version)"
@@ -27,29 +27,12 @@ do_install() {
 	ln -sf opencode-cli ${DESTDIR}/usr/bin/opencode
 
 	if [ -f ${FILESDIR}/opencode.png ]; then
-		vmkdir usr/share/icons/hicolor/256x256/apps
 		vinstall ${FILESDIR}/opencode.png 644 usr/share/icons/hicolor/256x256/apps opencode.png
-		vmkdir usr/share/pixmaps
 		vinstall ${FILESDIR}/opencode.png 644 usr/share/pixmaps opencode.png
 	fi
 
-	vmkdir usr/share/applications
-	cat > ${DESTDIR}/usr/share/applications/opencode.desktop <<EOF
-[Desktop Entry]
-Name=OpenCode (TUI)
-Comment=Open source AI coding agent (terminal interface)
-Exec=konsole --noclose -e opencode
-Icon=opencode
-Terminal=false
-Type=Application
-Categories=Development;AI;
-StartupNotify=true
-EOF
+	vinstall ${FILESDIR}/opencode.desktop 644 usr/share/applications
 
 	vmkdir usr/share/licenses/${pkgname}
 	echo "OpenCode is licensed under MIT. See https://github.com/anomalyco/opencode" > ${DESTDIR}/usr/share/licenses/${pkgname}/LICENSE
-
-	find ${DESTDIR}/usr -type d -exec chmod 755 {} +
-	find ${DESTDIR}/usr -type f -exec chmod 644 {} +
-	chmod 755 ${DESTDIR}/usr/bin/opencode-cli
 }

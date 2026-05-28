@@ -4,6 +4,15 @@
 
 Custom package repository for Vostok Linux — a collection of hand-crafted .xbps packages, bringing the best software to your Void-based distribution.
 
+# ⚙️ Automation & CI/CD (GitOps)
+
+This repository is powered by a fully automated GitOps pipeline to ensure reliability and up-to-date software:
+
+*   **Auto-Updates:** A dedicated bot monitors official upstream APIs daily. When a new version is released, it automatically updates templates, verifies checksums, and opens a Pull Request.
+*   **Continuous Integration (CI):** Every change is automatically tested on our build farm via GitHub Actions. We never merge a package that fails to build.
+*   **Continuous Deployment (CD):** Once a PR is merged, packages are automatically built, **cryptographically signed**, and deployed to our production VPS repository.
+
+
 # 🚀 How to use this repository
 
 You can either build the packages yourself using xbps-src, or install pre-built binaries directly from our repository.

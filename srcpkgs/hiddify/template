@@ -7,7 +7,7 @@ hostmakedepends="tar xz zstd"
 depends="at-spi2-core cairo curl fontconfig glib glibc gtk+3
  libayatana-appindicator libepoxy libgcc libstdc++ libffi pango"
 short_desc="Multi-platform auto-proxy client, supporting Sing-box, X-ray, TUIC, Hysteria, Reality, Trojan, SSH etc"
-maintainer="nerdyslacker <karyan40024@gmail.com>"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://hiddify.com"
 distfiles="https://github.com/hiddify/hiddify-app/releases/download/v${version}/Hiddify-Debian-x64.deb"

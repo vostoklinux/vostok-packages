@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Claude
+GenericName=AI Assistant
+Comment=Native Linux client for Claude AI
+Exec=/usr/bin/claude-desktop --no-sandbox %U
+Icon=claude-desktop
+Terminal=false
+Type=Application
+Categories=Network;Chat;
+MimeType=x-scheme-handler/claude;
+StartupWMClass=Claude
+StartupNotify=true

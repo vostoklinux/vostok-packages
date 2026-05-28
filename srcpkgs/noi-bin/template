@@ -1,7 +1,7 @@
 # Template file for 'noi-bin'
 pkgname=noi-bin
 version=1.1.0
-revision=2
+revision=1
 archs="x86_64"
 _electronversion=35
 hostmakedepends="tar xz zstd"

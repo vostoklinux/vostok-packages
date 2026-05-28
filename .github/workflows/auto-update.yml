@@ -1,0 +1,154 @@
+name: Auto-update packages
+
+on:
+  schedule:
+    # Run daily at 06:00 UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Specific package to update (leave empty for all)'
+        required: false
+        default: ''
+
+concurrency:
+  group: auto-update
+  cancel-in-progress: true
+
+jobs:
+  update:
+    name: Check and update packages
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PULL_PUSH }}
+
+      - name: Install tools
+        run: |
+          sudo apt-get install -y curl python3 jq
+
+      - name: Discover packages with update scripts
+        id: discover
+        run: |
+          if [ -n "${{ github.event.inputs.package }}" ]; then
+            # Manual trigger for specific package
+            pkg="${{ github.event.inputs.package }}"
+            if [ -f "srcpkgs/${pkg}/update.sh" ]; then
+              echo "packages=${pkg}" >> $GITHUB_OUTPUT
+            else
+              echo "No update.sh found for ${pkg}"
+              echo "packages=" >> $GITHUB_OUTPUT
+            fi
+          else
+            # Discover all packages with update.sh
+            list=$(find srcpkgs -mindepth 2 -maxdepth 2 -name "update.sh" \
+              | sed 's|srcpkgs/\([^/]*\)/update.sh|\1|' \
+              | sort \
+              | tr '\n' ' ')
+            echo "packages=${list}" >> $GITHUB_OUTPUT
+            echo "Found packages: ${list}"
+          fi
+
+      - name: Run update scripts
+        id: run_updates
+        run: |
+          UPDATED=""
+          FAILED=""
+
+          for pkg in ${{ steps.discover.outputs.packages }}; do
+            echo "━━━ Checking: ${pkg} ━━━"
+            BEFORE=$(grep '^version=' "srcpkgs/${pkg}/template" 2>/dev/null || echo "unknown")
+
+            if bash "srcpkgs/${pkg}/update.sh"; then
+              AFTER=$(grep '^version=' "srcpkgs/${pkg}/template" 2>/dev/null || echo "unknown")
+              if [ "${BEFORE}" != "${AFTER}" ]; then
+                echo "  ✓ Updated: ${BEFORE} → ${AFTER}"
+                UPDATED="${UPDATED} ${pkg}(${AFTER#version=})"
+              else
+                echo "  — Already up to date"
+              fi
+            else
+              echo "  ✗ Failed to update ${pkg}"
+              FAILED="${FAILED} ${pkg}"
+            fi
+          done
+
+          echo "updated=${UPDATED}" >> $GITHUB_OUTPUT
+          echo "failed=${FAILED}" >> $GITHUB_OUTPUT
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No template changes detected"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Changed files:"
+            git diff --name-only
+          fi
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          UPDATED="${{ steps.run_updates.outputs.updated }}"
+          DATE=$(date +%Y-%m-%d)
+          BRANCH="auto-update/${DATE}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b "${BRANCH}"
+          git add srcpkgs/
+          git commit -m "auto-update: ${UPDATED}"
+
+          git push origin "${BRANCH}"
+
+          # Build PR body
+          BODY="## Automated package updates — ${DATE}
+
+          ### Updated packages
+          $(echo "${UPDATED}" | tr ' ' '\n' | grep -v '^$' | sed 's/^/- /')
+
+          $([ -n "${{ steps.run_updates.outputs.failed }}" ] && echo "### ⚠️ Failed updates
+          $(echo "${{ steps.run_updates.outputs.failed }}" | tr ' ' '\n' | grep -v '^$' | sed 's/^/- /')" || true)
+
+          This PR was created automatically by the update workflow.
+          After merging, the build workflow will automatically build and deploy updated packages."
+
+          gh pr create \
+            --title "auto-update: ${UPDATED}" \
+            --body "${BODY}" \
+            --base main \
+            --head "${BRANCH}" \
+            --label "auto-update"
+        env:
+          GH_TOKEN: ${{ secrets.PULL_PUSH }}
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.changes.outputs.has_changes }}" = "true" ]; then
+            echo "✅ **Updated:** ${{ steps.run_updates.outputs.updated }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "A Pull Request has been created for review before deploying." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✓ All packages are up to date." >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -n "${{ steps.run_updates.outputs.failed }}" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Failed:** ${{ steps.run_updates.outputs.failed }}" >> $GITHUB_STEP_SUMMARY
+          fi

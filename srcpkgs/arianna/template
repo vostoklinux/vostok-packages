@@ -1,6 +1,6 @@
 # Template file for 'arianna'
 pkgname=arianna
-version=25.12.3
+version=26.04.1
 revision=1
 build_style=cmake
 configure_args="-DBUILD_TESTING=OFF"
@@ -14,10 +14,10 @@ depends="qt6-base qt6-declarative qt6-httpserver qt6-webengine kf6-baloo kf6-kar
  kf6-kcoreaddons kf6-kcrash kf6-kdbusaddons kf6-kfilemetadata kf6-ki18n kf6-kwindowsystem
 "
 short_desc="Qt-Based eBook Reader"
-maintainer="nerdyslacker <karyan40024@gmail.com>"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-2.0-or-later, LGPL-2.0-or-later"
 homepage="https://apps.kde.org/arianna/"
 distfiles="https://download.kde.org/stable/release-service/${version}/src/${pkgname}-${version}.tar.xz"
-checksum=03369b86f259256300f280b8d883b25bd02e50cf9dc45096b2496d6302fe8308
+checksum=9b62f36f0b51205116e64accdee6f13ea03d00bf5bea353f1f5e34ef7079bf96
 noverifyrdeps=yes
 disable_shlib_provides=yes

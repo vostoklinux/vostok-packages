@@ -1,19 +1,20 @@
 # Template file for 'cursor'
 pkgname=cursor
-version=2.6.22
-revision=2
+version=3.5.33
+revision=1
 archs="x86_64"
 wrksrc="cursor-${version}"
-distfiles="https://downloads.cursor.com/production/c6285feaba0ad62603f7c22e72f0a170dc8415a5/linux/x64/deb/amd64/deb/cursor_${version}_amd64.deb>cursor-${version}-amd64.deb"
-checksum=2af873096282e927702c11575c960bdef5a104a931952e5c97e29d501e03f617
+distfiles="https://downloads.cursor.com/production/aac81804b986d739acab348ed96b8bea6e83cc57/linux/x64/deb/amd64/deb/cursor_${version}_amd64.deb>cursor-${version}-amd64.deb"
+checksum=172bf58496d459d197b38c3940421bd9cd87e819939644ad14be6aebc61eacd6
 homepage="https://www.cursor.com"
 license="custom:Cursor-EULA"
-short_desc="AI-first code editor based on VSCode"
+short_desc="First AI code editor based on VSCode"
 maintainer="Vostok Linux <packaging@vostoklinux.org>"
 depends="alsa-lib libsecret libgbm libdrm libcups eudev-libudev
  hicolor-icon-theme xdg-utils"
 nostrip=yes
 noshlibs=yes
+noverifyrdeps=yes
 
 do_extract() {
 	mkdir -p ${wrksrc}
