@@ -1,0 +1,37 @@
+# Template file for 'dms-shell'
+pkgname=dms-shell
+_pkgname=DankMaterialShell
+version=1.4.6
+revision=1
+archs="x86_64"
+build_style=go
+go_import_path="github.com/AvengeMedia/${_pkgname}"
+go_ldflags="-linkmode=external"
+depends="dgop quickshell accountsservice font-inter font-fira-ttf font-firacode"
+short_desc="Quickshell-based desktop shell with Material 3 design principles"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/AvengeMedia/DankMaterialShell"
+distfiles="https://github.com/AvengeMedia/${_pkgname}/archive/v${version}/${_pkgname}-${version}.tar.gz"
+checksum=f54601e522c883fa9cce02bec070e4321e47389a1cf453e7ad0bb7379ad91b61
+
+do_build() {
+	cd core
+	export CGO_CPPFLAGS="$CPPFLAGS"
+	export CGO_CFLAGS="$CFLAGS"
+	export CGO_CXXFLAGS="$CXXFLAGS"
+	export CGO_LDFLAGS="$LDFLAGS"
+	export GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw -ldflags=${go_ldflags}"
+	go build -o dms ./cmd/dms
+}
+
+do_install() {
+	vbin core/dms
+
+	vmkdir etc/xdg/quickshell/dms
+	vcopy quickshell/* etc/xdg/quickshell/dms/
+
+	vmkdir usr/share/doc/${pkgname}
+	vinstall README.md 644 usr/share/doc/${pkgname}/
+	vcopy docs/* usr/share/doc/${pkgname}/
+}
