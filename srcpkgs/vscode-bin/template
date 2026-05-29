@@ -1,6 +1,6 @@
 # Template file for 'vscode-bin'
 pkgname=vscode-bin
-version=1.121.0
+version=1.122.1
 revision=1
 archs="x86_64"
 wrksrc="VSCode-linux-x64"
@@ -10,7 +10,7 @@ maintainer="Vostok Linux <packaging@vostoklinux.org>"
 license="custom:Microsoft-EULA"
 homepage="https://code.visualstudio.com"
 distfiles="https://update.code.visualstudio.com/${version}/linux-x64/stable>code-${version}.tar.gz"
-checksum=8cf24cc41441453e11e8fe1ae9e58d32970e23dced399835c4b0904263d66820
+checksum=b76e983771395da489ee0922f279b4ea1561e19bd70c453beccef8f59aea7c0a
 nostrip=yes
 
 do_install() {
