@@ -1,0 +1,17 @@
+# Template file for 'nautilus-open-any-terminal'
+pkgname=nautilus-open-any-terminal
+version=0.8.0
+revision=1
+build_style=gnu-makefile
+hostmakedepends="gettext"
+depends="nautilus-python"
+short_desc="Context-menu entry for opening terminals in Nautilus"
+maintainer="nerdyslacker <karyan40024@gmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://github.com/Stunkymonkey/nautilus-open-any-terminal"
+distfiles="${homepage}/archive/refs/tags/${version}.tar.gz"
+checksum=c8262c66dc2d79c415df0542d94f7f0a7b4a1ce2267bf176c037bcbc76008eaa
+
+do_install() {
+	make DESTDIR=${DESTDIR} PREFIX=/usr install-nautilus
+}
