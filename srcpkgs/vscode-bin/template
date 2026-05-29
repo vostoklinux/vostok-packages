@@ -6,27 +6,24 @@ archs="x86_64"
 wrksrc="VSCode-linux-x64"
 depends="alsa-lib libcups libsecret eudev-libudev"
 short_desc="VSCode proprietary source code editor"
-maintainer="Vostok Linux <packaging@vostoklinux.org>"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="custom:Microsoft-EULA"
 homepage="https://code.visualstudio.com"
 distfiles="https://update.code.visualstudio.com/${version}/linux-x64/stable>code-${version}.tar.gz"
 checksum=8cf24cc41441453e11e8fe1ae9e58d32970e23dced399835c4b0904263d66820
 nostrip=yes
+ignored_shlibs="ld-linux-aarch64.so.1 libc.musl-x86_64.so.1"
 
 do_install() {
 	vmkdir usr/lib/vscode
 	vcopy "*" usr/lib/vscode
 	vmkdir usr/bin
 	ln -sf /usr/lib/vscode/bin/code ${DESTDIR}/usr/bin/code
-
 	vinstall ${FILESDIR}/code.desktop 644 usr/share/applications
-
 	vinstall resources/app/resources/linux/code.png 644 \
 		usr/share/icons/hicolor/1024x1024/apps vscode.png
 	vinstall resources/app/resources/linux/code.png 644 \
 		usr/share/pixmaps vscode.png
-
 	chmod -R o-w ${DESTDIR}/usr/lib/vscode/resources/app
-
 	vlicense LICENSES.chromium.html
 }
