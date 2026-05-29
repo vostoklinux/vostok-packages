@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Tabby
+Comment=A terminal for a more modern age
+Exec=tabby --no-sandbox --disable-gpu %U
+Terminal=false
+Type=Application
+Icon=tabby
+Categories=System;TerminalEmulator;

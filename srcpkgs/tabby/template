@@ -1,0 +1,47 @@
+# Template file for 'tabby'
+pkgname=tabby
+version=1.0.234
+revision=1
+archs="x86_64"
+wrksrc="tabby-${version}"
+short_desc="Terminal for the modern age with SSH client and serial terminal"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT"
+homepage="https://tabby.sh/"
+distfiles="https://github.com/Eugeny/tabby/releases/download/v${version}/tabby-${version}-linux-x64.deb"
+checksum=1872080af06c962347c7a5411de682478e087df33eae67c2b57a517461702fd4
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio"
+
+do_extract() {
+    mkdir -p ${wrksrc}
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/tabby-${version}-linux-x64.deb \
+        -C ${wrksrc} --include='data.tar*'
+    bsdtar -xf ${wrksrc}/data.tar* -C ${wrksrc}
+    rm ${wrksrc}/data.tar*
+}
+
+do_install() {
+    vmkdir opt/tabby
+    vcopy "*" opt/tabby
+    vcopy ".[!.]*" opt/tabby 2>/dev/null || true
+
+    vmkdir usr/bin
+    ln -sf /opt/tabby/opt/Tabby/tabby ${DESTDIR}/usr/bin/tabby
+
+    for size in 16x16 32x32 64x64 128x128 256x256 512x512; do
+        if [ -f usr/share/icons/hicolor/${size}/apps/tabby.png ]; then
+            vmkdir usr/share/icons/hicolor/${size}/apps
+            vcopy usr/share/icons/hicolor/${size}/apps/tabby.png usr/share/icons/hicolor/${size}/apps
+        fi
+    done
+    vmkdir usr/share/pixmaps
+    vcopy usr/share/icons/hicolor/256x256/apps/tabby.png usr/share/pixmaps 2>/dev/null || true
+
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/tabby.desktop 644 usr/share/applications
+
+    vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+}
