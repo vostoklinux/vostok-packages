@@ -1,0 +1,51 @@
+# Template file for 'opendeck'
+pkgname=opendeck
+version=2.12.1
+revision=1
+archs="x86_64"
+wrksrc="opendeck-${version}"
+short_desc="OpenDeck – a desktop application for Stream Deck"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://github.com/nekename/OpenDeck"
+distfiles="https://github.com/nekename/OpenDeck/releases/download/v${version}/opendeck_${version}_amd64.deb"
+checksum=672b74b50bacad475f57c7a15e71899754171e1c58d5a743408b38e9497dddae
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio"
+
+do_extract() {
+    mkdir -p ${wrksrc}
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/opendeck_${version}_amd64.deb \
+        -C ${wrksrc} --include='data.tar*'
+    bsdtar -xf ${wrksrc}/data.tar* -C ${wrksrc}
+    rm ${wrksrc}/data.tar*
+}
+
+do_install() {
+    vmkdir usr/bin
+    vcopy usr/bin/opendeck usr/bin
+
+    vmkdir usr/lib
+    vcopy usr/lib/opendeck usr/lib
+
+    vmkdir usr/share/icons/hicolor/512x512/apps
+    vcopy usr/share/icons/hicolor/512x512/apps/opendeck.png \
+        usr/share/icons/hicolor/512x512/apps
+
+    vmkdir usr/share/pixmaps
+    vcopy usr/share/icons/hicolor/512x512/apps/opendeck.png usr/share/pixmaps
+
+    vmkdir usr/share/metainfo
+    vcopy usr/share/metainfo/opendeck.metainfo.xml usr/share/metainfo
+
+    vmkdir usr/lib/udev/rules.d
+    vcopy etc/udev/rules.d/40-streamdeck.rules usr/lib/udev/rules.d
+
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/opendeck.desktop 644 usr/share/applications
+
+    vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+}
