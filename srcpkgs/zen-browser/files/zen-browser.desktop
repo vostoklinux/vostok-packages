@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Zen Browser
+Comment=A fast, private and secure web browser
+Exec=zen-browser %u
+Icon=zen-browser
+Type=Application
+Categories=Network;WebBrowser;
+StartupWMClass=zen
+StartupNotify=true
+Terminal=false
+MimeType=application/json;application/pdf;application/rdf+xml;application/rss+xml;application/x-xpinstall;application/xhtml+xml;application/xml;audio/flac;audio/ogg;audio/webm;image/avif;image/gif;image/jpeg;image/png;image/svg+xml;image/webp;text/html;text/xml;video/ogg;video/webm;x-scheme-handler/chrome;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/mailto;
+GenericName=Web Browser

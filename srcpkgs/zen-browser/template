@@ -1,0 +1,50 @@
+# Template file for 'zen-browser'
+pkgname=zen-browser
+version=1.20.2
+revision=1
+archs="x86_64"
+wrksrc="zen"
+short_desc="Performance oriented Firefox-based web browser"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MPL-2.0"
+homepage="https://github.com/zen-browser/desktop"
+distfiles="https://github.com/zen-browser/desktop/releases/download/${version}b/zen.linux-x86_64.tar.xz"
+checksum=36ad444c06c22b0ea1d3d1d15013f32bc9ce6ea907070ab277f700fde0bc1674
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio"
+
+do_extract() {
+    mkdir -p ${wrksrc}
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/zen.linux-x86_64.tar.xz \
+        --strip-components 1 -C ${wrksrc}
+}
+
+do_install() {
+    vmkdir opt/zen-browser
+    vcopy "*" opt/zen-browser
+    vcopy ".[!.]*" opt/zen-browser 2>/dev/null || true
+
+    find ${DESTDIR}/opt/zen-browser -xtype l -delete
+    find ${DESTDIR}/opt/zen-browser -name "* *" -exec rm -rf {} +
+    find ${DESTDIR}/opt/zen-browser -type f -links +1 | while IFS= read -r f; do
+        cp --remove-destination "${f}" "${f}.tmp"
+        mv "${f}.tmp" "${f}"
+    done
+    vmkdir usr/bin
+    ln -sf /opt/zen-browser/zen-bin ${DESTDIR}/usr/bin/zen-browser
+
+    vmkdir usr/share/icons/hicolor/256x256/apps
+    vinstall browser/chrome/icons/default/default128.png 644 \
+        usr/share/icons/hicolor/256x256/apps zen-browser.png
+    vmkdir usr/share/pixmaps
+    vinstall browser/chrome/icons/default/default128.png 644 \
+        usr/share/pixmaps zen-browser.png
+
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/zen-browser.desktop 644 usr/share/applications
+
+    vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+}
