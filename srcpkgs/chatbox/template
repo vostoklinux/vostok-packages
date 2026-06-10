@@ -1,6 +1,6 @@
 # Template file for 'chatbox'
 pkgname=chatbox
-version=1.20.3
+version=1.21.0
 revision=1
 archs="x86_64"
 wrksrc="chatbox-${version}"
@@ -9,7 +9,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://github.com/chatboxai/chatbox"
 distfiles="https://github.com/chatboxai/chatbox/releases/download/v${version}/Chatbox-${version}-amd64.deb"
-checksum=7a5b86200c180142ee7d4ed5d56edaabba3a3b37b3b8d8c4eed32678d327e141
+checksum=0019dfc4b32d63c1392aa264aed2253c1e0c2fb09216f8e2cc269bbfb8bb49b5
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
