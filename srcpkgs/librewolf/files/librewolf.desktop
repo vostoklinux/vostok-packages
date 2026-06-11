@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=LibreWolf
+Comment=Community-maintained fork of Firefox, focused on privacy, security and freedom
+Exec=librewolf %U
+Icon=librewolf
+Terminal=false
+Type=Application
+Categories=Network;WebBrowser;
+StartupNotify=true

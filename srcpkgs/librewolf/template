@@ -1,0 +1,53 @@
+# Template file for 'librewolf'
+pkgname=librewolf
+version=151.0.4.1
+revision=1
+archs="x86_64"
+wrksrc="librewolf-${version}"
+hostmakedepends="libarchive"
+short_desc="Community-maintained fork of Firefox, focused on privacy, security and freedom"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MPL-2.0"
+homepage="https://librewolf.net/"
+distfiles="https://codeberg.org/api/packages/librewolf/generic/librewolf/151.0.4-1/librewolf-151.0.4-1-linux-x86_64-package.tar.xz"
+checksum=fd301af689535ba6a8d9b3b91745077f8e60b0b37d320b2aa3f6d390e8f899e8
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio
+         gtk+3 ffmpeg dbus-glib nss sqlite hicolor-icon-theme"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/librewolf-151.0.4-1-linux-x86_64-package.tar.xz \
+        --strip-components 1 -C "${wrksrc}"
+}
+
+do_install() {
+    vmkdir opt/librewolf
+    vcopy "*" opt/librewolf
+    vcopy ".[!.]*" opt/librewolf 2>/dev/null || true
+
+    find ${DESTDIR}/opt/librewolf -xtype l -delete
+    find ${DESTDIR}/opt/librewolf -name "* *" -exec rm -rf {} +
+    find ${DESTDIR}/opt/librewolf -type f -links +1 | while IFS= read -r f; do
+        cp --remove-destination "${f}" "${f}.tmp"
+        mv "${f}.tmp" "${f}"
+    done
+
+    vmkdir usr/bin
+    ln -sf /opt/librewolf/librewolf ${DESTDIR}/usr/bin/librewolf
+
+    vmkdir usr/share/icons/hicolor/128x128/apps
+    vinstall browser/chrome/icons/default/default128.png 644 \
+        usr/share/icons/hicolor/128x128/apps librewolf.png
+    vmkdir usr/share/pixmaps
+    vinstall browser/chrome/icons/default/default128.png 644 \
+        usr/share/pixmaps librewolf.png
+
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/librewolf.desktop 644 usr/share/applications
+
+    vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+}
