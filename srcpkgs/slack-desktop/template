@@ -1,0 +1,53 @@
+# Template file for 'slack-desktop'
+pkgname=slack-desktop
+version=4.50.136
+revision=1
+archs="x86_64"
+wrksrc="slack-desktop-${version}"
+short_desc="Slack Desktop (Beta) for Linux"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="custom:Slack"
+homepage="https://slack.com/downloads"
+distfiles="https://downloads.slack-edge.com/desktop-releases/linux/x64/${version}/slack-desktop-${version}-amd64.deb"
+checksum=60ba516209527b66835874eff46d76953245f35f3a6416ea162e3f5b13ae7c74
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio
+ gtk+3 libXScrnSaver nss xdg-utils"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/slack-desktop-${version}-amd64.deb \
+        -C "${wrksrc}" --include='data.tar*'
+    bsdtar -xf "${wrksrc}"/data.tar* -C "${wrksrc}"
+    rm "${wrksrc}"/data.tar*
+}
+
+do_install() {
+    vcopy "usr/*" usr
+
+    rm -f ${DESTDIR}/etc/cron.daily/slack
+
+    if [ ! -f ${DESTDIR}/usr/bin/slack ]; then
+        vmkdir usr/bin
+        ln -sf /usr/lib/slack/slack ${DESTDIR}/usr/bin/slack
+    fi
+
+    if ls usr/share/icons/hicolor/*/apps/slack.png 1>/dev/null 2>&1; then
+        for icon in usr/share/icons/hicolor/*/apps/slack.png; do
+            local size=$(basename $(dirname $(dirname "$icon")))
+            vmkdir usr/share/icons/hicolor/${size}/apps
+            vinstall "$icon" 644 usr/share/icons/hicolor/${size}/apps slack.png
+        done
+        vmkdir usr/share/pixmaps
+        vinstall usr/share/icons/hicolor/256x256/apps/slack.png 644 usr/share/pixmaps slack.png
+    fi
+
+    rm -f ${DESTDIR}/usr/share/applications/slack.desktop
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/slack.desktop 644 usr/share/applications
+
+    vlicense usr/lib/slack/LICENSE
+}
