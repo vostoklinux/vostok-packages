@@ -1,5 +1,5 @@
 #!/bin/bash
-# Auto-updater for minecraft-launcher (extracts version from tarball)
+# Auto-updater for minecraft-launcher (binary version via strings)
 set -euo pipefail
 
 TEMPLATE="$(dirname "$0")/template"
@@ -24,20 +24,16 @@ tar -xf "$TMP_TAR" -C "$TMP_DIR" --strip-components=1 || {
     exit 1
 }
 
-LATEST_VERSION=""
-if [ -f "${TMP_DIR}/version" ]; then
-    LATEST_VERSION=$(cat "${TMP_DIR}/version" | tr -d '[:space:]')
-elif [ -f "${TMP_DIR}/minecraft-launcher/version" ]; then
-    LATEST_VERSION=$(cat "${TMP_DIR}/minecraft-launcher/version" | tr -d '[:space:]')
-else
-    FOUND_VERSION=$(find "${TMP_DIR}" -name "version" -type f | head -1)
-    if [ -n "$FOUND_VERSION" ]; then
-        LATEST_VERSION=$(cat "$FOUND_VERSION" | tr -d '[:space:]')
-    fi
+BINARY="${TMP_DIR}/minecraft-launcher"
+if [ ! -f "$BINARY" ]; then
+    echo "ERROR: Could not find minecraft-launcher binary in archive" >&2
+    exit 1
 fi
 
+LATEST_VERSION=$(strings "$BINARY" | grep -Eo '^[0-9]+\.[0-9]+\.[0-9]+$' | head -1 || true)
+
 if [ -z "$LATEST_VERSION" ]; then
-    echo "ERROR: Could not determine launcher version from tarball" >&2
+    echo "ERROR: Could not determine launcher version from binary" >&2
     exit 1
 fi
 
@@ -63,4 +59,4 @@ sed -i "s/^checksum=.*/checksum=${NEW_CHECKSUM}/" "${TEMPLATE}"
 sed -i "s/^revision=.*/revision=1/" "${TEMPLATE}"
 
 echo "Done: updated to ${LATEST_VERSION} (${NEW_CHECKSUM:0:16}...)"
-echo "WARNING: If the internal file structure of the launcher changes, this script may break."
+echo "WARNING: Verify that the internal structure or dependencies haven't changed."
