@@ -46,6 +46,5 @@ do_install() {
     done
     vmkdir usr/share/pixmaps
     vinstall opt/google/chrome/product_logo_256.png 644 usr/share/pixmaps google-chrome.png
-s
     vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
 }
