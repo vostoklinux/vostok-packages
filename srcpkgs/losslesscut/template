@@ -1,0 +1,50 @@
+# Template file for 'losslesscut'
+pkgname=losslesscut
+version=3.69.0
+revision=1
+archs="x86_64"
+wrksrc="LosslessCut-linux-x64"
+hostmakedepends="libarchive"
+short_desc="The swiss army knife of lossless video/audio editing"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="GPL-2.0-or-later"
+homepage="https://github.com/mifi/lossless-cut"
+distfiles="https://github.com/mifi/lossless-cut/releases/download/v${version}/LosslessCut-linux-x64.tar.bz2"
+checksum=cd69d7dda64b2978cead468c56703c1d58077e7a9c2379948a5d08816726a2e5
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio gtk+3"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/LosslessCut-linux-x64.tar.bz2 \
+        --strip-components 1 -C "${wrksrc}"
+}
+
+do_install() {
+    vmkdir opt/losslesscut
+    vcopy "*" opt/losslesscut
+    vcopy ".[!.]*" opt/losslesscut 2>/dev/null || true
+
+    find ${DESTDIR}/opt/losslesscut -xtype l -delete
+    find ${DESTDIR}/opt/losslesscut -name "* *" -exec rm -rf {} +
+    find ${DESTDIR}/opt/losslesscut -type f -links +1 | while IFS= read -r f; do
+        cp --remove-destination "${f}" "${f}.tmp"
+        mv "${f}.tmp" "${f}"
+    done
+
+    vmkdir usr/bin
+    ln -sf /opt/losslesscut/losslesscut ${DESTDIR}/usr/bin/losslesscut
+
+    vmkdir usr/share/icons/hicolor/256x256/apps
+    vinstall ${FILESDIR}/losslesscut.png 644 usr/share/icons/hicolor/256x256/apps losslesscut.png
+    vmkdir usr/share/pixmaps
+    vinstall ${FILESDIR}/losslesscut.png 644 usr/share/pixmaps losslesscut.png
+
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/losslesscut.desktop 644 usr/share/applications
+
+    vlicense LICENSE.electron.txt
+}

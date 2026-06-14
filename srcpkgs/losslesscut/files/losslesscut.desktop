@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=LosslessCut
+Comment=The swiss army knife of lossless video/audio editing
+Exec=losslesscut %U
+Icon=losslesscut
+Terminal=false
+Type=Application
+Categories=AudioVideo;Editing;
+StartupNotify=true
