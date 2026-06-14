@@ -1,0 +1,61 @@
+# Template file for 'zotero'
+pkgname=zotero
+version=9.0.4
+revision=1
+archs="x86_64"
+wrksrc="Zotero_linux-x86_64"
+hostmakedepends="libarchive"
+short_desc="A free, easy-to-use tool to help you collect, organize, cite, and share your research sources"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="AGPL-3.0-or-later"
+homepage="https://www.zotero.org/download"
+distfiles="https://download.zotero.org/client/release/${version}/Zotero-${version}_linux-x86_64.tar.xz"
+checksum=a4f714901e5e50da8b60b081e94c816979acb5c2945cc5ab7f9c9f573c284a27
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio gtk+3 nss"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/Zotero-${version}_linux-x86_64.tar.xz \
+        --strip-components 1 -C "${wrksrc}"
+}
+
+do_install() {
+    vmkdir opt/zotero
+    vcopy "*" opt/zotero
+    vcopy ".[!.]*" opt/zotero 2>/dev/null || true
+
+    find ${DESTDIR}/opt/zotero -xtype l -delete
+    find ${DESTDIR}/opt/zotero -name "* *" -exec rm -rf {} +
+    find ${DESTDIR}/opt/zotero -type f -links +1 | while IFS= read -r f; do
+        cp --remove-destination "${f}" "${f}.tmp"
+        mv "${f}.tmp" "${f}"
+    done
+
+    vmkdir usr/bin
+    ln -sf /opt/zotero/zotero ${DESTDIR}/usr/bin/zotero
+
+    if [ -f icons/icon128.png ]; then
+        vmkdir usr/share/icons/hicolor/128x128/apps
+        vinstall icons/icon128.png 644 usr/share/icons/hicolor/128x128/apps zotero.png
+        vmkdir usr/share/pixmaps
+        vinstall icons/icon128.png 644 usr/share/pixmaps zotero.png
+    else
+        vmkdir usr/share/icons/hicolor/128x128/apps
+        vinstall ${FILESDIR}/zotero.png 644 usr/share/icons/hicolor/128x128/apps zotero.png
+        vmkdir usr/share/pixmaps
+        vinstall ${FILESDIR}/zotero.png 644 usr/share/pixmaps zotero.png
+    fi
+
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/zotero.desktop 644 usr/share/applications
+
+    if [ -f LICENSE ]; then
+        vlicense LICENSE
+    else
+        vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+    fi
+}

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Zotero
+Comment=A free, easy-to-use tool to help you collect, organize, cite, and share your research sources
+Exec=zotero %U
+Icon=zotero
+Terminal=false
+Type=Application
+Categories=Office;Reference;
+StartupNotify=true
