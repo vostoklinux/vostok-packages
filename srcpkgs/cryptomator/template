@@ -1,0 +1,62 @@
+# Template file for 'cryptomator'
+pkgname=cryptomator
+version=1.19.2
+revision=1
+archs="x86_64"
+wrksrc="cryptomator-${version}"
+hostmakedepends="libarchive"
+short_desc="Free client-side encryption for cloud files"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://cryptomator.org/"
+distfiles="https://github.com/cryptomator/cryptomator/releases/download/${version}/cryptomator_${version}-0ppa1_amd64.deb"
+checksum=d1d788106d01c7135a7acf63b027e929237db0f8194925e15b0e868b0d10eaec
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="openjdk17 gtk+3 libsecret"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/cryptomator_${version}-0ppa1_amd64.deb \
+        -C "${wrksrc}" --include='data.tar*'
+    bsdtar -xf "${wrksrc}"/data.tar.* -C "${wrksrc}"
+    rm "${wrksrc}"/data.tar.*
+}
+
+do_install() {
+    vcopy "usr/*" usr
+    vcopy "opt/*" opt 2>/dev/null || true
+
+    rm -f ${DESTDIR}/usr/share/applications/cryptomator.desktop
+    rm -f ${DESTDIR}/usr/share/applications/org.cryptomator.Cryptomator.desktop
+
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/cryptomator.desktop 644 usr/share/applications
+
+    for size in 256 512; do
+        local src="usr/share/icons/hicolor/${size}x${size}/apps/org.cryptomator.Cryptomator${size}.png"
+        if [ -f "$src" ]; then
+            vmkdir "usr/share/icons/hicolor/${size}x${size}/apps"
+            vinstall "$src" 644 "usr/share/icons/hicolor/${size}x${size}/apps" cryptomator.png
+        fi
+    done
+
+    if [ -f "usr/share/icons/hicolor/scalable/apps/org.cryptomator.Cryptomator.svg" ]; then
+        vmkdir usr/share/icons/hicolor/scalable/apps
+        vinstall "usr/share/icons/hicolor/scalable/apps/org.cryptomator.Cryptomator.svg" 644 \
+            usr/share/icons/hicolor/scalable/apps cryptomator.svg
+    fi
+
+    if [ -f "usr/lib/cryptomator/lib/cryptomator.png" ]; then
+        vmkdir usr/share/pixmaps
+        vinstall "usr/lib/cryptomator/lib/cryptomator.png" 644 usr/share/pixmaps cryptomator.png
+    fi
+
+    if [ -f "usr/share/doc/cryptomator/copyright" ]; then
+        vlicense usr/share/doc/cryptomator/copyright
+    else
+        vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+    fi
+}

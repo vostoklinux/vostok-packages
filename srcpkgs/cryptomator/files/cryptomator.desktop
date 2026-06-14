@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Cryptomator
+Comment=Free client-side encryption for cloud files
+Exec=cryptomator %U
+Icon=cryptomator
+Terminal=false
+Type=Application
+Categories=Security;Utility;
+StartupNotify=true
