@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Caprine
+Comment=Elegant Facebook Messenger desktop app
+Exec=caprine %U
+Icon=caprine
+Terminal=false
+Type=Application
+Categories=Network;InstantMessaging;
+StartupNotify=true

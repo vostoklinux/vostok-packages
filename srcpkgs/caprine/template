@@ -1,0 +1,44 @@
+# Template file for 'caprine'
+pkgname=caprine
+version=2.61.0
+revision=1
+archs="x86_64"
+wrksrc="caprine-${version}"
+hostmakedepends="libarchive"
+short_desc="Elegant Facebook Messenger desktop app"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT"
+homepage="https://github.com/sindresorhus/caprine"
+distfiles="https://github.com/sindresorhus/caprine/releases/download/v${version}/caprine_${version}_amd64.deb"
+checksum=647e2e3480a8bf4209f88de4298278c8e91161f78111919c58f3b9823e643423
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio gtk+3"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/caprine_${version}_amd64.deb \
+        -C "${wrksrc}" --include='data.tar*'
+    bsdtar -xf "${wrksrc}"/data.tar.* -C "${wrksrc}"
+    rm "${wrksrc}"/data.tar.*
+}
+
+do_install() {
+    vmkdir opt/caprine
+    vcopy "opt/Caprine/*" opt/caprine
+
+    vmkdir usr/bin
+    ln -sf /opt/caprine/caprine ${DESTDIR}/usr/bin/caprine
+
+    vmkdir usr/share/icons/hicolor/256x256/apps
+    vinstall ${FILESDIR}/caprine.png 644 usr/share/icons/hicolor/256x256/apps caprine.png
+    vmkdir usr/share/pixmaps
+    vinstall ${FILESDIR}/caprine.png 644 usr/share/pixmaps caprine.png
+
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/caprine.desktop 644 usr/share/applications
+
+    vlicense opt/Caprine/LICENSE.electron.txt
+}
