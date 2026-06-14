@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=AppImagePool
+Comment=A simple, modern AppImage manager
+Exec=appimagepool %U
+Icon=appimagepool
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupNotify=true

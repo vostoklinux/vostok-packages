@@ -1,0 +1,41 @@
+# Template file for 'appimagepool'
+pkgname=appimagepool
+version=5.1.0
+revision=1
+archs="x86_64"
+wrksrc="appimagepool-${version}"
+hostmakedepends="libarchive"
+short_desc="A simple, modern AppImage manager"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT"
+homepage="https://github.com/prateekmedia/appimagepool"
+distfiles="https://github.com/prateekmedia/appimagepool/releases/download/${version}/appimagepool-${version}-x86_64.tar.gz"
+checksum=265d503d064f92334a5c7f4a90988931dee9451f4831c3751b49eeea7a016769
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio gtk+3"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/appimagepool-${version}-x86_64.tar.gz -C "${wrksrc}"
+}
+
+do_install() {
+    vmkdir opt/appimagepool
+    vcopy "usr/bin/*" opt/appimagepool
+
+    vmkdir usr/bin
+    ln -sf /opt/appimagepool/appimagepool ${DESTDIR}/usr/bin/appimagepool
+
+    vmkdir usr/share/icons/hicolor/256x256/apps
+    vinstall ${FILESDIR}/appimagepool.png 644 usr/share/icons/hicolor/256x256/apps appimagepool.png
+    vmkdir usr/share/pixmaps
+    vinstall ${FILESDIR}/appimagepool.png 644 usr/share/pixmaps appimagepool.png
+
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/appimagepool.desktop 644 usr/share/applications
+
+    vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+}
