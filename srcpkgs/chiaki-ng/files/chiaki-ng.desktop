@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Chiaki-ng
+Comment=Next-Gen PlayStation remote play client
+Exec=chiaki-ng %U
+Icon=chiaki-ng
+Terminal=false
+Type=Application
+Categories=Game;Emulator;
+StartupNotify=true

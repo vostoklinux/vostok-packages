@@ -1,0 +1,78 @@
+# Template file for 'chiaki-ng'
+pkgname=chiaki-ng
+version=1.10.0
+revision=1
+archs="x86_64"
+wrksrc="chiaki-ng-${version}"
+hostmakedepends="fuse glib"
+short_desc="Next-Gen PlayStation remote play client with stream quality enhancements"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://github.com/streetpea/chiaki-ng"
+distfiles="https://github.com/streetpea/chiaki-ng/releases/download/v${version}/chiaki-ng.AppImage_x86_64"
+checksum=cac42c21a19a111f2f0729bb9eef7d3878c6d2a4f06e017d383aff2aba719fd3
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio
+         qt6-base qt6-multimedia qt6-svg qt6-wayland SDL2 libusb openssl protobuf"
+
+do_extract() {
+    local appimage="${XBPS_SRCDISTDIR}/${pkgname}-${version}/chiaki-ng.AppImage_x86_64"
+    chmod +x "${appimage}"
+    cd "${XBPS_BUILDDIR}"
+    "${appimage}" --appimage-extract
+    rm -rf "${wrksrc}"
+    mv squashfs-root "${wrksrc}"
+}
+
+do_install() {
+    vmkdir opt/chiaki-ng
+    vcopy "*" opt/chiaki-ng
+    vcopy ".[!.]*" opt/chiaki-ng 2>/dev/null || true
+
+    find ${DESTDIR}/opt/chiaki-ng -xtype l -delete
+    find ${DESTDIR}/opt/chiaki-ng -name "* *" -exec rm -rf {} +
+    find ${DESTDIR}/opt/chiaki-ng -type f -links +1 | while IFS= read -r f; do
+        cp --remove-destination "${f}" "${f}.tmp"
+        mv "${f}.tmp" "${f}"
+    done
+
+    vmkdir usr/bin
+    if [ -f "${DESTDIR}/opt/chiaki-ng/chiaki-ng" ]; then
+        ln -sf /opt/chiaki-ng/chiaki-ng ${DESTDIR}/usr/bin/chiaki-ng
+    elif [ -f "${DESTDIR}/opt/chiaki-ng/AppRun" ]; then
+        ln -sf /opt/chiaki-ng/AppRun ${DESTDIR}/usr/bin/chiaki-ng
+    fi
+
+    local icon_found=""
+    for size in 256 512 1024; do
+        for name in chiaki-ng chiaki; do
+            local icon_path="${DESTDIR}/opt/chiaki-ng/usr/share/icons/hicolor/${size}x${size}/apps/${name}.png"
+            if [ -f "$icon_path" ]; then
+                vmkdir "usr/share/icons/hicolor/${size}x${size}/apps"
+                vinstall "$icon_path" 644 "usr/share/icons/hicolor/${size}x${size}/apps" chiaki-ng.png
+                icon_found=1
+            fi
+        done
+    done
+    if [ -z "$icon_found" ]; then
+        vmkdir usr/share/icons/hicolor/256x256/apps
+        vinstall ${FILESDIR}/chiaki-ng.png 644 usr/share/icons/hicolor/256x256/apps chiaki-ng.png
+    fi
+    vmkdir usr/share/pixmaps
+    ln -sf /usr/share/icons/hicolor/256x256/apps/chiaki-ng.png ${DESTDIR}/usr/share/pixmaps/chiaki-ng.png
+
+    rm -f ${DESTDIR}/usr/share/applications/chiaki-ng.desktop
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/chiaki-ng.desktop 644 usr/share/applications
+
+    if [ -f LICENSE ]; then
+        vlicense LICENSE
+    elif [ -f LICENSE.txt ]; then
+        vlicense LICENSE.txt
+    else
+        vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+    fi
+}
