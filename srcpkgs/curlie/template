@@ -1,0 +1,31 @@
+# Template file for 'curlie'
+pkgname=curlie
+version=1.8.2
+revision=1
+archs="x86_64"
+wrksrc="curlie-${version}"
+hostmakedepends="libarchive"
+short_desc="Frontend to curl that adds the ease of use of httpie"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT"
+homepage="https://curlie.io/"
+distfiles="https://github.com/rs/curlie/releases/download/v${version}/curlie_${version}_linux_amd64.deb"
+checksum=547b9b0a5c21105ecfd543c93af9d098b9fe9867ae4288531f307adf39d86626
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="glibc"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/curlie_${version}_linux_amd64.deb \
+        -C "${wrksrc}" --include='data.tar*'
+    bsdtar -xf "${wrksrc}"/data.tar.* -C "${wrksrc}"
+    rm "${wrksrc}"/data.tar.*
+}
+
+do_install() {
+    vcopy "usr/*" usr
+    vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+}
