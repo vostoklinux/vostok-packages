@@ -1,6 +1,6 @@
 # Template file for 'librewolf'
 pkgname=librewolf
-version=151.0.4.1
+version=152.0.1
 revision=1
 archs="x86_64"
 wrksrc="librewolf-${version}"
@@ -9,8 +9,8 @@ short_desc="Community-maintained fork of Firefox, focused on privacy, security a
 maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MPL-2.0"
 homepage="https://librewolf.net/"
-distfiles="https://codeberg.org/api/packages/librewolf/generic/librewolf/151.0.4-1/librewolf-151.0.4-1-linux-x86_64-package.tar.xz"
-checksum=fd301af689535ba6a8d9b3b91745077f8e60b0b37d320b2aa3f6d390e8f899e8
+distfiles="https://codeberg.org/api/packages/librewolf/generic/librewolf/152.0-1/librewolf-152.0-1-linux-x86_64-package.tar.xz"
+checksum=b08a720a97e8f62819d0f31dd58eec748a2e8bcf1d0bd0e39708cde4ce472ec4
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
