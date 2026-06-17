@@ -1,0 +1,32 @@
+# Template file for 'vfox'
+pkgname=vfox
+version=1.0.11
+revision=1
+archs="x86_64"
+wrksrc="vfox-${version}"
+hostmakedepends="libarchive"
+short_desc="Version manager for multiple runtimes (Node.js, Python, Go, etc.)"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT"
+homepage="https://github.com/version-fox/vfox"
+distfiles="https://github.com/version-fox/vfox/releases/download/v${version}/vfox_${version}_linux_x86_64.deb"
+checksum=8fe3cdb5bae72a6157db84f738da80a2602ff77a971d54fb1b5d23b26823b08d
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="glibc"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/vfox_${version}_linux_x86_64.deb \
+        -C "${wrksrc}" --include='data.tar*'
+    bsdtar -xf "${wrksrc}"/data.tar.* -C "${wrksrc}"
+    rm "${wrksrc}"/data.tar.*
+}
+
+do_install() {
+    vcopy "usr/*" usr
+
+    vlicense usr/share/doc/vfox/copyright
+}
