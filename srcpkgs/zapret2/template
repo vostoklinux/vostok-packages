@@ -82,7 +82,7 @@ do_install() {
         [ -f "$f" ] && vinstall "$f" 644 usr/share/doc/${pkgname}
     done
 
+   
     vlicense docs/LICENSE.txt
-
     vsv zapret2
 }
