@@ -48,6 +48,5 @@ do_install() {
     rm -f ${DESTDIR}/usr/share/applications/slack.desktop
     vmkdir usr/share/applications
     vinstall ${FILESDIR}/slack.desktop 644 usr/share/applications
-
     vlicense usr/lib/slack/LICENSE
 }
