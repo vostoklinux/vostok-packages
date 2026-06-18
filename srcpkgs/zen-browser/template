@@ -45,6 +45,5 @@ do_install() {
 
     vmkdir usr/share/applications
     vinstall ${FILESDIR}/zen-browser.desktop 644 usr/share/applications
-
     vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
 }
