@@ -1,0 +1,50 @@
+# Template file for 'superfile'
+pkgname=superfile
+version=1.6.0
+revision=1
+archs="x86_64"
+wrksrc="superfile-${version}"
+hostmakedepends="libarchive"
+short_desc="Pretty fancy and modern terminal file manager"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT"
+homepage="https://github.com/yorukot/superfile"
+distfiles="https://github.com/yorukot/superfile/releases/download/v${version}/superfile-linux-v${version}-amd64.tar.gz"
+checksum=d45b0e95072629a6aa7983a84eedca9cd7a98861e67ef91be1415496e3dda309
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+skip_extraction=yes 
+
+depends="glibc"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/superfile-linux-v${version}-amd64.tar.gz -C "${wrksrc}"
+    if [ "$(ls -A "${wrksrc}" | wc -l)" -eq 1 ] && [ -d "${wrksrc}/$(ls -A "${wrksrc}")" ]; then
+        local subdir=$(ls -A "${wrksrc}")
+        mv "${wrksrc}/${subdir}"/* "${wrksrc}/"
+        rmdir "${wrksrc}/${subdir}"
+    fi
+    local binfile=$(find "${wrksrc}" -type f -name 'superfile' -o -name 'spf' | head -1)
+    if [ -z "$binfile" ]; then
+        echo "ERROR: superfile binary not found in archive" >&2
+        exit 1
+    fi
+
+    if [ "$binfile" != "${wrksrc}/superfile" ]; then
+        mv "$binfile" "${wrksrc}/superfile"
+    fi
+}
+
+do_install() {
+    vbin superfile
+
+    if [ -f LICENSE ]; then
+        vlicense LICENSE
+    elif [ -f LICENSE.md ]; then
+        vlicense LICENSE.md
+    else
+        vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+    fi
+}
