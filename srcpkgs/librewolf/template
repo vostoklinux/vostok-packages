@@ -1,15 +1,10 @@
-# Template file for 'librewolf'
-pkgname=librewolf
-version=152.0.1
-revision=1
-archs="x86_64"
-wrksrc="librewolf-${version}"
-hostmakedepends="libarchive"
-short_desc="Community-maintained fork of Firefox, focused on privacy, security and freedom"
 maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MPL-2.0"
 homepage="https://librewolf.net/"
-distfiles="https://codeberg.org/api/packages/librewolf/generic/librewolf/152.0-1/librewolf-152.0-1-linux-x86_64-package.tar.xz"
+
+_upver="${version%.*}-${version##*.}"
+
+distfiles="https://codeberg.org/api/packages/librewolf/generic/librewolf/${_upver}/librewolf-${_upver}-linux-x86_64-package.tar.xz"
 checksum=b08a720a97e8f62819d0f31dd58eec748a2e8bcf1d0bd0e39708cde4ce472ec4
 nostrip=yes
 noshlibs=yes
@@ -20,7 +15,8 @@ depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio
 
 do_extract() {
     mkdir -p "${wrksrc}"
-    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/librewolf-151.0.4-1-linux-x86_64-package.tar.xz \
+    # Используем ту же переменную _upver
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/librewolf-${_upver}-linux-x86_64-package.tar.xz \
         --strip-components 1 -C "${wrksrc}"
 }
 
@@ -38,6 +34,7 @@ do_install() {
 
     vmkdir usr/bin
     ln -sf /opt/librewolf/librewolf ${DESTDIR}/usr/bin/librewolf
+
     vmkdir usr/share/icons/hicolor/128x128/apps
     vinstall browser/chrome/icons/default/default128.png 644 \
         usr/share/icons/hicolor/128x128/apps librewolf.png
