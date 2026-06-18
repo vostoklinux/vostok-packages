@@ -36,6 +36,7 @@ do_install() {
     done
 
     vmkdir usr/bin
+    
     ln -sf /opt/zed/bin/zed ${DESTDIR}/usr/bin/zed
 
     for size in 512 1024; do
