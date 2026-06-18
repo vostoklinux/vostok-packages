@@ -38,7 +38,6 @@ do_install() {
 
     vmkdir usr/bin
     ln -sf /opt/librewolf/librewolf ${DESTDIR}/usr/bin/librewolf
-
     vmkdir usr/share/icons/hicolor/128x128/apps
     vinstall browser/chrome/icons/default/default128.png 644 \
         usr/share/icons/hicolor/128x128/apps librewolf.png
