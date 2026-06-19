@@ -1,0 +1,31 @@
+# Template file for 'linutil'
+pkgname=linutil
+version=2026.05.21
+revision=1
+archs="x86_64"
+wrksrc="linutil-${version}"
+hostmakedepends="libarchive"
+short_desc="Chris Titus Tech's system utility"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT"
+homepage="https://github.com/ChrisTitusTech/linutil"
+distfiles="https://github.com/ChrisTitusTech/linutil/releases/download/${version}/linutil"
+checksum=ec69947c1e508ae66d8950abbd103bc97ece4c4175a19da32d1b703c9379fde9
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+skip_extraction=yes
+
+depends="glibc"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    cp ${XBPS_SRCDISTDIR}/${pkgname}-${version}/linutil "${wrksrc}/linutil"
+    chmod +x "${wrksrc}/linutil"
+}
+
+do_install() {
+    vbin linutil
+
+    vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+}
