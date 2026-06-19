@@ -47,6 +47,5 @@ do_install() {
     done
     vmkdir usr/share/pixmaps
     vinstall "opt/google/chrome-unstable/product_logo_256_dev.png" 644 usr/share/pixmaps google-chrome-dev.png
-
     vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
 }
