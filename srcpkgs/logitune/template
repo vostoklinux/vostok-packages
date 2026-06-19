@@ -1,6 +1,6 @@
 # Template file for 'logitune'
 pkgname=logitune
-version=0.3.5
+version=0.3.6
 revision=1
 build_style=cmake
 configure_args="
@@ -15,7 +15,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://github.com/mmaher88/logitune"
 distfiles="https://github.com/mmaher88/logitune/archive/v${version}.tar.gz"
-checksum=f5304a1e36df2d422f2aeb52f70816d7cc2f7786258c9fffce0686f902fd9dd9
+checksum=b2bf875703ffcca1ebdcd71ac68a6a8c7dd7f39227bfcdba628f3dcf4dc692a8
 noverifyrdeps=yes
 noshlibprovides=yes
 
