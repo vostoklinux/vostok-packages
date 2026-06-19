@@ -1,0 +1,51 @@
+# Template file for 'jnv'
+pkgname=jnv
+version=0.7.1
+revision=1
+archs="x86_64"
+wrksrc="jnv-${version}"
+hostmakedepends="libarchive"
+short_desc="Interactive JSON viewer using jq"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT"
+homepage="https://github.com/ynqa/jnv"
+distfiles="https://github.com/ynqa/jnv/releases/download/v${version}/jnv-x86_64-unknown-linux-gnu.tar.xz"
+checksum=4c3e7368339a2ecbdb4d2bfe2c3ec5f6fc36810bed95425fe05a65200fae8d15
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+skip_extraction=yes
+
+depends="glibc"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/jnv-x86_64-unknown-linux-gnu.tar.xz -C "${wrksrc}"
+
+    if [ "$(ls -A "${wrksrc}" | wc -l)" -eq 1 ] && [ -d "${wrksrc}/$(ls -A "${wrksrc}")" ]; then
+        local subdir=$(ls -A "${wrksrc}")
+        mv "${wrksrc}/${subdir}"/* "${wrksrc}/"
+        rmdir "${wrksrc}/${subdir}"
+    fi
+    # Находим исполняемый файл (обычно jnv)
+    local binfile=$(find "${wrksrc}" -type f -name 'jnv' | head -1)
+    if [ -z "$binfile" ]; then
+        echo "ERROR: jnv binary not found in archive" >&2
+        exit 1
+    fi
+    if [ "$binfile" != "${wrksrc}/jnv" ]; then
+        mv "$binfile" "${wrksrc}/jnv"
+    fi
+}
+
+do_install() {
+    vbin jnv
+
+    if [ -f LICENSE ]; then
+        vlicense LICENSE
+    elif [ -f LICENSE.md ]; then
+        vlicense LICENSE.md
+    else
+        vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+    fi
+}
