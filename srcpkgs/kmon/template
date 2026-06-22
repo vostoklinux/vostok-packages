@@ -1,0 +1,43 @@
+# Template file for 'kmon'
+pkgname=kmon
+version=1.7.1
+revision=1
+archs="x86_64"
+wrksrc="kmon-${version}"
+hostmakedepends="libarchive"
+short_desc="Linux kernel module manager and activity monitor"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://github.com/orhun/kmon"
+distfiles="https://github.com/orhun/kmon/releases/download/v${version}/kmon-${version}-x86_64-unknown-linux-gnu.tar.gz"
+checksum=e39b4858d57a3d90b915dcd5d8f256cc530c1311dfa1687a009a5cd5e57ffab4
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+skip_extraction=yes
+
+depends="glibc"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/kmon-${version}-x86_64-unknown-linux-gnu.tar.gz -C "${wrksrc}"
+
+    if [ "$(ls -A "${wrksrc}" | wc -l)" -eq 1 ] && [ -d "${wrksrc}/$(ls -A "${wrksrc}")" ]; then
+        local subdir=$(ls -A "${wrksrc}")
+        mv "${wrksrc}/${subdir}"/* "${wrksrc}/"
+        rmdir "${wrksrc}/${subdir}"
+    fi
+    local binfile=$(find "${wrksrc}" -type f -name 'kmon' | head -1)
+    if [ -z "$binfile" ]; then
+        echo "ERROR: kmon binary not found in archive" >&2
+        exit 1
+    fi
+    if [ "$binfile" != "${wrksrc}/kmon" ]; then
+        mv "$binfile" "${wrksrc}/kmon"
+    fi
+}
+
+do_install() {
+    vbin kmon
+    vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+}
