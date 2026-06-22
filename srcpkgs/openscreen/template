@@ -1,0 +1,55 @@
+# Template file for 'openscreen'
+pkgname=openscreen
+version=1.5.0
+revision=1
+archs="x86_64"
+wrksrc="openscreen-${version}"
+hostmakedepends="libarchive"
+short_desc="Open source screen recorder"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://github.com/siddharthvaddem/openscreen"
+distfiles="https://github.com/siddharthvaddem/openscreen/releases/download/v${version}/Openscreen-Linux-${version}.deb"
+checksum=175d14a05380b7cee3109c865e625b9928d458d35fe4ad1c4004637a66ae9e0e
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio gtk+3"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/Openscreen-Linux-${version}.deb \
+        -C "${wrksrc}" --include='data.tar*'
+    bsdtar -xf "${wrksrc}"/data.tar.* -C "${wrksrc}"
+    rm "${wrksrc}"/data.tar.*
+}
+
+do_install() {
+    vcopy "usr/*" usr
+
+    if [ -d "opt/Openscreen" ]; then
+        vmkdir opt/openscreen
+        vcopy "opt/Openscreen/*" opt/openscreen
+        rm -rf ${DESTDIR}/opt/Openscreen
+    elif [ -d "usr/lib/openscreen" ]; then
+        vmkdir opt/openscreen
+        vcopy "usr/lib/openscreen/*" opt/openscreen
+        rm -rf ${DESTDIR}/usr/lib/openscreen
+    fi
+
+    if [ ! -f usr/bin/openscreen ]; then
+        vmkdir usr/bin
+        ln -sf /opt/openscreen/openscreen ${DESTDIR}/usr/bin/openscreen
+    fi
+
+    rm -f ${DESTDIR}/usr/share/applications/openscreen.desktop
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/openscreen.desktop 644 usr/share/applications
+
+    if [ -f usr/share/doc/openscreen/copyright ]; then
+        vlicense usr/share/doc/openscreen/copyright
+    else
+        vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+    fi
+}

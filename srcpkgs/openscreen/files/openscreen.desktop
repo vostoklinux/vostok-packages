@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Openscreen
+Comment=Open source screen recorder
+Exec=openscreen %U
+Icon=openscreen
+Terminal=false
+Type=Application
+Categories=AudioVideo;Recorder;
+StartupNotify=true
