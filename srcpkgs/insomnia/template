@@ -1,0 +1,62 @@
+# Template file for 'insomnia'
+pkgname=insomnia
+version=13.0.1
+revision=1
+archs="x86_64"
+wrksrc="insomnia-${version}"
+hostmakedepends="libarchive"
+short_desc="Powerful HTTP and GraphQL tool belt"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="Apache-2.0"
+homepage="https://insomnia.rest/"
+distfiles="https://github.com/Kong/insomnia/releases/download/core%40${version}/Insomnia.Core-${version}.deb"
+checksum=9766c66f0041b0c3bb5943c18acd52ac5c0c1466478e6895a2a497eb57adcad7
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio gtk+3"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/Insomnia.Core-${version}.deb \
+        -C "${wrksrc}" --include='data.tar*'
+    bsdtar -xf "${wrksrc}"/data.tar.* -C "${wrksrc}"
+    rm "${wrksrc}"/data.tar.*
+}
+
+do_install() {
+    vmkdir opt/insomnia
+    vcopy "opt/Insomnia/*" opt/insomnia
+
+    vmkdir usr/bin
+    ln -sf /opt/insomnia/insomnia ${DESTDIR}/usr/bin/insomnia
+
+    local icon_found=""
+    for dir in resources/icons resources/app.asar.unpacked/resources/icons usr/share/icons/hicolor/256x256/apps; do
+        for name in insomnia Insomnia; do
+            local icon_path="opt/Insomnia/${dir}/${name}.png"
+            if [ -f "$icon_path" ]; then
+                vmkdir usr/share/icons/hicolor/256x256/apps
+                vinstall "$icon_path" 644 usr/share/icons/hicolor/256x256/apps insomnia.png
+                vmkdir usr/share/pixmaps
+                vinstall "$icon_path" 644 usr/share/pixmaps insomnia.png
+                icon_found=1
+                break 2
+            fi
+        done
+    done
+    if [ -z "$icon_found" ]; then
+        vmkdir usr/share/icons/hicolor/256x256/apps
+        vinstall ${FILESDIR}/insomnia.png 644 usr/share/icons/hicolor/256x256/apps insomnia.png
+        vmkdir usr/share/pixmaps
+        vinstall ${FILESDIR}/insomnia.png 644 usr/share/pixmaps insomnia.png
+    fi
+
+    rm -f ${DESTDIR}/usr/share/applications/insomnia.desktop
+    rm -f ${DESTDIR}/opt/insomnia/resources/app.asar.unpacked/resources/linux/insomnia.desktop
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/insomnia.desktop 644 usr/share/applications
+
+    vlicense opt/Insomnia/LICENSE.electron.txt
+}
