@@ -1,6 +1,6 @@
 # Template file for 'vscode-bin'
 pkgname=vscode-bin
-version=1.125.1
+version=1.126.0
 revision=1
 archs="x86_64"
 wrksrc="VSCode-linux-x64"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="custom:Microsoft-EULA"
 homepage="https://code.visualstudio.com"
 distfiles="https://update.code.visualstudio.com/${version}/linux-x64/stable>code-${version}.tar.gz"
-checksum=119dd60ef898ea1409fb0160ab9508ea09f8ae6c41d3058b936aeb007e2ab223
+checksum=7e3d8cc530728851e5dabe6b5cdfc9d66a86ebdb91348bc3643ba3046e5c231c
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
