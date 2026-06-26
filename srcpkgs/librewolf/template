@@ -50,7 +50,6 @@ do_install() {
         usr/share/pixmaps librewolf.png
 
     vmkdir usr/share/applications
-    
     vinstall ${FILESDIR}/librewolf.desktop 644 usr/share/applications
     vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
 }
