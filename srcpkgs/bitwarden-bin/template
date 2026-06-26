@@ -1,7 +1,7 @@
 # Template file for 'bitwarden-bin'
 pkgname=bitwarden-bin
 _pkgname=bitwarden
-version=2026.5.0
+version=2026.6.0
 revision=1
 archs="x86_64"
 hostmakedepends="tar xz"
@@ -11,7 +11,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://bitwarden.com"
 distfiles="https://github.com/bitwarden/clients/releases/download/desktop-v${version}/Bitwarden-${version}-amd64.deb"
-checksum=2ea59874bac7f67f5663828d028449168050d4538b5e6adea69e13b199249226
+checksum=e2a9e0d476624d2fed188ed2dff993d448b992895c7a7d838ff9a0145f64581f
 noverifyrdeps=yes
 nostrip=yes
 noshlibs=yes
