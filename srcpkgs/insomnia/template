@@ -57,6 +57,5 @@ do_install() {
     rm -f ${DESTDIR}/opt/insomnia/resources/app.asar.unpacked/resources/linux/insomnia.desktop
     vmkdir usr/share/applications
     vinstall ${FILESDIR}/insomnia.desktop 644 usr/share/applications
-
     vlicense opt/Insomnia/LICENSE.electron.txt
 }
