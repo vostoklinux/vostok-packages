@@ -27,6 +27,7 @@ do_install() {
 	vinstall resources/app/resources/linux/code.png 644 \
 		usr/share/pixmaps vscode.png
 	chmod -R o-w ${DESTDIR}/usr/lib/vscode/resources/app
+	
 	vlicense LICENSES.chromium.html
 
 	rm -f "${DESTDIR}/usr/lib/vscode/resources/app/node_modules/@microsoft/mxc-sdk/bin/arm64/lxc-exec"
