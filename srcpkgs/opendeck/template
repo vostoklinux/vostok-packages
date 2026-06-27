@@ -1,6 +1,6 @@
 # Template file for 'opendeck'
 pkgname=opendeck
-version=2.12.1
+version=2.13.0
 revision=1
 archs="x86_64"
 wrksrc="opendeck-${version}"
@@ -9,7 +9,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://github.com/nekename/OpenDeck"
 distfiles="https://github.com/nekename/OpenDeck/releases/download/v${version}/opendeck_${version}_amd64.deb"
-checksum=672b74b50bacad475f57c7a15e71899754171e1c58d5a743408b38e9497dddae
+checksum=9044df6f3b1065775e3320c57ddd102e408be57bd3944d8835960853792d42b9
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
