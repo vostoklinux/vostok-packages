@@ -1,0 +1,67 @@
+# Template file for 'bruno'
+pkgname=bruno
+version=3.5.0
+revision=1
+archs="x86_64"
+wrksrc="bruno-${version}"
+hostmakedepends="libarchive"
+short_desc="Open-source IDE for exploring and testing APIs"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT"
+homepage="https://www.usebruno.com/"
+distfiles="https://github.com/usebruno/bruno/releases/download/v${version}/bruno_${version}_amd64_linux.deb"
+checksum=53a39691e4525dca8f84e0e5a6dc0e890835f36e3b8a2cadf792583aa3c82e65
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio gtk+3"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/bruno_${version}_amd64_linux.deb \
+        -C "${wrksrc}" --include='data.tar*'
+    bsdtar -xf "${wrksrc}"/data.tar.* -C "${wrksrc}"
+    rm "${wrksrc}"/data.tar.*
+}
+
+do_install() {
+    vmkdir opt/bruno
+    vcopy "opt/Bruno/*" opt/bruno
+    vmkdir usr/bin
+    ln -sf /opt/bruno/bruno ${DESTDIR}/usr/bin/bruno
+
+    local icon_found=""
+    for dir in "opt/Bruno/resources/icons" "opt/Bruno/share/icons" \
+               "opt/Bruno/resources/app.asar.unpacked/resources/icons"; do
+        for name in bruno Bruno icon; do
+            local icon_path="${dir}/${name}.png"
+            if [ -f "$icon_path" ]; then
+                vmkdir usr/share/icons/hicolor/256x256/apps
+                vinstall "$icon_path" 644 usr/share/icons/hicolor/256x256/apps bruno.png
+                vmkdir usr/share/pixmaps
+                vinstall "$icon_path" 644 usr/share/pixmaps bruno.png
+                icon_found=1
+                break 2
+            fi
+        done
+    done
+    if [ -z "$icon_found" ]; then
+        vmkdir usr/share/icons/hicolor/256x256/apps
+        vinstall ${FILESDIR}/bruno.png 644 usr/share/icons/hicolor/256x256/apps bruno.png
+        vmkdir usr/share/pixmaps
+        vinstall ${FILESDIR}/bruno.png 644 usr/share/pixmaps bruno.png
+    fi
+
+    rm -f ${DESTDIR}/usr/share/applications/bruno.desktop
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/bruno.desktop 644 usr/share/applications
+
+    if [ -f "opt/Bruno/LICENSE.electron.txt" ]; then
+        vlicense opt/Bruno/LICENSE.electron.txt
+    elif [ -f "opt/Bruno/LICENSE" ]; then
+        vlicense opt/Bruno/LICENSE
+    else
+        vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+    fi
+}

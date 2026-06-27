@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Bruno
+Comment=Open-source IDE for exploring and testing APIs
+Exec=bruno %U
+Icon=bruno
+Terminal=false
+Type=Application
+Categories=Development;
+StartupNotify=true
