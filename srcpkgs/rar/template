@@ -1,6 +1,6 @@
 # Template file for 'rar'
 pkgname=rar
-version=7.22
+version=7.23
 revision=1
 archs="x86_64"
 wrksrc="rar"
@@ -9,7 +9,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="custom:RAR"
 homepage="https://www.rarlab.com"
 distfiles="https://www.rarlab.com/rar/rarlinux-x64-${version//./}.tar.gz"
-checksum=34455a6fca2b3aa2bf7fdb78998a11fedf4377ebac8581c5e9357e197263b071
+checksum=759b4b6aa0d9f77131882162951193f3a0e54bf60e1d8dc4255aa308accab588
 noshlibs=yes
 noverifyrdeps=yes
 nopie=yes
