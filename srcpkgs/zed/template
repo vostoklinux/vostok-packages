@@ -56,7 +56,6 @@ do_install() {
 
     rm -f ${DESTDIR}/usr/share/applications/dev.zed.Zed.desktop
     vmkdir usr/share/applications
-    
     vinstall ${FILESDIR}/zed.desktop 644 usr/share/applications
 
     if [ -f licenses.md ]; then
