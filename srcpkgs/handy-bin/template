@@ -1,6 +1,6 @@
 # Template file for 'handy-bin'
 pkgname=handy-bin
-version=0.8.3
+version=0.9.0
 revision=1
 archs="x86_64"
 wrksrc="handy-${version}"
@@ -8,8 +8,8 @@ short_desc="Voice-activated assistant"
 maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://github.com/cjpais/Handy"
-distfiles="https://github.com/cjpais/Handy/releases/download/v${version}/Handy_0.8.3_amd64.deb"
-checksum=a1b355e7f55b9fc6d81cdeb5a30e44fdb4e0c492aad4fb7f023d212cf6ec3a33
+distfiles="https://github.com/cjpais/Handy/releases/download/v${version}/Handy_${version}_amd64.deb"
+checksum=4308d62ae416fb807d2907768e3289d84037c753dea63422904b94e9ace099e3
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
