@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=AniLiberty
 Comment=Desktop client for AniLibria
-Exec=aniliberty %U
+Exec=VK_DRIVER_FILES=/dev/null VK_ICD_FILENAMES=/dev/null aniliberty %U
 Icon=aniliberty
 Terminal=false
 Type=Application
