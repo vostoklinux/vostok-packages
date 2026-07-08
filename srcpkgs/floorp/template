@@ -1,7 +1,7 @@
 # Template file for 'floorp'
 pkgname=floorp
 version=12.15.3
-revision=1
+revision=2
 archs="x86_64"
 wrksrc="floorp-${version}"
 hostmakedepends="libarchive"
@@ -15,7 +15,7 @@ nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
 
-depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio gtk+3 ffmpeg dbus-glib nss sqlite hicolor-icon-theme"
+depends="gtk+3 libXt dbus-glib nss nspr alsa-lib libpulseaudio libcups hicolor-icon-theme"
 
 do_extract() {
     mkdir -p "${wrksrc}"
