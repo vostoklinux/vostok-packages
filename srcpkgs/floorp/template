@@ -1,7 +1,7 @@
 # Template file for 'floorp'
 pkgname=floorp
 version=12.15.3
-revision=2
+revision=3
 archs="x86_64"
 wrksrc="floorp-${version}"
 hostmakedepends="libarchive"
