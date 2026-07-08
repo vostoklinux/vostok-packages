@@ -1,6 +1,6 @@
 # Template file for 'musescore-bin'
 pkgname=musescore-bin
-version=4.7.3.260608135
+version=4.7.4.260706075
 revision=1
 archs="x86_64"
 wrksrc="musescore-${version}"
@@ -9,8 +9,8 @@ short_desc="Music notation and composition software (AppImage repack)"
 maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://musescore.org/"
-distfiles="https://github.com/musescore/MuseScore/releases/download/v4.7.3/MuseScore-Studio-${version}-x86_64.AppImage"
-checksum=81248da5cee796a99c74cbadf29005433cd851798b95a362d19864003dc7b292
+distfiles="https://github.com/musescore/MuseScore/releases/download/v4.7.4/MuseScore-Studio-4.7.4.260706075-x86_64.AppImage"
+checksum=9233ed1b87d3e6b45722278f3c286dcd41e83da778bd0f80a1dd04949696ad93
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
