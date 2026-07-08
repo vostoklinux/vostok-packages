@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=AniLiberty
+Comment=Desktop client for AniLibria
+Exec=aniliberty %U
+Icon=aniliberty
+Terminal=false
+Type=Application
+Categories=AudioVideo;Player;
+StartupNotify=true

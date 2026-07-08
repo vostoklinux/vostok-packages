@@ -1,0 +1,36 @@
+# Template file for 'aniliberty'
+pkgname=aniliberty
+version=2.2.36
+revision=1
+archs="x86_64"
+wrksrc="aniliberty-${version}"
+hostmakedepends="libarchive"
+short_desc="Desktop client for AniLibria"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT"
+homepage="https://github.com/anilibria/anilibria-winmaclinux"
+distfiles="https://github.com/anilibria/anilibria-winmaclinux/releases/download/${version}/aniliberty-amd64.deb"
+checksum=c14ccfe9af22ca2890a39a72b18141756ab296b2b661f9ee5e8aedf320b9f85e
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio gtk+3 mpv"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/aniliberty-amd64.deb \
+        -C "${wrksrc}" --include='data.tar*'
+    bsdtar -xf "${wrksrc}"/data.tar.* -C "${wrksrc}"
+    rm "${wrksrc}"/data.tar.*
+}
+
+do_install() {
+    vcopy "usr/*" usr
+
+    rm -f ${DESTDIR}/usr/share/applications/aniliberty.desktop
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/aniliberty.desktop 644 usr/share/applications
+
+    vlicense usr/share/doc/aniliberty/copyright
+}
