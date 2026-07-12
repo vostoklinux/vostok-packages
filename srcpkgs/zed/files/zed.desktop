@@ -3,6 +3,7 @@ Name=Zed
 Comment=High-performance, multiplayer code editor
 Exec=zed %F
 Icon=zed
+StartupWMClass=dev.zed.Zed
 Terminal=false
 Type=Application
 Categories=Development;TextEditor;
