@@ -1,7 +1,7 @@
 # Template file for 'ayugram'
 pkgname=ayugram
 version=6.7.8
-revision=1
+revision=2
 wrksrc="AyuGramDesktop-${version}"
 build_style=cmake
 build_helper="qemu gir"
@@ -40,7 +40,7 @@ fi
 
 pre_configure() {
 	CFLAGS="${CFLAGS/ -g/ -g1}"
-	
+
 	CXXFLAGS="${CXXFLAGS/ -g/ -g1}"
 }
 
