@@ -40,7 +40,6 @@ fi
 
 pre_configure() {
 	CFLAGS="${CFLAGS/ -g/ -g1}"
-	
 	CXXFLAGS="${CXXFLAGS/ -g/ -g1}"
 }
 
