@@ -1,0 +1,23 @@
+# Template file for 'darkly'
+pkgname=darkly
+version=0.5.38
+revision=1
+wrksrc="Darkly-${version}"
+build_style=cmake
+configure_args="-DBUILD_TESTING=OFF -DBUILD_QT5=OFF -DBUILD_QT6=ON
+ -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
+ -DKDE_INSTALL_QTPLUGINDIR=lib/qt6/plugins"
+hostmakedepends="extra-cmake-modules gettext qt6-base qt6-tools
+ kf6-kconfig kf6-kcmutils"
+makedepends="qt6-base-devel qt6-declarative-devel qt6-svg-devel
+ kf6-kcoreaddons-devel kf6-kcolorscheme-devel kf6-kconfig-devel
+ kf6-kguiaddons-devel kf6-ki18n-devel kf6-kiconthemes-devel
+ kf6-kwindowsystem-devel kf6-kcmutils-devel kf6-kirigami-devel
+ kf6-frameworkintegration-devel kf6-kdecoration-devel libepoxy-devel"
+depends="kf6-frameworkintegration"
+short_desc="Modern Qt/Plasma style forked from the Lightly theme"
+maintainer="Artem Kabanov <oloreas@gmail.com>"
+license="GPL-2.0-or-later"
+homepage="https://github.com/Bali10050/Darkly"
+distfiles="https://github.com/Bali10050/Darkly/archive/refs/tags/v${version}.tar.gz"
+checksum=6ffb293b9b109fe4a4f8aad20027edb640f063fbc5e7b3621ec58762e42f4bbb
