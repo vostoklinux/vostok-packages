@@ -1,0 +1,124 @@
+#!/bin/sh
+# Minimal systemd-to-runit `systemctl` shim for Void/Vostok.
+#
+# Some prebuilt apps (packaged from upstream .debs) manage a helper by shelling
+# out to `systemctl daemon-reload && systemctl enable/start <unit>.service`.
+# Void has no systemd, so those calls fail. This shim translates a *whitelisted*
+# set of units onto their runit services under /etc/sv.
+#
+# It is driven by a registry so more packages can be supported WITHOUT editing
+# this script: each authorised unit is a file in /etc/systemctl-shim.d/ named
+# after its runit service (e.g. `happd`). A unit "foo" or "foo.service" maps to
+# the registry entry "foo". The file may be empty (defaults apply) or override:
+#
+#     service=happd            # runit service name   (default: the file name)
+#     source=/etc/sv/happd     # runit service dir     (default: /etc/sv/<service>)
+#     procname=happd           # process name for is-active pgrep (default: service)
+#
+# To add a package: install /etc/sv/<svc> and drop /etc/systemctl-shim.d/<svc>.
+#
+# Any unit without a registry entry is rejected, so this deliberately does NOT
+# masquerade as a working systemd.
+
+SVDIR=/var/service
+REGDIR=/etc/systemctl-shim.d
+
+# --- parse args: first non-flag is the verb, second is the unit -------------
+verb=
+unit=
+for arg in "$@"; do
+	case "$arg" in
+		-*) ;;                        # ignore flags (--now, --quiet, ...)
+		*)
+			if [ -z "$verb" ]; then
+				verb=$arg
+			elif [ -z "$unit" ]; then
+				unit=$arg
+			fi
+			;;
+	esac
+done
+
+# --- global verbs that take no unit -----------------------------------------
+case "$verb" in
+	daemon-reload|daemon-reexec) exit 0 ;;
+esac
+
+# --- resolve the unit -> runit service via the registry ---------------------
+if [ -z "$unit" ]; then
+	echo "systemctl (runit shim): missing unit" >&2
+	exit 1
+fi
+
+base=${unit%.service}                  # strip a trailing .service
+case "$base" in
+	*.*)
+		echo "systemctl (runit shim): only *.service units are supported" >&2
+		exit 1
+		;;
+esac
+
+regfile="$REGDIR/$base"
+if [ ! -f "$regfile" ]; then
+	echo "systemctl (runit shim): unit '$unit' is not registered (see $REGDIR/)" >&2
+	exit 1
+fi
+
+# Defaults, overridable by the registry file.
+service=$base
+source=
+procname=
+# shellcheck disable=SC1090
+. "$regfile"
+SVNAME=$service
+SVSOURCE=${source:-/etc/sv/$SVNAME}
+PROCNAME=${procname:-$SVNAME}
+
+wait_supervise() {
+	i=0
+	while [ ! -e "$SVDIR/$SVNAME/supervise/ok" ] && [ "$i" -lt 120 ]; do
+		sleep 0.1
+		i=$((i + 1))
+	done
+}
+
+case "$verb" in
+	enable)
+		ln -sf "$SVSOURCE" "$SVDIR/"
+		;;
+	start)
+		ln -sf "$SVSOURCE" "$SVDIR/" 2>/dev/null
+		wait_supervise
+		sv start "$SVNAME"
+		;;
+	restart)
+		wait_supervise
+		sv restart "$SVNAME"
+		;;
+	stop)
+		sv stop "$SVNAME"
+		;;
+	disable)
+		rm -f "$SVDIR/$SVNAME"
+		;;
+	is-active)
+		# Often queried by an unprivileged GUI, so we cannot rely on `sv check`
+		# alone (it needs root to read supervise/ok). A running process is a
+		# reliable, uid-independent signal; fall back to `sv check` for root.
+		if pgrep -x "$PROCNAME" >/dev/null 2>&1 || sv check "$SVNAME" >/dev/null 2>&1; then
+			echo active; exit 0
+		else
+			echo inactive; exit 3
+		fi
+		;;
+	is-enabled)
+		if [ -L "$SVDIR/$SVNAME" ]; then echo enabled; exit 0; else echo disabled; exit 1; fi
+		;;
+	status)
+		sv status "$SVNAME"
+		;;
+	*)
+		echo "systemctl (runit shim): unsupported verb '$verb'" >&2
+		exit 1
+		;;
+esac

@@ -1,0 +1,22 @@
+# Template file for 'systemctl-runit-shim'
+pkgname=systemctl-runit-shim
+version=1.0
+revision=1
+short_desc="Minimal systemctl->runit shim for apps that shell out to systemctl"
+maintainer="Artem Kabanov <oloreas@gmail.com>"
+license="Public Domain"
+homepage="https://voidlinux.org"
+
+# No sources: this package only ships a shell script and a registry directory.
+
+do_install() {
+	# Installs /usr/bin/systemctl. It must live in /usr/bin because callers
+	# (e.g. GUIs invoking it via pkexec) get a sanitized PATH of
+	# /usr/sbin:/usr/bin:/sbin:/bin, so a private PATH cannot be injected.
+	vbin "${FILESDIR}/systemctl"
+
+	# Registry directory. Packages that need a unit translated onto a runit
+	# service drop a file named after that service here (see the header of
+	# files/systemctl). Ship it empty; the shim rejects unregistered units.
+	vmkdir etc/systemctl-shim.d
+}
