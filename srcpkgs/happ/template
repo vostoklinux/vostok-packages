@@ -1,0 +1,63 @@
+# Template file for 'happ'
+pkgname=happ
+version=3.1.0
+revision=1
+archs="x86_64"
+wrksrc="happ-${version}"
+hostmakedepends="tar xz zstd"
+short_desc="User-friendly GUI proxy client for xray-core (TUN/VPN, byedpi, subscriptions)"
+maintainer="Artem Kabanov <oloreas@gmail.com>"
+license="custom:Freeware"
+homepage="https://happ.su"
+distfiles="https://github.com/Happ-proxy/happ-desktop/releases/download/${version}/Happ.linux.x64.deb"
+checksum=8ffaeb50a4a98c8da5cb4a355b17083cb734ac877a65146173b008de71935603
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+disable_shlib_provides=yes
+
+# App is self-contained (bundles Qt6 and its deps in /opt/happ/lib);
+# only base X11/GL and openssl are pulled from the system.
+# systemctl-runit-shim provides /usr/bin/systemctl so the GUI's
+# `systemctl enable/start happd.service` calls work on Void (no systemd).
+depends="libX11 libxcb libglvnd mesa-dri openssl systemctl-runit-shim"
+
+do_extract() {
+	mkdir -p "${wrksrc}"
+	bsdtar -xf "${XBPS_SRCDISTDIR}/${pkgname}-${version}/Happ.linux.x64.deb" \
+		-C "${wrksrc}" --include='data.tar*'
+	bsdtar -xf "${wrksrc}"/data.tar.zst -C "${wrksrc}"
+	rm "${wrksrc}"/data.tar.zst
+}
+
+do_install() {
+	vmkdir opt
+	vcopy opt/happ opt
+
+	vmkdir usr/share
+	vcopy usr/share/applications usr/share
+	vcopy usr/share/icons usr/share
+	vcopy usr/share/mime usr/share
+
+	vmkdir usr/bin
+	ln -sf /opt/happ/bin/Happ ${DESTDIR}/usr/bin/happ
+
+	# Privileged daemon for TUN/VPN mode. The GUI supervises happd via
+	# systemd upstream; on Void we run it under runit (vsv) instead.
+	vsv happd
+
+	# The UI's "connect" button installs and starts happd by shelling out to
+	# `systemctl enable/start happd.service` (via pkexec). The generic shim in
+	# /usr/bin/systemctl (systemctl-runit-shim package) translates units onto
+	# runit; here we just register happd.service -> /etc/sv/happd by dropping a
+	# file into the shim's registry directory.
+	vinstall "${FILESDIR}/systemctl-shim.d/happd" 644 etc/systemctl-shim.d
+
+	# The GUI decides the daemon is "installed" purely by the existence of
+	# /etc/systemd/system/happd.service. Shipping this marker makes it treat
+	# happd as installed and take the "TUN via daemon" path (sing-box started
+	# by the root happd) instead of the tun2proxy/pkexec fallback (which needs
+	# helper scripts our shim does not provide). The GUI may also overwrite
+	# this file via pkexec; either way our systemctl shim drives runit.
+	vinstall "${FILESDIR}/happd.service" 644 etc/systemd/system
+}

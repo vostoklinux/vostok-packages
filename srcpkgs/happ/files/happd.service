@@ -1,0 +1,11 @@
+[Unit]
+Description=Happ privileged control daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/happ/bin/happd
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
