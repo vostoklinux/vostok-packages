@@ -1,0 +1,31 @@
+# Template file for 'wild-linker'
+pkgname=wild-linker
+version=0.9.0
+revision=1
+archs="x86_64"
+wrksrc="wild-linker-${version}-x86_64-unknown-linux-gnu"
+hostmakedepends="libarchive"
+short_desc="A fast linker for Linux"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT OR Apache-2.0"
+homepage="https://github.com/wild-linker/wild"
+distfiles="https://github.com/wild-linker/wild/releases/download/${version}/wild-linker-${version}-x86_64-unknown-linux-gnu.tar.gz"
+checksum=deb6ee0e5caec798053ec4aafaba042e20a8edf91f08cb4d36268571cc628d3b
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+skip_extraction=yes
+
+depends="glibc"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/wild-linker-${version}-x86_64-unknown-linux-gnu.tar.gz \
+        --strip-components 1 -C "${wrksrc}"
+}
+
+do_install() {
+    vbin wild
+    mv ${DESTDIR}/usr/bin/wild ${DESTDIR}/usr/bin/wild-linker
+    vlicense LICENSE-MIT
+}
