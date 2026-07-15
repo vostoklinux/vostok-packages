@@ -1,12 +1,12 @@
 # Template file for 'opencode'
 pkgname=opencode
-version=1.17.16
+version=1.18.1
 revision=1
 archs="x86_64"
 wrksrc="opencode-${version}"
 hostmakedepends="tar"
 distfiles="https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-linux-x64.tar.gz"
-checksum=802b3f4995b22a105d155ff702f83101c4c1d2584b15d066183e9b02669f6d7f
+checksum=9ecce27cf529ade5f177fab478b4876b5c31d9ddc8216b994816acf192159511
 homepage="https://github.com/anomalyco/opencode"
 license="MIT"
 short_desc="Open source AI coding agent (CLI/TUI version)"

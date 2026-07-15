@@ -1,6 +1,6 @@
 # Template file for 'portainer'
 pkgname=portainer
-version=2.39.4
+version=2.39.5
 revision=1
 archs="x86_64"
 wrksrc="portainer-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="Zlib"
 homepage="https://www.portainer.io/"
 distfiles="https://github.com/portainer/portainer/releases/download/${version}/portainer-${version}-linux-amd64.tar.gz"
-checksum=4082de908603a25f642c9d54c7c6da03250bb05c5bd45d26f36d5225a82e35e5
+checksum=b54b8595726a436c9de53dcaa7e60b174f8c7e98f1174a6e9bd0f23307134432
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
