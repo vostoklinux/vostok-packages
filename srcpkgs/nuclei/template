@@ -1,0 +1,37 @@
+# Template file for 'nuclei'
+pkgname=nuclei
+version=3.11.0
+revision=1
+archs="x86_64"
+wrksrc="nuclei-${version}"
+hostmakedepends="unzip"
+short_desc="Fast and customisable vulnerability scanner based on simple YAML DSL"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT"
+homepage="https://github.com/projectdiscovery/nuclei"
+distfiles="https://github.com/projectdiscovery/nuclei/releases/download/v${version}/nuclei_${version}_linux_amd64.zip"
+checksum=dc238d6040813e14fc30514dac5a2eb1b430c694f3ca99eee2a5097e55076283
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+skip_extraction=yes
+
+depends="glibc"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    unzip -q ${XBPS_SRCDISTDIR}/${pkgname}-${version}/nuclei_${version}_linux_amd64.zip -d "${wrksrc}"
+    local binfile=$(find "${wrksrc}" -type f -name 'nuclei' -print -quit)
+    if [ -z "$binfile" ]; then
+        echo "ERROR: nuclei binary not found in archive" >&2
+        exit 1
+    fi
+    if [ "$binfile" != "${wrksrc}/nuclei" ]; then
+        mv "$binfile" "${wrksrc}/nuclei"
+    fi
+}
+
+do_install() {
+    vbin nuclei
+    vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+}
