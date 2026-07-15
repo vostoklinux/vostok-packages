@@ -1,0 +1,39 @@
+# Template file for 'codewhale'
+pkgname=codewhale
+version=0.8.67
+revision=2
+archs="x86_64"
+wrksrc="codewhale-${version}"
+hostmakedepends="libarchive"
+short_desc="Your AI coding companion"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT"
+homepage="https://github.com/Hmbown/CodeWhale"
+distfiles="
+ https://github.com/Hmbown/CodeWhale/releases/download/v${version}/codewhale-linux-x64
+ https://github.com/Hmbown/CodeWhale/releases/download/v${version}/codewhale-tui-linux-x64
+"
+checksum="
+ c65d3643a6b5ffe5c8f9875f1c30df8199765b64cb9daf66b8383d45d9fcab4b
+ 26451e04533f75e9e74ba974a62ee681b3d00377933947180e113274e197041b
+"
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+skip_extraction=yes
+
+depends="glibc"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    cp ${XBPS_SRCDISTDIR}/${pkgname}-${version}/codewhale-linux-x64 "${wrksrc}/codewhale"
+    cp ${XBPS_SRCDISTDIR}/${pkgname}-${version}/codewhale-tui-linux-x64 "${wrksrc}/codewhale-tui"
+    chmod +x "${wrksrc}/codewhale" "${wrksrc}/codewhale-tui"
+}
+
+do_install() {
+    vbin codewhale
+    vbin codewhale-tui
+
+    vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+}
