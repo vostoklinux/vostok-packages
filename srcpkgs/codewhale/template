@@ -34,6 +34,5 @@ do_extract() {
 do_install() {
     vbin codewhale
     vbin codewhale-tui
-
     vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
 }
