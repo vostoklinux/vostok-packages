@@ -1,7 +1,7 @@
 # Template file for 'codewhale'
 pkgname=codewhale
-version=0.8.67
-revision=2
+version=0.9.0
+revision=1
 archs="x86_64"
 wrksrc="codewhale-${version}"
 hostmakedepends="libarchive"
@@ -14,6 +14,9 @@ distfiles="
  https://github.com/Hmbown/CodeWhale/releases/download/v${version}/codewhale-tui-linux-x64
 "
 checksum="
+ a01749d4d0f4cebbf1fb62e5c9f393cb5c05b570da144176238e740552de8fca
+ 08a142fc255f23e00e049416d4ea53f7fb77e026e093ebdfad16847c0906c85b
+"
  c65d3643a6b5ffe5c8f9875f1c30df8199765b64cb9daf66b8383d45d9fcab4b
  26451e04533f75e9e74ba974a62ee681b3d00377933947180e113274e197041b
 "
