@@ -1,6 +1,6 @@
 # Template file for 'bruno'
 pkgname=bruno
-version=3.5.2
+version=3.5.3
 revision=1
 archs="x86_64"
 wrksrc="bruno-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://www.usebruno.com/"
 distfiles="https://github.com/usebruno/bruno/releases/download/v${version}/bruno_${version}_amd64_linux.deb"
-checksum=a31a5fc89728a592d7d1e7271a03ff8989054f7a2b9b0ca3668c64bd1cf334d1
+checksum=79239a5858ce3c1e099d21aadb15d97856a09f9d07cf1c262433001273cda3e6
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
