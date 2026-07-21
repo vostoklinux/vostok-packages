@@ -1,6 +1,6 @@
 # Template file for 'linutil'
 pkgname=linutil
-version=2026.05.21
+version=2026.07.17
 revision=1
 archs="x86_64"
 wrksrc="linutil-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://github.com/ChrisTitusTech/linutil"
 distfiles="https://github.com/ChrisTitusTech/linutil/releases/download/${version}/linutil"
-checksum=ec69947c1e508ae66d8950abbd103bc97ece4c4175a19da32d1b703c9379fde9
+checksum=3e7dd8da45b644e7af3ff29bfba391ebd13772865eeefb55ea88a48c74f7d1ff
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
