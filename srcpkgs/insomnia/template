@@ -1,6 +1,6 @@
 # Template file for 'insomnia'
 pkgname=insomnia
-version=13.0.2
+version=13.1.0
 revision=1
 archs="x86_64"
 wrksrc="insomnia-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="Apache-2.0"
 homepage="https://insomnia.rest/"
 distfiles="https://github.com/Kong/insomnia/releases/download/core%40${version}/Insomnia.Core-${version}.deb"
-checksum=c0805c435f115c0820c4c0349384a4483752b46a9b4648e3068dc993c063a570
+checksum=480a28f5895c14be17bdbce0c7398cf592081c2a13aefd362827be2f1628d2df
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
