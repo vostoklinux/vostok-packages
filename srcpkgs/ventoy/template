@@ -1,6 +1,6 @@
 # Template file for 'ventoy'
 pkgname=ventoy
-version=1.1.16
+version=1.1.17
 revision=1
 archs="x86_64"
 wrksrc="ventoy-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="http://www.ventoy.net"
 distfiles="https://github.com/ventoy/Ventoy/releases/download/v${version}/ventoy-${version}-linux.tar.gz"
-checksum=a9ffd7bd5e26df486cafff924b8dbcb6caae20cbe2b179a009fe59ae740c7572
+checksum=7fb4ed08cef6a6b4d39dd19260d8c80291a78dfdf9af7d461571e23cbbc43805
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
