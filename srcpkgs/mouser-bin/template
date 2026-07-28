@@ -1,6 +1,6 @@
 # Template file for 'mouser-bin'
 pkgname=mouser-bin
-version=3.7.0
+version=3.7.2
 revision=1
 archs="x86_64"
 wrksrc="Mouser"
@@ -9,7 +9,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://github.com/TomBadash/Mouser"
 distfiles="https://github.com/TomBadash/Mouser/releases/download/v${version}/Mouser-Linux.zip"
-checksum=9bfccf37a77e93f894ec70537e5568ba0508e7f0bcdb4a7561ac9665eb04d149
+checksum=e5624f8d200dded5378431f927f73e896431abab0c1a15bde2e2c6f9b9716db0
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
