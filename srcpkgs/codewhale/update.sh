@@ -21,13 +21,11 @@ URL_TUI="https://github.com/Hmbown/CodeWhale/releases/download/${LATEST_TAG}/cod
 CHK_COD=$(curl -L -# "${URL_COD}" | sha256sum | cut -d' ' -f1)
 CHK_TUI=$(curl -L -# "${URL_TUI}" | sha256sum | cut -d' ' -f1)
 
-# Обновляем version
+
 sed -i "s/^[[:space:]]*version=.*/version=${LATEST_VER}/" "${TEMPLATE}"
 
-# Обновляем checksum (ОДНА строка с двумя хешами)
 sed -i "s|^checksum=.*|checksum=\"${CHK_COD} ${CHK_TUI}\"|" "${TEMPLATE}"
 
-# Сбрасываем revision
 sed -i "s/^revision=.*/revision=1/" "${TEMPLATE}"
 
 echo "Done: ${LATEST_VER}"
