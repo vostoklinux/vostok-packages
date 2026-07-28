@@ -11,7 +11,6 @@ license="MIT"
 homepage="https://github.com/Hmbown/CodeWhale"
 distfiles="https://github.com/Hmbown/CodeWhale/releases/download/v${version}/codewhale-linux-x64 https://github.com/Hmbown/CodeWhale/releases/download/v${version}/codewhale-tui-linux-x64"
 checksum="d4bc2d1908a78c5cbe6974a6e16ca8a06690775e454e73b7f6b5548f033b5bc2 e1e215369e34668240cbbadedc91219ce6026218a5527b2abef9fae7dcb8ba05"
-"
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
