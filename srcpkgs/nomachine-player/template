@@ -1,5 +1,5 @@
-# Template file for 'nomachine'
-pkgname=nomachine
+# Template file for 'nomachine-player'
+pkgname=nomachine-player
 version=9.7.3
 revision=1
 _pkgrel=1
@@ -7,7 +7,7 @@ _artifact=nomachine
 archs="x86_64 aarch64"
 create_wrksrc=yes
 hostmakedepends="tar"
-short_desc="Remote desktop client for NoMachine/NX servers"
+short_desc="Remote desktop player for NoMachine/NX servers"
 maintainer="Artem Kabanov <oloreas@gmail.com>"
 license="custom:Proprietary"
 homepage="https://www.nomachine.com/"

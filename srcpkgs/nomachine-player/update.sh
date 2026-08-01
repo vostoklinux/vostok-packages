@@ -162,7 +162,7 @@ latest_pkgrel=${x86_pkgrel}
 
 if [[ ${latest_version} == "${current_version}" ]]; then
 	if (( 10#${latest_pkgrel} == 10#${current_pkgrel} )); then
-		echo "nomachine is current: ${current_version}_${current_pkgrel}"
+		echo "nomachine-player is current: ${current_version}_${current_pkgrel}"
 		exit 0
 	fi
 	if (( 10#${latest_pkgrel} < 10#${current_pkgrel} )); then
@@ -182,7 +182,7 @@ arm_filename="${latest_artifact}_${latest_version}_${latest_pkgrel}_aarch64.tar.
 x86_url="${DOWNLOAD_BASE}/${latest_version%.*}/Linux/${x86_filename}"
 arm_url="${DOWNLOAD_BASE}/${latest_version%.*}/Arm/${arm_filename}"
 
-tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/nomachine-update.XXXXXXXX")
+tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/nomachine-player-update.XXXXXXXX")
 trap 'rm -rf -- "${tmpdir}"' EXIT
 
 echo "Downloading ${x86_filename}..."
@@ -237,6 +237,6 @@ awk -v version="${latest_version}" \
 chmod --reference="${TEMPLATE}" "${updated_template}"
 mv -f -- "${updated_template}" "${TEMPLATE}"
 
-echo "Updated nomachine: ${current_version}_${current_pkgrel} -> ${latest_version}_${latest_pkgrel}"
+echo "Updated nomachine-player: ${current_version}_${current_pkgrel} -> ${latest_version}_${latest_pkgrel}"
 echo "  x86_64: ${x86_checksum}"
 echo "  aarch64: ${arm_checksum}"
