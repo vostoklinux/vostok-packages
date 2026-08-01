@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Comment=Access NoMachine computers over the network
+Exec=/usr/bin/nxplayer %U
+Icon=nomachine
+Name=NoMachine
+StartupWMClass=nxplayer.bin
+Type=Application
+Categories=Network;RemoteAccess;
