@@ -1,0 +1,3 @@
+#!/bin/sh
+# Require the authenticated runit path on the next TUN start.
+rm -f /etc/systemd/system/happd.service

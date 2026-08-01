@@ -1,7 +1,4 @@
-# systemctl-shim registry entry, installed by the happ package.
-# Maps the systemd unit "happd.service" onto the runit service /etc/sv/happd,
-# so the Happ GUI's `systemctl enable/start happd.service` calls work on Void.
-# The defaults below match this package; override only if the layout changes.
+# Map happd.service requested by privd-root onto the runit service.
 service=happd
 source=/etc/sv/happd
 procname=happd

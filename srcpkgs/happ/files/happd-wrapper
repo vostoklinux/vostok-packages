@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ "$(id -u)" -ne 0 ]; then
+	echo "happd must be started as root through the Happ runit service" >&2
+	exit 126
+fi
+
+exec /opt/happ/bin/happd.bin "$@"

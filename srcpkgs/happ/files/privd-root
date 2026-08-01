@@ -1,0 +1,8 @@
+#!/bin/sh
+# Accept no arguments; this helper may only start the registered happd service.
+
+if [ "$#" -ne 0 ] || [ "$(id -u)" -ne 0 ]; then
+	exit 64
+fi
+
+exec /usr/bin/systemctl start happd.service

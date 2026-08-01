@@ -1,7 +1,7 @@
 # Template file for 'happ'
 pkgname=happ
 version=3.3.6
-revision=1
+revision=2
 archs="x86_64"
 wrksrc="happ-${version}"
 hostmakedepends="tar xz zstd"
@@ -16,11 +16,10 @@ noshlibs=yes
 noverifyrdeps=yes
 disable_shlib_provides=yes
 
-# App is self-contained (bundles Qt6 and its deps in /opt/happ/lib);
+# Happ bundles Qt6 and its dependencies in /opt/happ/lib;
 # only base X11/GL and openssl are pulled from the system.
-# systemctl-runit-shim provides /usr/bin/systemctl so the GUI's
-# `systemctl enable/start happd.service` calls work on Void (no systemd).
-depends="libX11 libxcb libglvnd mesa-dri openssl systemctl-runit-shim"
+# systemctl-runit-shim maps the privileged start request onto runit.
+depends="libX11 libxcb libglvnd mesa-dri openssl polkit systemctl-runit-shim"
 
 do_extract() {
 	mkdir -p "${wrksrc}"
@@ -34,6 +33,24 @@ do_install() {
 	vmkdir opt
 	vcopy opt/happ opt
 
+	# Redirect Happ's two pkexec service-setup calls to a dispatcher that starts
+	# runit once. The dispatcher forwards unrelated pkexec calls unchanged.
+	local happ_binary="${DESTDIR}/opt/happ/bin/Happ"
+	local pkexec_refs
+	pkexec_refs=$(LC_ALL=C grep -ao '/usr/bin/pkexec' "$happ_binary" | wc -l)
+	if [ "$pkexec_refs" -ne 1 ]; then
+		echo "Expected one embedded pkexec path, found $pkexec_refs" >&2
+		return 1
+	fi
+	LC_ALL=C sed -i 's|/usr/bin/pkexec|/opt/happ/privd|' "$happ_binary"
+	vinstall "${FILESDIR}/privd" 755 opt/happ
+	vinstall "${FILESDIR}/privd-root" 755 opt/happ
+
+	# Prevent Happ from connecting to an unprivileged happd instance.
+	mv "${DESTDIR}/opt/happ/bin/happd" \
+		"${DESTDIR}/opt/happ/bin/happd.bin"
+	vinstall "${FILESDIR}/happd-wrapper" 755 opt/happ/bin happd
+
 	vmkdir usr/share
 	vcopy usr/share/applications usr/share
 	vcopy usr/share/icons usr/share
@@ -42,22 +59,11 @@ do_install() {
 	vmkdir usr/bin
 	ln -sf /opt/happ/bin/Happ ${DESTDIR}/usr/bin/happ
 
-	# Privileged daemon for TUN/VPN mode. The GUI supervises happd via
-	# systemd upstream; on Void we run it under runit (vsv) instead.
+	# Keep happd stopped at boot and start it through polkit only for TUN mode.
 	vsv happd
 
-	# The UI's "connect" button installs and starts happd by shelling out to
-	# `systemctl enable/start happd.service` (via pkexec). The generic shim in
-	# /usr/bin/systemctl (systemctl-runit-shim package) translates units onto
-	# runit; here we just register happd.service -> /etc/sv/happd by dropping a
-	# file into the shim's registry directory.
+	# Register happd.service with systemctl-runit-shim.
 	vinstall "${FILESDIR}/systemctl-shim.d/happd" 644 etc/systemctl-shim.d
 
-	# The GUI decides the daemon is "installed" purely by the existence of
-	# /etc/systemd/system/happd.service. Shipping this marker makes it treat
-	# happd as installed and take the "TUN via daemon" path (sing-box started
-	# by the root happd) instead of the tun2proxy/pkexec fallback (which needs
-	# helper scripts our shim does not provide). The GUI may also overwrite
-	# this file via pkexec; either way our systemctl shim drives runit.
-	vinstall "${FILESDIR}/happd.service" 644 etc/systemd/system
+	# The absent systemd marker makes Happ request authentication for TUN.
 }
