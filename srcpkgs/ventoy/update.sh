@@ -29,6 +29,7 @@ if [ "${CURRENT}" = "${LATEST}" ]; then
     exit 0
 fi
 
+
 echo "ventoy: ${CURRENT} → ${LATEST}"
 
 DOWNLOAD_URL="https://github.com/ventoy/Ventoy/releases/download/v${LATEST}/ventoy-${LATEST}-linux.tar.gz"
