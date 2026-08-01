@@ -1,0 +1,54 @@
+# Template file for 'protonup-qt'
+pkgname=protonup-qt
+version=2.15.1
+revision=1
+archs="x86_64"
+wrksrc="protonup-qt-${version}"
+python_version=3
+short_desc="Install and manage Wine and Proton compatibility tools"
+maintainer="Artem Kabanov <oloreas@gmail.com>"
+license="GPL-3.0-only"
+homepage="https://github.com/DavidoTek/ProtonUp-Qt"
+distfiles="https://github.com/DavidoTek/ProtonUp-Qt/releases/download/v${version}/ProtonUp-Qt-${version}-x86_64.AppImage>protonup-qt-${version}.AppImage
+ https://raw.githubusercontent.com/DavidoTek/ProtonUp-Qt/v${version}/LICENSE>LICENSE-${version}"
+checksum="fd78efb1ffa0907a525784462494b9b42938f9fd7c019f3eaea3b8faf837e8c1
+ 605e9047a563c5c8396ffb18232aa4304ec56586aee537c45064c6fb425e44ad"
+
+# The AppImage ships a private Python/Qt runtime under /opt. Stripping it or
+# exposing/resolving its bundled libraries through XBPS breaks AppRun.
+nostrip=yes
+noshlibprovides=yes
+noverifyrdeps=yes
+
+do_extract() {
+	local appimage="${XBPS_SRCDISTDIR}/${pkgname}-${version}/protonup-qt-${version}.AppImage"
+
+	chmod +x "${appimage}"
+	cd "${XBPS_BUILDDIR}"
+	"${appimage}" --appimage-extract >/dev/null
+	cp -a squashfs-root/. "${wrksrc}/"
+}
+
+do_install() {
+	vmkdir opt/protonup-qt
+	vcopy "*" opt/protonup-qt
+	find "${DESTDIR}/opt/protonup-qt" -xtype l -delete
+	chmod -R go-w "${DESTDIR}/opt/protonup-qt"
+	chmod 755 "${DESTDIR}/opt/protonup-qt/AppRun"
+
+	vmkdir usr/bin
+	ln -s /opt/protonup-qt/AppRun "${DESTDIR}/usr/bin/protonup-qt"
+
+	vinstall usr/share/applications/net.davidotek.pupgui2.desktop 644 usr/share/applications
+	vsed -i 's/^Exec=.*/Exec=protonup-qt/' \
+		"${DESTDIR}/usr/share/applications/net.davidotek.pupgui2.desktop"
+	vinstall usr/share/metainfo/net.davidotek.pupgui2.appdata.xml 644 usr/share/metainfo
+
+	for size in 64 128 256; do
+		vinstall "usr/share/icons/hicolor/${size}x${size}/apps/net.davidotek.pupgui2.png" \
+			644 "usr/share/icons/hicolor/${size}x${size}/apps"
+	done
+	vinstall net.davidotek.pupgui2.png 644 usr/share/pixmaps net.davidotek.pupgui2.png
+
+	vlicense "${XBPS_SRCDISTDIR}/${pkgname}-${version}/LICENSE-${version}"
+}
