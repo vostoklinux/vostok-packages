@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Mission Center
+Comment=System monitor akin to Windows Task Manager
+Exec=mission-center %U
+Icon=mission-center
+Terminal=false
+Type=Application
+Categories=System;Monitor;
+StartupNotify=true

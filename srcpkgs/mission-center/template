@@ -1,0 +1,79 @@
+# Template file for 'mission-center'
+pkgname=mission-center
+version=1.2.0
+revision=1
+archs="x86_64"
+wrksrc="mission-center-${version}"
+hostmakedepends="fuse glib"
+short_desc="System monitor akin to Windows Task Manager"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="GPL-3.0-or-later"
+homepage="https://gitlab.com/mission-center-devs/mission-center"
+distfiles="https://gitlab.com/mission-center-devs/mission-center/-/jobs/15536631699/artifacts/raw/MissionCenter-1.2.0-x86_64.AppImage"
+checksum=b3b5c84470a927d189c251039d223464125f7068b3164fda43acb9100384576d
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio gtk+3"
+
+do_extract() {
+    local appimage="${XBPS_SRCDISTDIR}/${pkgname}-${version}/MissionCenter-${version}-x86_64.AppImage"
+    chmod +x "${appimage}"
+    cd "${XBPS_BUILDDIR}"
+    "${appimage}" --appimage-extract
+    rm -rf "${wrksrc}"
+    mv squashfs-root "${wrksrc}"
+}
+
+do_install() {
+    vmkdir opt/mission-center
+    vcopy "*" opt/mission-center
+
+    find ${DESTDIR}/opt/mission-center -xtype l -delete
+    find ${DESTDIR}/opt/mission-center -name "* *" -exec rm -rf {} +
+    find ${DESTDIR}/opt/mission-center -type f -links +1 | while IFS= read -r f; do
+        cp --remove-destination "${f}" "${f}.tmp"
+        mv "${f}.tmp" "${f}"
+    done
+
+    vmkdir usr/bin
+    if [ -f "${DESTDIR}/opt/mission-center/mission-center" ]; then
+        ln -sf /opt/mission-center/mission-center ${DESTDIR}/usr/bin/mission-center
+    else
+        ln -sf /opt/mission-center/AppRun ${DESTDIR}/usr/bin/mission-center
+    fi
+
+    local icon_found=""
+    for dir in "usr/share/icons/hicolor/256x256/apps" "resources/icons" "share/icons"; do
+        for name in mission-center MissionCenter; do
+            local icon_path="${DESTDIR}/opt/mission-center/${dir}/${name}.png"
+            if [ -f "$icon_path" ]; then
+                vmkdir usr/share/icons/hicolor/256x256/apps
+                vinstall "$icon_path" 644 usr/share/icons/hicolor/256x256/apps mission-center.png
+                vmkdir usr/share/pixmaps
+                vinstall "$icon_path" 644 usr/share/pixmaps mission-center.png
+                icon_found=1
+                break 2
+            fi
+        done
+    done
+    if [ -z "$icon_found" ]; then
+        vmkdir usr/share/icons/hicolor/256x256/apps
+        vinstall ${FILESDIR}/mission-center.png 644 usr/share/icons/hicolor/256x256/apps mission-center.png
+        vmkdir usr/share/pixmaps
+        vinstall ${FILESDIR}/mission-center.png 644 usr/share/pixmaps mission-center.png
+    fi
+
+    rm -f ${DESTDIR}/usr/share/applications/mission-center.desktop
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/mission-center.desktop 644 usr/share/applications
+
+    if [ -f LICENSE ]; then
+        vlicense LICENSE
+    elif [ -f LICENSE.md ]; then
+        vlicense LICENSE.md
+    else
+        vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+    fi
+}
