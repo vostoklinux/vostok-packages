@@ -8,12 +8,10 @@ CURRENT_RELEASE=$(grep '^_release=' "${TEMPLATE}" | cut -d= -f2)
 API_URL="https://api.github.com/repos/aaddrick/claude-desktop-debian/releases/latest"
 RELEASE_JSON=$(curl -sL "$API_URL")
 
-
 TAG=$(echo "$RELEASE_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)['tag_name'])")
-
-RELEASE="${TAG#v}"        
-RELEASE="${RELEASE%%+*}"  
-VERSION="${TAG##*+claude}" 
+RELEASE="${TAG#v}"
+RELEASE="${RELEASE%%+*}"
+VERSION="${TAG##*+claude}"
 
 if [ "${CURRENT_VERSION}" = "${VERSION}" ] && [ "${CURRENT_RELEASE}" = "${RELEASE}" ]; then
     echo "claude-desktop: ${CURRENT_VERSION}-${CURRENT_RELEASE} — already up to date"
@@ -38,6 +36,7 @@ echo "URL: ${APPIMAGE_URL}"
 echo "Computing checksum..."
 CHECKSUM=$(curl -L -# "${APPIMAGE_URL}" | sha256sum | cut -d' ' -f1)
 
+# Обновляем шаблон
 sed -i "s/^version=.*/version=${VERSION}/" "${TEMPLATE}"
 sed -i "s/^_release=.*/_release=${RELEASE}/" "${TEMPLATE}"
 sed -i "s|^distfiles=.*|distfiles=\"${APPIMAGE_URL}\"|" "${TEMPLATE}"

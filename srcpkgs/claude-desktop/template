@@ -11,40 +11,44 @@ short_desc="Claude Desktop native Linux client for Claude AI"
 maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="custom:Anthropic-TOS"
 homepage="https://github.com/aaddrick/claude-desktop-debian"
-distfiles="https://github.com/aaddrick/claude-desktop-debian/releases/download/v3.2.1%2Bclaude1.24012.9/claude-desktop-unofficial-1.24012.9-3.2.1-amd64.AppImage"
+distfiles="https://github.com/aaddrick/claude-desktop-debian/releases/download/v${_release}%2Bclaude${version}/claude-desktop-unofficial-${version}-${_release}-amd64.AppImage"
 checksum=5328be32bc23b3135362f7efd733bee23ff65ab74981d4823b015a31f70ecc29
 nostrip=yes
 noshlibs=yes
 
 do_extract() {
-	local appimage="${XBPS_SRCDISTDIR}/${pkgname}-${version}/claude-desktop-${version}-${_release}-amd64.AppImage"
-	chmod +x "${appimage}"
-	"${appimage}" --appimage-extract
-	mkdir -p ${wrksrc}
-	cp -aL squashfs-root/. ${wrksrc}/
-	rm -rf squashfs-root
+    local appimage="${XBPS_SRCDISTDIR}/${pkgname}-${version}/claude-desktop-unofficial-${version}-${_release}-amd64.AppImage"
+    chmod +x "${appimage}"
+    "${appimage}" --appimage-extract
+    mkdir -p ${wrksrc}
+    cp -aL squashfs-root/. ${wrksrc}/
+    rm -rf squashfs-root
 }
 
 do_install() {
-	vinstall io.github.aaddrick.claude-desktop-debian.png 644 \
-		usr/share/icons/hicolor/256x256/apps claude-desktop.png
-	vinstall io.github.aaddrick.claude-desktop-debian.png 644 \
-		usr/share/pixmaps claude-desktop.png
-	vinstall ${FILESDIR}/claude-desktop.desktop 644 usr/share/applications
+    vinstall io.github.aaddrick.claude-desktop-debian.png 644 \
+        usr/share/icons/hicolor/256x256/apps claude-desktop.png
+    vinstall io.github.aaddrick.claude-desktop-debian.png 644 \
+        usr/share/pixmaps claude-desktop.png
+    vinstall ${FILESDIR}/claude-desktop.desktop 644 usr/share/applications
 
-	vmkdir opt/claude-desktop
-	vcopy "*" opt/claude-desktop
+    vmkdir opt/claude-desktop
+    vcopy "*" opt/claude-desktop
 
-	vmkdir usr/bin
-	ln -sf /opt/claude-desktop/AppRun ${DESTDIR}/usr/bin/claude-desktop
+    vmkdir usr/bin
+    ln -sf /opt/claude-desktop/AppRun ${DESTDIR}/usr/bin/claude-desktop
 
-	chmod -R o-w ${DESTDIR}/opt/claude-desktop
-	chmod 755 ${DESTDIR}/opt/claude-desktop/AppRun
+    chmod -R o-w ${DESTDIR}/opt/claude-desktop
+    chmod 755 ${DESTDIR}/opt/claude-desktop/AppRun
 
-	local electron="${DESTDIR}/opt/claude-desktop/usr/lib/node_modules/electron/dist/electron"
-	[ -f "${electron}" ] && chmod 755 "${electron}"
+    local electron="${DESTDIR}/opt/claude-desktop/usr/lib/claude-desktop/electron"
+    if [ -f "${electron}" ]; then
+        chmod 755 "${electron}"
+    fi
 
-	local sandbox="${DESTDIR}/opt/claude-desktop/usr/lib/node_modules/electron/dist/chrome-sandbox"
-	[ -f "${sandbox}" ] && chmod 4755 "${sandbox}"
+    local sandbox="${DESTDIR}/opt/claude-desktop/usr/lib/claude-desktop/chrome-sandbox"
+    if [ -f "${sandbox}" ]; then
+        chmod 4755 "${sandbox}"
+    fi
 }
 
