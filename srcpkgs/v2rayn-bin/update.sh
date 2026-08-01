@@ -36,7 +36,7 @@ DOWNLOAD_URL="https://github.com/2dust/${PKGNAME}/releases/download/${LATEST}/${
 echo "URL: ${DOWNLOAD_URL}"
 echo "Computing checksum..."
 CHECKSUM=$(curl -L -# "${DOWNLOAD_URL}" | sha256sum | cut -d' ' -f1)
-e
+
 sed -i "s/^version=.*/version=${LATEST}/" "${TEMPLATE}"
 sed -i "s/^checksum=.*/checksum=${CHECKSUM}/" "${TEMPLATE}"
 sed -i "s/^revision=.*/revision=1/" "${TEMPLATE}"
