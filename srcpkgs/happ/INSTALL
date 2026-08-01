@@ -1,0 +1,8 @@
+# Keep the systemd marker absent so Happ uses the authenticated runit path.
+
+case "${ACTION}" in
+post)
+	mkdir -p etc/systemd/system
+	rm -f etc/systemd/system/happd.service
+	;;
+esac

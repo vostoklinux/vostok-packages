@@ -1,0 +1,16 @@
+#!/bin/sh
+# Merge Happ's two service-setup commands into one authenticated runit start.
+
+if [ "$#" -eq 3 ] && [ "$1" = /bin/sh ] && [ "$2" = -c ]; then
+	case "$3" in
+		"cp '"*"' '/etc/systemd/system/happd.service' && chmod 644 '/etc/systemd/system/happd.service'")
+			exec /usr/bin/pkexec /opt/happ/privd-root
+			;;
+		"systemctl daemon-reload && systemctl enable happd.service && systemctl start happd.service")
+			exit 0
+			;;
+	esac
+fi
+
+# Forward unrelated privileged operations unchanged.
+exec /usr/bin/pkexec "$@"
