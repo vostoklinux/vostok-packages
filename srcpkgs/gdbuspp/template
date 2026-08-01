@@ -1,15 +1,6 @@
 # Template file for 'gdbuspp'
 #
 # GDBus++ — обёртка над glib2 D-Bus для C++, зависимость openvpn3-linux (v22+).
-#
-# ПЕРЕД СБОРКОЙ:
-#   1. Подставьте версию, совместимую с вашим openvpn3-linux.
-#      Точное соответствие указано в анонсе релиза openvpn3-linux
-#      (там строкой ниже всегда идёт «GDBus++ vN»), теги — тут:
-#      https://codeberg.org/OpenVPN/gdbuspp/tags
-#   2. checksum — заглушка, получите настоящий:
-#      xgensum -i srcpkgs/gdbuspp/template
-#
 pkgname=gdbuspp
 version=3
 revision=1
