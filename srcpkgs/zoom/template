@@ -1,6 +1,6 @@
 # Template file for 'zoom'
 pkgname=zoom
-version=7.0.5
+version=7.1.5
 revision=1
 archs="x86_64"
 wrksrc="zoom-${version}"
@@ -8,8 +8,8 @@ short_desc="Video Conferencing and Web Conferencing Service"
 maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="custom:Zoom"
 homepage="https://zoom.us/"
-distfiles="https://cdn.zoom.us/prod/${version}.3034/zoom_x86_64.pkg.tar.xz"
-checksum=787248918d6a442ef3dfe93a00ca20db095bcbc5a0ba9cb8f00e4eed42918955
+distfiles="https://cdn.zoom.us/prod/${version}.4332/zoom_x86_64.pkg.tar.xz"
+checksum=e739d936bc92811aecf48e7386a379a7974f7d7a441d729ff28d9d59e6133eca
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
