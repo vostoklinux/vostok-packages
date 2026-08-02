@@ -1,0 +1,35 @@
+# Template file for 'dovi_tool'
+pkgname=dovi_tool
+version=2.3.3
+revision=1
+archs="x86_64"
+wrksrc="dovi_tool-${version}"
+hostmakedepends="libarchive"
+short_desc="CLI tool for Dolby Vision metadata editing"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT"
+homepage="https://github.com/quietvoid/dovi_tool"
+distfiles="https://github.com/quietvoid/dovi_tool/releases/download/${version}/dovi_tool-${version}-x86_64-unknown-linux-musl.tar.gz"
+checksum=5dae82cb2becd3b9fd726127f936a8d32635e60746d16238fdfded12aa05988c
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="glibc"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/dovi_tool-${version}-x86_64-unknown-linux-musl.tar.gz --strip-components 1 -C "${wrksrc}"
+}
+
+do_install() {
+    vbin dovi_tool
+
+    if [ -f LICENSE ]; then
+        vlicense LICENSE
+    elif [ -f LICENSE.md ]; then
+        vlicense LICENSE.md
+    else
+        vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/${pkgname}
+    fi
+}
