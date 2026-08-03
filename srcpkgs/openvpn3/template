@@ -1,0 +1,54 @@
+# Template file for 'openvpn3'
+pkgname=openvpn3
+version=27
+revision=1
+build_style=meson
+wrksrc="openvpn3-linux-${version}"
+
+hostmakedepends="pkg-config python3 python3-docutils python3-Jinja2 protobuf"
+makedepends="
+ gdbuspp-devel
+ glib-devel
+ jsoncpp-devel
+ protobuf-devel
+ tinyxml2-devel
+ libcap-ng-devel
+ openssl-devel
+ libnl3-devel
+ libuuid-devel
+ liblz4-devel
+ python3-devel
+ libxml2-devel
+"
+depends="dbus python3-dbus"
+
+short_desc="OpenVPN 3 Linux client"
+maintainer="Kabanov Artem <oloreas@gmail.com>"
+license="AGPL-3.0-only"
+homepage="https://codeberg.org/OpenVPN/openvpn3-linux"
+distfiles="https://swupdate.openvpn.net/community/releases/openvpn3-linux-${version}.tar.xz"
+checksum=d8c474032546bdd90b5b7f67e40c57b4b6030253f07bda7bb6ad0db84b9eed73
+
+# Создаёт системного пользователя openvpn — под ним работают
+# configmgr и sessionmgr. Без него сервисы не стартуют.
+system_accounts="openvpn"
+openvpn_homedir="/var/lib/openvpn"
+# Каталог состояния: в deb/rpm его создаёт скриптлет установки,
+# у нас этим занимается xbps-src.
+make_dirs="
+ /var/lib/openvpn3 0750 openvpn openvpn
+ /var/lib/openvpn3/configs 0750 openvpn openvpn
+"
+
+# session-watcher — чисто systemd-компонент, на Void он не нужен
+pre_configure() {
+	sed -i "/subdir('session-watcher')/d" src/python/meson.build
+}
+
+post_install() {
+	vlicense COPYRIGHT.md 2>/dev/null || true
+
+	# Подчистим systemd-мусор, если сборка его всё-таки положила.
+	rm -rf "${DESTDIR}/usr/lib/systemd"
+	rm -rf "${DESTDIR}/lib/systemd"
+}
