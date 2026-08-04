@@ -1,7 +1,7 @@
 # Template file for 'nomachine-player'
 pkgname=nomachine-player
 version=9.7.3
-revision=1
+revision=2
 _pkgrel=1
 _artifact=nomachine
 archs="x86_64 aarch64"
@@ -21,8 +21,9 @@ noshlibprovides=yes
 
 # This package only installs the NoMachine client (nxplayer). The full
 # product is a self-installing bundle that also sets up a server, a
-# dedicated system user, setuid helpers and its own service management,
-# none of which is packaged here.
+# dedicated system user and its own service management, none of which is
+# packaged here. The setuid nxfsm helpers are required for client-side
+# FUSE mounts and retain the permissions applied by the upstream installer.
 
 case "$XBPS_TARGET_MACHINE" in
 aarch64*)
@@ -45,6 +46,12 @@ do_install() {
 	vcopy NX/lib usr/lib/nomachine
 	# ships UI graphics (icons, logo, background), keyboard maps, locales
 	vcopy NX/share usr/lib/nomachine
+
+	# Some bundled components, including libnxfs, use absolute /usr/NX
+	# paths to find helper programs such as bin/nxfsm.
+	ln -s lib/nomachine "${DESTDIR}/usr/NX"
+	chmod 4555 "${DESTDIR}/usr/lib/nomachine/bin/nxfsm" \
+		"${DESTDIR}/usr/lib/nomachine/bin/nxfsm-legacy"
 
 	vbin ${FILESDIR}/nxplayer
 	vinstall ${FILESDIR}/nomachine.desktop 644 usr/share/applications
