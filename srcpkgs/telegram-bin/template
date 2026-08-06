@@ -1,6 +1,6 @@
 # Template file for 'telegram-bin'
 pkgname=telegram-bin
-version=7.0.7
+version=7.0.9
 revision=1
 archs="x86_64"
 wrksrc="Telegram"
@@ -12,7 +12,7 @@ license="GPL-3.0-or-later"
 homepage="https://desktop.telegram.org"
 changelog="https://github.com/telegramdesktop/tdesktop/blob/v${version}/changelog.txt"
 distfiles="https://github.com/telegramdesktop/tdesktop/releases/download/v${version}/tsetup.${version}.tar.xz"
-checksum=45e4bdbe9bdbc800916b81147210f912f5c72f069fdec6f9b201fe305d0d2d9c
+checksum=d3c05df0259ab116d11d8c1cdc1403019d2a3be303ad3b46d16a84e19df6615f
 nostrip=yes
 
 do_install() {
