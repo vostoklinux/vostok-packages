@@ -1,6 +1,6 @@
 # Template file for 'handy-bin'
 pkgname=handy-bin
-version=0.9.4
+version=0.9.5
 revision=1
 archs="x86_64"
 wrksrc="handy-${version}"
@@ -9,7 +9,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://github.com/cjpais/Handy"
 distfiles="https://github.com/cjpais/Handy/releases/download/v${version}/Handy_${version}_amd64.deb"
-checksum=99ac948a7a032fb8c5c1a866388f324b71953ec955c293147b43f14c31542688
+checksum=e315105a78387525d205365f496a92e24f5578c4bdb1d609c03a955072870b29
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
