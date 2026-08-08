@@ -1,6 +1,6 @@
 # Template file for 'codewhale'
 pkgname=codewhale
-version=0.9.3
+version=0.9.4
 revision=1
 archs="x86_64"
 wrksrc="codewhale-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://github.com/Hmbown/CodeWhale"
 distfiles="https://github.com/Hmbown/CodeWhale/releases/download/v${version}/codewhale-linux-x64 https://github.com/Hmbown/CodeWhale/releases/download/v${version}/codewhale-tui-linux-x64"
-checksum="e012ad7a566810fd9ad96c1008b59434120fdfabb25feee8a6394f9a9133b5dc f94a4a0367b4e150101019e7e8a6d138c53c87b20885e9e4564c1202c125e75f"
+checksum="d1654c674df40b1f14516a3dbf812bf743eb8bad2704f204e4f034696c115cad c894674802950947acb735b5b87e7a6e1c361595fdb569cf676f8885c9d87494"
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes

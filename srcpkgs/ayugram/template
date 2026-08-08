@@ -1,7 +1,7 @@
 # Template file for 'ayugram'
 pkgname=ayugram
-version=6.7.8
-revision=3
+version=7.0.9
+revision=1
 wrksrc="AyuGramDesktop-${version}"
 build_style=cmake
 build_helper="qemu gir"
@@ -31,7 +31,7 @@ license="GPL-3.0-or-later"
 homepage="https://github.com/AyuGram/AyuGramDesktop"
 changelog="https://github.com/AyuGram/AyuGramDesktop/releases/tag/v${version}"
 distfiles="https://github.com/AyuGram/AyuGramDesktop/releases/download/v${version}/AyuGramDesktop-${version}-full.tar.gz"
-checksum=c8de66c5568dfc3e4e309275cc858e84a61f781fe93ed967290c31b70c770b00
+checksum=79b78388e9f583582835362f3ae0694857216e4436c1f07231606105945eb2d6
 nocross=yes
 
 if [ "$XBPS_TARGET_WORDSIZE" -eq 32 ]; then
