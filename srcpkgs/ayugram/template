@@ -1,7 +1,7 @@
 # Template file for 'ayugram'
 pkgname=ayugram
-version=6.7.8
-revision=3
+version=7.0.9
+revision=1
 wrksrc="AyuGramDesktop-${version}"
 build_style=cmake
 build_helper="qemu gir"
@@ -13,7 +13,7 @@ configure_args="
  -DWaylandScanner_EXECUTABLE=/usr/bin/wayland-scanner
  -DQT_HOST_PATH=/usr"
 hostmakedepends="pkg-config python3 extra-cmake-modules
- qt6-declarative-host-tools wayland-devel protobuf glib-devel kf6-kcoreaddons"
+ qt6-declarative-host-tools wayland-devel protobuf glib-devel kf6-kcoreaddons qt6-shadertools-devel"
 makedepends="alsa-lib-devel boost-devel-minimal libboost_regex
  fmt-devel ffmpeg6-devel libglib-devel
  gobject-introspection libdbusmenu-glib-devel libopenal-devel
@@ -31,7 +31,7 @@ license="GPL-3.0-or-later"
 homepage="https://github.com/AyuGram/AyuGramDesktop"
 changelog="https://github.com/AyuGram/AyuGramDesktop/releases/tag/v${version}"
 distfiles="https://github.com/AyuGram/AyuGramDesktop/releases/download/v${version}/AyuGramDesktop-${version}-full.tar.gz"
-checksum=c8de66c5568dfc3e4e309275cc858e84a61f781fe93ed967290c31b70c770b00
+checksum=ce74c400e488fc90d3784f3ba3d602cafecd5053b7a273a597718683a47abb0f
 nocross=yes
 
 if [ "$XBPS_TARGET_WORDSIZE" -eq 32 ]; then
