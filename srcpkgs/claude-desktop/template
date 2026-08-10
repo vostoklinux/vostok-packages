@@ -1,7 +1,7 @@
 # Template file for 'claude-desktop'
 pkgname=claude-desktop
-version=1.24012.11
-_release=3.2.1
+version=1.26832.0
+_release=3.2.2
 revision=1
 archs="x86_64"
 wrksrc="claude-desktop-${version}"
@@ -11,8 +11,8 @@ short_desc="Claude Desktop native Linux client for Claude AI"
 maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="custom:Anthropic-TOS"
 homepage="https://github.com/aaddrick/claude-desktop-debian"
-distfiles="https://github.com/aaddrick/claude-desktop-debian/releases/download/v3.2.1%2Bclaude1.24012.11/claude-desktop-unofficial-1.24012.11-3.2.1-amd64.AppImage"
-checksum=c7aa4cc54f9476d9e7b19531e9266bd379f492abcdb0b272a480315fa0442e06
+distfiles="https://github.com/aaddrick/claude-desktop-debian/releases/download/v3.2.2%2Bclaude1.26832.0/claude-desktop-unofficial-1.26832.0-3.2.2-amd64.AppImage"
+checksum=ca2a6d0bb49e151ded5d9beff45dff41b6be9d479a4ac16a1839b460c1a2b060
 nostrip=yes
 noshlibs=yes
 
