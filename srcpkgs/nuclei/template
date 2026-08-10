@@ -1,6 +1,6 @@
 # Template file for 'nuclei'
 pkgname=nuclei
-version=3.11.0
+version=3.11.1
 revision=1
 archs="x86_64"
 wrksrc="nuclei-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://github.com/projectdiscovery/nuclei"
 distfiles="https://github.com/projectdiscovery/nuclei/releases/download/v${version}/nuclei_${version}_linux_amd64.zip"
-checksum=dc238d6040813e14fc30514dac5a2eb1b430c694f3ca99eee2a5097e55076283
+checksum=ea63d4ae232808cd7c6bc00d0142428e231fab59dae01042246097d195835ab6
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
