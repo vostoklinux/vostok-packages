@@ -1,6 +1,6 @@
 # Template file for 'helium-browser'
 pkgname=helium-browser
-version=0.15.3.1
+version=0.15.4.1
 revision=1
 archs="x86_64"
 wrksrc="helium-${version}"
@@ -10,7 +10,7 @@ license="GPL-3.0-only"
 maintainer="cybarchitect <cybarchitect@gmail.com>"
 homepage="https://github.com/imputnet/helium"
 distfiles="https://github.com/imputnet/helium-linux/releases/download/${version}/helium-${version}-x86_64.AppImage>helium-${version}.AppImage"
-checksum=6420a6fe9ae481881b0c75ba3813d6be8204efb83b21842961da9cfcf9c8ad25
+checksum=877cb166731bfc41ef3c900b4252601d455850db1fbafd299dec207fa2bab31f
 nostrip=yes
 noshlibs=yes
 ignored_shlibs="libvulkan.so.1"
