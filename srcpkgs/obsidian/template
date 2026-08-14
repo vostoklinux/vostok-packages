@@ -1,6 +1,6 @@
 # Template file for 'obsidian'
 pkgname=obsidian
-version=1.13.4
+version=1.13.7
 revision=1
 archs="x86_64"
 wrksrc="obsidian-${version}"
@@ -13,7 +13,7 @@ license="custom:Obsidian-EULA"
 homepage="https://obsidian.md"
 changelog="https://obsidian.md/changelog"
 distfiles="https://github.com/obsidianmd/obsidian-releases/releases/download/v${version}/Obsidian-${version}.AppImage>obsidian-${version}.AppImage"
-checksum=b66f01d2a6afbb6b7abd93e4b5c6602645f03c16ad2d6dd49fd5a90dddd87872
+checksum=e0d8e0a611624de8c9c7dcd8a9e648279fb0a0d552faa1312b7e4f3a5fa72663
 nostrip=yes
 noshlibs=yes
 
