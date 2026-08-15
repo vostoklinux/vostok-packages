@@ -1,6 +1,6 @@
 # Template file for 'kubeshark'
 pkgname=kubeshark
-version=53.3.0
+version=53.4.0
 revision=1
 archs="x86_64"
 wrksrc="kubeshark-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="Apache-2.0"
 homepage="https://github.com/kubeshark/kubeshark"
 distfiles="https://github.com/kubeshark/kubeshark/releases/download/v${version}/kubeshark_linux_amd64"
-checksum=4e1715b92f2a3c4a63a80e1cc31a51ce43d93b9e0b18bf3968730e5ac678e23e
+checksum=ef604fe6733692371c879abe21b20f2fe5a4f4e27a0a76b5eacdf7fe9ab62bf2
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes

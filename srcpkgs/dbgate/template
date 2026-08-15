@@ -1,6 +1,6 @@
 # Template file for 'dbgate'
 pkgname=dbgate
-version=7.2.4
+version=7.2.5
 revision=1
 archs="x86_64"
 wrksrc="dbgate-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://dbgate.org/"
 distfiles="https://github.com/dbgate/dbgate/releases/download/v${version}/dbgate-${version}-linux_amd64.deb"
-checksum=2bc8fa6a36ca3ef340276dcae158dc423058774b321729a5d23f244f594d7520
+checksum=00dfb10213cb596ee7489b415bcd0c98f3bbf1809cd62bb117394721686cfab8
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
