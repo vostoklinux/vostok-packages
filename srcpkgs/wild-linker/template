@@ -1,6 +1,6 @@
 # Template file for 'wild-linker'
 pkgname=wild-linker
-version=0.9.0
+version=0.10.0
 revision=1
 archs="x86_64"
 wrksrc="wild-linker-${version}-x86_64-unknown-linux-gnu"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT OR Apache-2.0"
 homepage="https://github.com/wild-linker/wild"
 distfiles="https://github.com/wild-linker/wild/releases/download/${version}/wild-linker-${version}-x86_64-unknown-linux-gnu.tar.gz"
-checksum=deb6ee0e5caec798053ec4aafaba042e20a8edf91f08cb4d36268571cc628d3b
+checksum=641265506a7c06cfb03181b8916ab663ec8407855db6d4db7f8450667d105283
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
