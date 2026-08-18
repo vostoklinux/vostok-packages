@@ -1,0 +1,45 @@
+# Template file for 'tg-ws-proxy'
+pkgname=tg-ws-proxy
+version=1.10.0
+revision=1
+archs="x86_64"
+wrksrc="tg-ws-proxy-${version}"
+hostmakedepends="libarchive"
+short_desc="WebSocket proxy for Telegram"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="MIT"
+homepage="https://github.com/Flowseal/tg-ws-proxy"
+distfiles="https://github.com/Flowseal/tg-ws-proxy/releases/download/v${version}/TgWsProxy_linux_amd64.deb"
+checksum=405c19705fd608479cc28a1b14bcb1a05992f2f67d105c6fd3af5251b3609cdc
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio xclip wl-clipboard"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/TgWsProxy_linux_amd64.deb \
+        -C "${wrksrc}" --include='data.tar*'
+    bsdtar -xf "${wrksrc}"/data.tar.* -C "${wrksrc}"
+    rm "${wrksrc}"/data.tar.*
+}
+
+do_install() {
+    vmkdir usr/bin
+    vcopy usr/bin/tg-ws-proxy usr/bin
+
+    vmkdir usr/share/icons/hicolor/256x256/apps
+    vinstall usr/share/icons/hicolor/256x256/apps/tg-ws-proxy.png 644 \
+        usr/share/icons/hicolor/256x256/apps tg-ws-proxy.png
+
+    vmkdir usr/share/pixmaps
+    vinstall usr/share/icons/hicolor/256x256/apps/tg-ws-proxy.png 644 \
+        usr/share/pixmaps tg-ws-proxy.png
+
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/tg-ws-proxy.desktop 644 usr/share/applications
+
+    vmkdir usr/share/licenses/tg-ws-proxy
+    vinstall ${FILESDIR}/LICENSE 644 usr/share/licenses/tg-ws-proxy
+}

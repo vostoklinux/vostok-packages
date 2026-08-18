@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=TG WS Proxy
+Comment=WebSocket proxy for Telegram
+Exec=tg-ws-proxy
+Icon=tg-ws-proxy
+Terminal=false
+Type=Application
+Categories=Network;InstantMessaging;
