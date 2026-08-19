@@ -1,0 +1,18 @@
+#!/bin/bash
+if [[ "$USER" == "root" ]]; then
+    echo "Don't run Albion Online as root!"
+    exit 1
+fi
+
+USER_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/albion-online-launcher"
+
+if [ ! -d "${USER_DATA_DIR}/launcher" ]; then
+    mkdir -p "${USER_DATA_DIR}"
+    cp -r /opt/albion-online-launcher/launcher "${USER_DATA_DIR}/"
+fi
+
+cd "${USER_DATA_DIR}"
+
+export LD_LIBRARY_PATH="${USER_DATA_DIR}/launcher:${LD_LIBRARY_PATH:-}"
+
+exec "${USER_DATA_DIR}/launcher/Albion-Online" --no-sandbox -loglevel 0 "$@"
