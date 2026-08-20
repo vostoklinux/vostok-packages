@@ -1,9 +1,9 @@
 # Template file for 'steam-bin-nvidia'
 pkgname=steam-bin-nvidia
-version=1.0.0.85
+version=1.0.0.87
 revision=1
 metapackage=yes
-depends="steam-bin>=${version}_${revision} nvidia-libs-32bit"
+depends="steam-bin>=${version}_${revision} nvidia-libs-32bit vulkan-loader-32bit"
 short_desc="Steam with NVIDIA GPU support"
 maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="custom:Valve-SSA"
