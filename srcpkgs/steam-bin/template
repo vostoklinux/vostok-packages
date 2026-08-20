@@ -1,7 +1,7 @@
 # Template file for 'steam-bin'
 pkgname=steam-bin
 version=1.0.0.85
-revision=1
+revision=2
 archs="x86_64"
 depends="zenity xz curl dbus freetype gdk-pixbuf hicolor-icon-theme desktop-file-utils
  liberation-fonts-ttf file tar bash coreutils lsof steam-udev-rules
@@ -12,7 +12,7 @@ depends="zenity xz curl dbus freetype gdk-pixbuf hicolor-icon-theme desktop-file
  libglvnd-32bit libdrm-32bit vulkan-loader-32bit
  nss-32bit nspr-32bit
  alsa-lib-32bit libpulseaudio-32bit
- SDL2-32bit"
+ SDL2-32bit gtk+-32bit pipewire-32bit libva-32bit libvdpau-32bit"
 short_desc="Valve's Steam digital distribution platform"
 maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="custom:Valve-SSA"
