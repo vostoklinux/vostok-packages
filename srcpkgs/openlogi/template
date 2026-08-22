@@ -1,0 +1,47 @@
+# Template file for 'openlogi'
+pkgname=openlogi
+version=0.7.4
+revision=1
+archs="x86_64"
+wrksrc="openlogi-${version}"
+hostmakedepends="libarchive"
+short_desc="Open-source configuration tool for Logitech devices"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="Apache-2.0, MIT"
+homepage="https://github.com/AprilNEA/OpenLogi"
+distfiles="https://github.com/AprilNEA/OpenLogi/releases/download/v${version}/openlogi-v${version}-linux-amd64.deb"
+checksum=87c3f10a71d3a7655d6464840abdb95099bac87e705d479ec6305891dcf7d365
+nostrip=yes
+noshlibs=yes
+noverifyrdeps=yes
+
+depends="libsecret libgbm eudev-libudev alsa-lib libcups libpulseaudio gtk+3"
+
+do_extract() {
+    mkdir -p "${wrksrc}"
+    bsdtar -xf ${XBPS_SRCDISTDIR}/${pkgname}-${version}/openlogi-v${version}-linux-amd64.deb \
+        -C "${wrksrc}" --include='data.tar*'
+    bsdtar -xf "${wrksrc}"/data.tar.* -C "${wrksrc}"
+    rm "${wrksrc}"/data.tar.*
+}
+do_install() {
+    vmkdir usr/bin
+    vcopy usr/bin/* usr/bin
+
+    vmkdir usr/lib/udev/rules.d
+    vinstall etc/udev/rules.d/70-openlogi.rules 644 usr/lib/udev/rules.d 70-openlogi.rules
+
+    vmkdir usr/share/icons/hicolor/256x256/apps
+    vinstall usr/share/icons/hicolor/1024x1024/apps/openlogi.png 644 \
+        usr/share/icons/hicolor/256x256/apps openlogi.png
+
+    vmkdir usr/share/icons/hicolor/1024x1024/apps
+    vinstall usr/share/icons/hicolor/1024x1024/apps/openlogi.png 644 \
+        usr/share/icons/hicolor/1024x1024/apps openlogi.png
+
+    vmkdir usr/share/applications
+    vinstall ${FILESDIR}/openlogi.desktop 644 usr/share/applications
+
+    vlicense usr/share/licenses/openlogi/LICENSE-MIT
+    vlicense usr/share/licenses/openlogi/LICENSE-APACHE
+}

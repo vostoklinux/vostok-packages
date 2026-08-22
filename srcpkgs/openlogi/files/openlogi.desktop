@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=OpenLogi
+Comment=Configure Logitech devices
+Exec=openlogi-desktop
+Icon=openlogi
+Terminal=false
+Categories=Settings;HardwareSettings;Utility;
+StartupWMClass=OpenLogi
