@@ -1,6 +1,6 @@
 # Template file for 'localsend'
 pkgname=localsend
-version=1.18.0
+version=1.18.2
 revision=1
 archs="x86_64"
 wrksrc="localsend-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://localsend.org/"
 distfiles="https://github.com/localsend/localsend/releases/download/v${version}/LocalSend-${version}-linux-x86-64.deb"
-checksum=dae68192ad43a59a68df06454eb5fa4e9a9f86a343fe430165efd8b18863d0f4
+checksum=cc42a4f3eacdcb25ec31f0016b1272acb003145ab30484db8965450e20c72cd2
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
