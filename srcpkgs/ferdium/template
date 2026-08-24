@@ -1,6 +1,6 @@
 # Template file for 'ferdium'
 pkgname=ferdium
-version=7.2.1
+version=7.2.2
 revision=1
 archs="x86_64"
 wrksrc="ferdium-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="Apache-2.0"
 homepage="https://ferdium.org/"
 distfiles="https://github.com/ferdium/ferdium-app/releases/download/v${version}/Ferdium-linux-${version}-amd64.deb"
-checksum=a3518a164235199b0edf3e1e7f5d0d3d3d9118ce1ff175191368f438fe21e08a
+checksum=cd325656fec21c41f74e0d5b0eaa7107e2a2adaa258b58d3bd0f615e7dcc3960
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
