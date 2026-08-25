@@ -8,6 +8,7 @@ API_URL="https://api.github.com/repos/telegramdesktop/tdesktop/releases/latest"
 
 CURRENT=$(grep '^version=' "${TEMPLATE}" | cut -d= -f2)
 
+
 echo "Fetching latest Telegram Desktop version..."
 INFO=$(curl -fsSL \
     -H "Accept: application/vnd.github+json" \
