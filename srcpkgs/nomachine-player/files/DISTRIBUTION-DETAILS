@@ -1,0 +1,9 @@
+This package installs the proprietary NoMachine client (nxplayer) only,
+as redistributed by NoMachine in binary form. No source code is available.
+
+By installing this package you accept the NoMachine End User License
+Agreement, available at:
+
+  https://www.nomachine.com/licensing-eula
+
+Copyright (c) NoMachine <https://www.nomachine.com>
