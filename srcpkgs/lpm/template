@@ -1,6 +1,6 @@
 # Template file for 'lpm'
 pkgname=lpm
-version=20260506
+version=20260902
 revision=1
 archs="x86_64"
 wrksrc="lpm-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://github.com/lite-xl/lite-xl-plugin-manager"
 distfiles="https://github.com/lite-xl/lite-xl-plugin-manager/releases/download/continuous/lpm.x86_64-linux"
-checksum=e290c17649b017d0530151d86fc537f1b2e32caee1b334c3dd3b9bfc51ae22f2
+checksum=6f31332425932e334e8bc20787a79170f83560f7c9fdd2e070ee167c2d2ed8d9
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
