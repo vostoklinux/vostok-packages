@@ -1,6 +1,6 @@
 # Template file for 'zed'
 pkgname=zed
-version=1.16.1
+version=1.18.0
 revision=1
 archs="x86_64"
 wrksrc="zed.app"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://zed.dev/"
 distfiles="https://github.com/zed-industries/zed/releases/download/v${version}/zed-linux-x86_64.tar.gz"
-checksum=9e611add0c40e86b150372458a2d7b78d101c54924dc7bca8db27ce20d97c661
+checksum=60ee2da27b378c5d00cbfc4e9e0c9842e37795803c4565754f41be5423898799
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
