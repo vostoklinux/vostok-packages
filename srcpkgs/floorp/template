@@ -1,6 +1,6 @@
 # Template file for 'floorp'
 pkgname=floorp
-version=12.17.0
+version=12.17.2
 revision=1
 archs="x86_64"
 wrksrc="floorp-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MPL-2.0"
 homepage="https://floorp.app/"
 distfiles="https://github.com/Floorp-Projects/Floorp/releases/download/v${version}/floorp-${version}.deb"
-checksum=7aa1f4df38d991fb9bb8ebade488481fb784ff1efaa77c359e1aba44d88487b9
+checksum=0120210936af425cb535e957b948a4b5030bb0b7f1f68b6563e523aa8ea1d4df
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
