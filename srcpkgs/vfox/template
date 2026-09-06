@@ -1,6 +1,6 @@
 # Template file for 'vfox'
 pkgname=vfox
-version=1.0.11
+version=1.0.12
 revision=1
 archs="x86_64"
 wrksrc="vfox-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://github.com/version-fox/vfox"
 distfiles="https://github.com/version-fox/vfox/releases/download/v${version}/vfox_${version}_linux_x86_64.deb"
-checksum=8fe3cdb5bae72a6157db84f738da80a2602ff77a971d54fb1b5d23b26823b08d
+checksum=7cca1751ac73067d90ea216928874e822c31df333e0d05c28a37a55c8fac0985
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
