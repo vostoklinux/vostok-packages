@@ -1,0 +1,61 @@
+# Template file for 'nomachine-player'
+pkgname=nomachine-player
+version=9.7.3
+revision=2
+_pkgrel=1
+_artifact=nomachine
+archs="x86_64 aarch64"
+create_wrksrc=yes
+hostmakedepends="tar"
+short_desc="Remote desktop player for NoMachine/NX servers"
+maintainer="Artem Kabanov <oloreas@gmail.com>"
+license="custom:Proprietary"
+homepage="https://www.nomachine.com/"
+distfiles="https://download.nomachine.com/download/${version%.*}/Linux/${_artifact}_${version}_${_pkgrel}_x86_64.tar.gz"
+checksum=f6eacd99f64aaa08b4e3527bc46260e27fc637ffbcf5e73ad7fa3dc0f0847a2d
+repository=nonfree
+restricted=yes
+nopie=yes
+nostrip=yes
+noshlibprovides=yes
+
+# This package only installs the NoMachine client (nxplayer). The full
+# product is a self-installing bundle that also sets up a server, a
+# dedicated system user and its own service management, none of which is
+# packaged here. The setuid nxfsm helpers are required for client-side
+# FUSE mounts and retain the permissions applied by the upstream installer.
+
+case "$XBPS_TARGET_MACHINE" in
+aarch64*)
+	distfiles="https://download.nomachine.com/download/${version%.*}/Arm/${_artifact}_${version}_${_pkgrel}_aarch64.tar.gz"
+	checksum=5a499d03ba1737bc94dd20b447ee0f8ad3e27bfff1436cfa504c6f04ff8957dc
+	;;
+esac
+
+do_build() {
+	tar xf NX/etc/NX/server/packages/nxplayer.tar.gz
+	tar xf NX/etc/NX/server/packages/nxrunner.tar.gz
+	# only used by the server-side web client, pulls in an unbundled
+	# libjsoncpp.so that isn't needed by nxplayer
+	rm -f NX/lib/libnxnws.so
+}
+
+do_install() {
+	vmkdir usr/lib/nomachine
+	vcopy NX/bin usr/lib/nomachine
+	vcopy NX/lib usr/lib/nomachine
+	# ships UI graphics (icons, logo, background), keyboard maps, locales
+	vcopy NX/share usr/lib/nomachine
+
+	# Some bundled components, including libnxfs, use absolute /usr/NX
+	# paths to find helper programs such as bin/nxfsm.
+	ln -s lib/nomachine "${DESTDIR}/usr/NX"
+	chmod 4555 "${DESTDIR}/usr/lib/nomachine/bin/nxfsm" \
+		"${DESTDIR}/usr/lib/nomachine/bin/nxfsm-legacy"
+
+	vbin ${FILESDIR}/nxplayer
+	vinstall ${FILESDIR}/nomachine.desktop 644 usr/share/applications
+	vinstall NX/share/images/tray-linux-22x22.png 644 usr/share/pixmaps nomachine.png
+
+	vlicense ${FILESDIR}/DISTRIBUTION-DETAILS
+}
