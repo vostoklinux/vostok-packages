@@ -1,9 +1,9 @@
 # Template file for 'nomachine-player'
 pkgname=nomachine-player
-version=9.7.3
-revision=2
+version=10.0.60
+revision=1
 _pkgrel=1
-_artifact=nomachine
+_artifact=nomachine-personal-edition
 archs="x86_64 aarch64"
 create_wrksrc=yes
 hostmakedepends="tar"
@@ -12,7 +12,7 @@ maintainer="Artem Kabanov <oloreas@gmail.com>"
 license="custom:Proprietary"
 homepage="https://www.nomachine.com/"
 distfiles="https://download.nomachine.com/download/${version%.*}/Linux/${_artifact}_${version}_${_pkgrel}_x86_64.tar.gz"
-checksum=f6eacd99f64aaa08b4e3527bc46260e27fc637ffbcf5e73ad7fa3dc0f0847a2d
+checksum=0528d60a68bf5b3ffff323b86a3d8a9e919e0a4343d804ac13b9e15b4a410102
 repository=nonfree
 restricted=yes
 nopie=yes
@@ -28,7 +28,7 @@ noshlibprovides=yes
 case "$XBPS_TARGET_MACHINE" in
 aarch64*)
 	distfiles="https://download.nomachine.com/download/${version%.*}/Arm/${_artifact}_${version}_${_pkgrel}_aarch64.tar.gz"
-	checksum=5a499d03ba1737bc94dd20b447ee0f8ad3e27bfff1436cfa504c6f04ff8957dc
+	checksum=c24ecabe045af98e14ffa73c13b8a83f3d6334f7ea14e589cb0ac870ab238977
 	;;
 esac
 
