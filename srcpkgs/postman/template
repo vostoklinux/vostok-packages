@@ -1,6 +1,6 @@
 # Template file for 'postman'
 pkgname=postman
-version=12.18.3
+version=12.26.5
 revision=1
 archs="x86_64"
 wrksrc="postman-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="custom:Postman"
 homepage="https://www.postman.com/"
 distfiles="https://dl.pstmn.io/download/latest/linux64>postman-linux-x64.tar.gz"
-checksum=f075f76107711c7a7b4557440919c68933b14da9f438d7e6f67e8e744d2998a4
+checksum=55367d87a1653c9aa452f18e9974692d6e3dcc7634ed0f84dc75c4797aa5243d
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
