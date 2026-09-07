@@ -1,0 +1,22 @@
+# Template file for 'antigravity-cli'
+pkgname=antigravity-cli
+version=1.1.27.5211191891591168
+revision=1
+archs="x86_64"
+wrksrc="antigravity-cli-${version}"
+short_desc="Google's agentic development platform (CLI companion)"
+maintainer="cybarchitect <cybarchitect@gmail.com>"
+license="custom:proprietary"
+homepage="https://antigravity.google/product/antigravity-cli"
+depends="glibc"
+_upstream_version="1.1.27-5211191891591168"
+distfiles="https://storage.googleapis.com/antigravity-public/antigravity-cli/${_upstream_version}/linux-x64/cli_linux_x64.tar.gz"
+checksum=f874d4f6b8a73c2df660f580f25fb656fcb6e64adbfd746e6692e837fd9a20be
+nostrip=yes
+
+do_install() {
+    vbin antigravity usr/bin/antigravity
+    vmkdir usr/bin
+    ln -sf antigravity "${DESTDIR}/usr/bin/agy"
+    vlicense ${FILESDIR}/LICENSE
+}
