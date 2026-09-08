@@ -1,6 +1,6 @@
 # Template file for 'happ'
 pkgname=happ
-version=4.1.3
+version=4.2.1
 revision=1
 archs="x86_64"
 wrksrc="happ-${version}"
@@ -10,7 +10,7 @@ maintainer="Artem Kabanov <oloreas@gmail.com>"
 license="custom:Freeware"
 homepage="https://happ.su"
 distfiles="https://github.com/Happ-proxy/happ-desktop/releases/download/${version}/Happ.linux.x64.deb"
-checksum=32e543ec794bc365e609b4d4f758cf52bb313f063b97babb82899c209e9af022
+checksum=bc8bc0bd61f8fd96e5c58117ced85cdb0adc3c28a703e7965ecdff108954ae75
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
