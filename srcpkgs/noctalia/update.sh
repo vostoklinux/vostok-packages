@@ -86,6 +86,5 @@ sed -i "s/^version=.*/version=${NEW_VERSION}/" "${TEMPLATE}"
 sed -i "s/^_tag=.*/_tag=${NEW_TAG}/" "${TEMPLATE}"
 sed -i "s/^checksum=.*/checksum=${CHECKSUM}/" "${TEMPLATE}"
 sed -i "s/^revision=.*/revision=1/" "${TEMPLATE}"
-
 echo "Done: ${NEW_VERSION} (${CHECKSUM:0:16}...)"
 echo "WARNING: Verify build dependencies haven't changed."
