@@ -52,6 +52,7 @@ latest_version=${raw_aur_version//_/.}
 
 latest_upstream_version=${raw_aur_version//_/-}
 
+
 echo "Latest version: ${latest_version} (upstream ${latest_upstream_version})"
 
 if [[ ${latest_version} == "${current_version}" ]]; then
