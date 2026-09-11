@@ -1,5 +1,5 @@
 # Template file for 'akira-noctalia'
-pkgname=noctalia
+pkgname=akira-noctalia
 version=5.1.0
 revision=1
 _tag=5.1.0
