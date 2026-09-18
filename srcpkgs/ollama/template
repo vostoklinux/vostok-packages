@@ -1,6 +1,6 @@
 # Template file for 'ollama'
 pkgname=ollama
-version=0.34.0
+version=0.34.2
 revision=1
 archs="x86_64"
 wrksrc="ollama-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://ollama.com/"
 distfiles="https://github.com/ollama/ollama/releases/download/v${version}/ollama-linux-amd64.tar.zst"
-checksum=cf95886728959aa09910bb34de5cca1cc5a8f68003b5597197d3f2c2d57c0804
+checksum=e155b83589986d2c581fdbf1381ea3ebdb16549883679cd5a0627f7cdc05b12b
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
