@@ -1,6 +1,6 @@
 # Template file for 'heroic'
 pkgname=heroic
-version=2.22.2
+version=2.22.3
 revision=1
 archs="x86_64"
 wrksrc="heroic-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://heroicgameslauncher.com/"
 distfiles="https://github.com/Heroic-Games-Launcher/HeroicGamesLauncher/releases/download/v${version}/Heroic-${version}-linux-amd64.deb"
-checksum=7524871e7ec3466085e75594d0ecc901b21fb8193434e58fd2fc6ae44732043a
+checksum=f89eed7e0eb900fbe3051edfedbe7532db14328241cbf8c1fb766462dfc0b849
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
