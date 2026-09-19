@@ -1,6 +1,6 @@
 # Template file for 'zen-browser'
 pkgname=zen-browser
-version=1.22.1
+version=1.22.2
 revision=1
 archs="x86_64"
 wrksrc="zen"
@@ -9,7 +9,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MPL-2.0"
 homepage="https://github.com/zen-browser/desktop"
 distfiles="https://github.com/zen-browser/desktop/releases/download/${version}b/zen.linux-x86_64.tar.xz"
-checksum=19d392340ac8afbfdae393259bfb9c4ba393844c77c7eee3fdbd858cd26028ae
+checksum=163823cf56b068e81bb8a48d93c9dbda3993f54f03f8d37e684e380bfc11b892
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
