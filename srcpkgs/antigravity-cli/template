@@ -1,6 +1,6 @@
 # Template file for 'antigravity-cli'
 pkgname=antigravity-cli
-version=1.2.6.5912685477494784
+version=1.2.7.6731160148115456
 revision=1
 archs="x86_64"
 wrksrc="antigravity-cli-${version}"
@@ -9,9 +9,9 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="custom:proprietary"
 homepage="https://antigravity.google/product/antigravity-cli"
 depends="glibc"
-_upstream_version=1.2.6-5912685477494784
+_upstream_version=1.2.7-6731160148115456
 distfiles="https://storage.googleapis.com/antigravity-public/antigravity-cli/${_upstream_version}/linux-x64/cli_linux_x64.tar.gz"
-checksum=3d4973187c4c074e70894068053eeef1b7dfa9c0a16bfe9c3b81954de0d2cc5c
+checksum=e410dd56d8c213ef12643d3ff5eaaab57a17e05bbf72e9415322f23879fc4a18
 nostrip=yes
 
 do_install() {
