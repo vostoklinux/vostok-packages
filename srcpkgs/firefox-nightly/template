@@ -1,6 +1,6 @@
 # Template file for 'firefox-nightly'
 pkgname=firefox-nightly
-version=158.0a1
+version=159.0a1
 revision=1
 archs="x86_64"
 wrksrc="firefox"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MPL-2.0"
 homepage="https://www.mozilla.org/firefox/channel/desktop/#nightly"
 distfiles="https://download.mozilla.org/?product=firefox-nightly-latest&os=linux64&lang=en-US"
-checksum=b2f4ec8d74749a02ec10e93d76f83eaf0fdb2ad53a34b62409e67fee7c2a3d71
+checksum=b3014b45327e986710fe009c5192927a45e2434a53a982ff82be952cb819692a
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
