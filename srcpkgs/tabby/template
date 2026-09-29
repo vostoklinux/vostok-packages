@@ -1,6 +1,6 @@
 # Template file for 'tabby'
 pkgname=tabby
-version=1.0.235
+version=1.0.237
 revision=1
 archs="x86_64"
 wrksrc="tabby-${version}"
@@ -9,7 +9,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://tabby.sh/"
 distfiles="https://github.com/Eugeny/tabby/releases/download/v${version}/tabby-${version}-linux-x64.deb"
-checksum=eccdc34d6d17ef864d59bba1cd04d7ed4a0c27b102bdcd1ede9bdab2d693e91a
+checksum=9b6a440bf513536b99de959be485a064414203220307d687d77a1f1cb9ba92f2
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
