@@ -1,8 +1,8 @@
 # Template file for 'akira-noctalia'
 pkgname=akira-noctalia
-version=5.1.0
+version=5.2.0
 revision=1
-_tag=5.1.0
+_tag=5.2.0
 wrksrc="noctalia-${_tag}"
 build_style=meson
 hostmakedepends="pkg-config scdoc cmake"
@@ -18,7 +18,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://github.com/noctalia-dev/noctalia"
 distfiles="https://github.com/noctalia-dev/noctalia/archive/refs/tags/v${_tag}.tar.gz"
-checksum=fcf37d99ecb6093b38df8f0d6a18012f518895cd8d3934fd16164a7d0b7b3062
+checksum=b1080bcb19c9ee7836153464d99021f34d1e3564f4bf4a26331a2af21234ddf8
 
 post_install() {
     vlicense LICENSE
