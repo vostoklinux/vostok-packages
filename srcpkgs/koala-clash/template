@@ -1,6 +1,6 @@
 # Template file for 'koala-clash'
 pkgname=koala-clash
-version=1.4.1
+version=1.5.0
 revision=1
 archs="x86_64"
 wrksrc="koala-clash-${version}"
@@ -9,7 +9,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="custom:Proprietary"
 homepage="https://github.com/coolcoala/koala-clash"
 distfiles="https://github.com/coolcoala/koala-clash/releases/download/${version}/Koala.Clash_x86_64.rpm"
-checksum=e26d1351254d746e59dacb145f2752e4b47c15fa86f4018a0d2eeed19275dfa9
+checksum=417b9ae07b970b34ab572c04028463d006f3fe8dfb55d4ca5707930abe5afa67
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
