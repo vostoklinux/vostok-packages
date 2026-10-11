@@ -1,6 +1,6 @@
 # Template file for 'tg-ws-proxy'
 pkgname=tg-ws-proxy
-version=1.10.4
+version=1.11.1
 revision=1
 archs="x86_64"
 wrksrc="tg-ws-proxy-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://github.com/Flowseal/tg-ws-proxy"
 distfiles="https://github.com/Flowseal/tg-ws-proxy/releases/download/v${version}/TgWsProxy_linux_amd64.deb"
-checksum=56d8793e046dd99a6332d24156c393bb233b6080a2897385420e8cb8ec5fea8e
+checksum=f990b7cd254f613601570da3bbe51c1da4d45d1a0d64b726d5efc1bc5e36e5ab
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
