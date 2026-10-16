@@ -1,6 +1,6 @@
 # Template file for 'protonmail-bridge'
 pkgname=protonmail-bridge
-version=3.26.0
+version=3.27.1
 revision=1
 archs="x86_64"
 wrksrc="protonmail-bridge-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://proton.me/mail/bridge"
 distfiles="https://github.com/ProtonMail/proton-bridge/releases/download/v${version}/protonmail-bridge_${version}-1_amd64.deb"
-checksum=c076872522ce2f0facd0e64764d7d588b3a1ed213ff3acd25386b51e8a1f02e8
+checksum=d69eab5674335a41428bf77bde6a9f85667867e2083205625a710f6948e54d86
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
