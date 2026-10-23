@@ -1,6 +1,6 @@
 # Template file for 'cryptomator'
 pkgname=cryptomator
-version=1.19.3
+version=1.19.4
 revision=1
 archs="x86_64"
 wrksrc="cryptomator-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://cryptomator.org/"
 distfiles="https://github.com/cryptomator/cryptomator/releases/download/${version}/cryptomator_${version}-0ppa1_amd64.deb"
-checksum=26e5dd69b6f40fca85e96823172aa31c05474b7282914ac73677f056ceae814f
+checksum=6092d2c417c3735eab9b7e882c756fe1984de35994bc05f446373854cfe36a02
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
