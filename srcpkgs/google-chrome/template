@@ -1,6 +1,6 @@
 # Template file for 'google-chrome'
 pkgname=google-chrome
-version=153.0.8010.52
+version=156.0.8078.73
 revision=1
 archs="x86_64"
 wrksrc="google-chrome-${version}"
@@ -9,7 +9,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="custom:chrome"
 homepage="https://www.google.com/chrome"
 distfiles="https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${version}-1_amd64.deb"
-checksum=29e0e4b5af01213915ffdb7f4e49a11956dc5fc591165c85af8688dcdff907ac
+checksum=fd19c6895dad77f4d7f712c2d9f0d5eb682f4a6e7ff22b1bd0d40d03710d288c
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
