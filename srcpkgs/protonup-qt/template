@@ -1,6 +1,6 @@
 # Template file for 'protonup-qt'
 pkgname=protonup-qt
-version=2.15.1
+version=2.16.0
 revision=1
 archs="x86_64"
 wrksrc="protonup-qt-${version}"
@@ -11,7 +11,7 @@ license="GPL-3.0-only"
 homepage="https://github.com/DavidoTek/ProtonUp-Qt"
 distfiles="https://github.com/DavidoTek/ProtonUp-Qt/releases/download/v${version}/ProtonUp-Qt-${version}-x86_64.AppImage>protonup-qt-${version}.AppImage
  https://raw.githubusercontent.com/DavidoTek/ProtonUp-Qt/v${version}/LICENSE>LICENSE-${version}"
-checksum="fd78efb1ffa0907a525784462494b9b42938f9fd7c019f3eaea3b8faf837e8c1
+checksum="862a717502f0b9601f23e849a4b4dfe3d69aed7e7ca262cf1bdc4a553f8de7ec
  605e9047a563c5c8396ffb18232aa4304ec56586aee537c45064c6fb425e44ad"
 
 # The AppImage ships a private Python/Qt runtime under /opt. Stripping it or
