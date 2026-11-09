@@ -1,6 +1,6 @@
 # Template file for 'simplex-desktop'
 pkgname=simplex-desktop
-version=7.0.2
+version=7.1.2
 revision=1
 archs="x86_64"
 wrksrc="simplex-desktop-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="AGPL-3.0-or-later"
 homepage="https://simplex.chat/"
 distfiles="https://github.com/simplex-chat/simplex-chat/releases/download/v${version}/simplex-desktop-ubuntu-22_04-x86_64.deb"
-checksum=6f3f4644eb573f02f1454c61434ade52b15420b571938851e5f3717a6ac3b428
+checksum=4db7f96c557b87a560a3d4cb719e45f48d2afd6541b45e31d9cb29200dff078f
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
