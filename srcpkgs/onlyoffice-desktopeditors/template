@@ -1,6 +1,6 @@
 # Template file for 'onlyoffice-desktopeditors'
 pkgname=onlyoffice-desktopeditors
-version=9.4.0
+version=10.0.0
 revision=1
 archs="x86_64"
 wrksrc="onlyoffice-desktopeditors-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="AGPL-3.0-or-later"
 homepage="https://www.onlyoffice.com/"
 distfiles="https://github.com/ONLYOFFICE/DesktopEditors/releases/download/v${version}/onlyoffice-desktopeditors_amd64.deb"
-checksum=4271434e81be42b1559fd989d24bf6d413482f278dc6a5e328202a4fc1a18649
+checksum=2190edb4022a2ac2f6eee0f78815520f0e4ece1e8a1097c645a6f9b225c8b59c
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
