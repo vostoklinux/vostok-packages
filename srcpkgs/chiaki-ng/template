@@ -1,6 +1,6 @@
 # Template file for 'chiaki-ng'
 pkgname=chiaki-ng
-version=1.10.0
+version=1.10.1
 revision=1
 archs="x86_64"
 wrksrc="chiaki-ng-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://github.com/streetpea/chiaki-ng"
 distfiles="https://github.com/streetpea/chiaki-ng/releases/download/v${version}/chiaki-ng.AppImage_x86_64"
-checksum=cac42c21a19a111f2f0729bb9eef7d3878c6d2a4f06e017d383aff2aba719fd3
+checksum=060a39ad0a3ab6948e7ed280e07532ecfc63a9c5fb806cdeaf2a9bf6c73741d6
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
