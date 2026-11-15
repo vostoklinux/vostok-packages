@@ -1,6 +1,6 @@
 # Template file for 'rustdesk'
 pkgname=rustdesk
-version=1.4.9
+version=1.5.3
 revision=1
 archs="x86_64"
 wrksrc="rustdesk-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="AGPL-3.0-or-later"
 homepage="https://rustdesk.com/"
 distfiles="https://github.com/rustdesk/rustdesk/releases/download/${version}/rustdesk-${version}-x86_64.deb"
-checksum=7244ba47c40e804172044bfbe659467c54ce46554c98e78c8c0406f1d612fda3
+checksum=81096d2f65fd43352540c351bca15bb0712a2a6f9efa4c95e9fff25cb97b3b81
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
