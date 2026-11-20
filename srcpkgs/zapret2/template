@@ -1,6 +1,6 @@
 # Template file for 'zapret2'
 pkgname=zapret2
-version=1.0.5.2
+version=1.0.7
 revision=1
 build_style=gnu-makefile
 makedepends="LuaJIT-devel libcap-devel zlib-devel libnetfilter_queue-devel"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://github.com/bol-van/zapret2"
 distfiles="https://github.com/bol-van/zapret2/archive/refs/tags/v${version}.tar.gz"
-checksum=af61d5b80e173505ded3c79664a2f1ed11d748c4f177af46152da444edfe5fa5
+checksum=7ecae682965701aad2e5adead3bcbb62c7846425f3666eb2fd6ec3df29b1d632
 
 do_prepare() {
     cd ipset
