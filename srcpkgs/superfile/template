@@ -1,6 +1,6 @@
 # Template file for 'superfile'
 pkgname=superfile
-version=1.6.0
+version=1.6.1
 revision=1
 archs="x86_64"
 wrksrc="superfile-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="MIT"
 homepage="https://github.com/yorukot/superfile"
 distfiles="https://github.com/yorukot/superfile/releases/download/v${version}/superfile-linux-v${version}-amd64.tar.gz"
-checksum=d45b0e95072629a6aa7983a84eedca9cd7a98861e67ef91be1415496e3dda309
+checksum=2ab6872fee8fb2d6d120503f964cc693cf5ce328afedbe3988729593870c570e
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
