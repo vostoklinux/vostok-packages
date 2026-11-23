@@ -1,6 +1,6 @@
 # Template file for 'losslesscut'
 pkgname=losslesscut
-version=3.69.0
+version=3.70.2
 revision=1
 archs="x86_64"
 wrksrc="LosslessCut-linux-x64"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-2.0-or-later"
 homepage="https://github.com/mifi/lossless-cut"
 distfiles="https://github.com/mifi/lossless-cut/releases/download/v${version}/LosslessCut-linux-x64.tar.bz2"
-checksum=cd69d7dda64b2978cead468c56703c1d58077e7a9c2379948a5d08816726a2e5
+checksum=6a5d36f92197a9c2af5cb9ff02d6bb5256ebec935950733f31a8ad02b47a2286
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
