@@ -1,6 +1,6 @@
 # Template file for 'hiddify'
 pkgname=hiddify
-version=4.1.1
+version=5.9.15
 revision=1
 archs="x86_64"
 hostmakedepends="tar xz zstd"
@@ -11,7 +11,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="https://hiddify.com"
 distfiles="https://github.com/hiddify/hiddify-app/releases/download/v${version}/Hiddify-Debian-x64.deb"
-checksum=e622abd15f7d4410c5655f3fdcd0fa9300944666fa40ac22761f06f93020f10e
+checksum=f90762994b274e0b51c871739f4b6bc8ea7cda3139f897efc49e101fc5c00d77
 nopie=yes
 noverifyrdeps=yes
 disable_shlib_provides=yes
