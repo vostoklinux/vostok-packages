@@ -1,6 +1,6 @@
 # Template file for 'darkly'
 pkgname=darkly
-version=0.5.39
+version=0.5.48
 revision=1
 wrksrc="Darkly-${version}"
 build_style=cmake
@@ -20,4 +20,4 @@ maintainer="Artem Kabanov <oloreas@gmail.com>"
 license="GPL-2.0-or-later"
 homepage="https://github.com/Bali10050/Darkly"
 distfiles="https://github.com/Bali10050/Darkly/archive/refs/tags/v${version}.tar.gz"
-checksum=5fed786f78ac3a6153e99920e722c981348c01fc781fb511371f6bfedee0f0c2
+checksum=5b0a7c29f0b44a808865eadd7aef280094045af7b4d287bc9b19edb58c989e9e
