@@ -1,6 +1,6 @@
 # Template file for 'espflash'
 pkgname=espflash
-version=4.6.0
+version=4.7.0
 revision=1
 archs="x86_64"
 wrksrc="espflash-${version}"
@@ -10,7 +10,7 @@ maintainer="cybarchitect <cybarchitect@gmail.com>"
 license="GPL-2.0-or-later"
 homepage="https://github.com/esp-rs/espflash"
 distfiles="https://github.com/esp-rs/espflash/releases/download/v${version}/espflash-x86_64-unknown-linux-gnu.zip"
-checksum=c4fcfa32ddc3155608f003a230e6f3c184eff9641ec9cfa8eb54f1b515d403e7
+checksum=8ab3bafeb212ccb1d7a9c422936b9bc86f8b00fe2731053ed8ab875c8d2f0c4d
 nostrip=yes
 noshlibs=yes
 noverifyrdeps=yes
